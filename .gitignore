@@ -1,0 +1,8 @@
+.idea/
+build/
+.gradle/
+example.json
+gradlew
+gradlew.bat
+gradle/
+src/test/resources/settings.data

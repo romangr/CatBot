@@ -1,0 +1,18 @@
+group 'GRI10'
+version '2.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '+'
+    compile 'org.springframework:spring-web:4.3.3.RELEASE'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '+'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:+'
+    compile 'com.fasterxml.jackson.core:jackson-databind:+'
+}
