@@ -1,5 +1,9 @@
 import Model.Bot;
+import Model.Chat;
+import Model.Message;
+import Model.MessageToSend;
 import Model.Update;
+import Model.User;
 
 import java.util.List;
 
@@ -9,4 +13,5 @@ import java.util.List;
 public interface LolBot extends Bot {
     Bot getMe();
     List<Update> getUpdates();
+    Message sendMessage(MessageToSend messageToSend);
 }

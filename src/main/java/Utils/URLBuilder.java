@@ -43,6 +43,7 @@ public class URLBuilder {
                 .append(parameter)
                 .append("=")
                 .append(value.toString());
+        parametersDefined = true;
         return this;
     }
 

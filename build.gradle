@@ -9,6 +9,16 @@ repositories {
     mavenCentral()
 }
 
+jar {
+    manifest {
+        attributes 'Main-Class': 'Runner'
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '+'
     compile 'org.springframework:spring-web:4.3.3.RELEASE'

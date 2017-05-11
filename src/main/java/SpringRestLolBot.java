@@ -1,7 +1,12 @@
+import CatFinder.CatFinder;
 import JsonEntities.GetMeResponse;
 import JsonEntities.GetUpdatesResponse;
 import Model.Bot;
+import Model.Chat;
+import Model.Message;
+import Model.MessageToSend;
 import Model.Update;
+import Model.User;
 import Utils.URLBuilder;
 import org.springframework.web.client.RestTemplate;
 
@@ -10,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Properties;
 
 /**
@@ -17,10 +23,12 @@ import java.util.Properties;
  */
 public class SpringRestLolBot implements LolBot {
 
-    private String REQUEST_URL;
+    private static final String REQUEST_URL_PROPERTY_NAME = "REQUEST_URL";
+    private static final String CAT_API_KEY_PROPERTY_NAME = "CAT_API_KEY";
     private static final String GET_UPDATES_METHOD = "getUpdates";
     private static final String GET_ME_METHOD = "getMe";
     private static final String OFFSET_PARAMETER = "offset";
+    private String REQUEST_URL;
     private Bot me;
 
     private RestTemplate restTemplate = new RestTemplate();
@@ -38,9 +46,11 @@ public class SpringRestLolBot implements LolBot {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        REQUEST_URL = Optional.ofNullable(properties.getProperty("REQUEST_URL"))
-                            .orElseThrow(RuntimeException::new);
+        REQUEST_URL = Optional.ofNullable(properties.getProperty(REQUEST_URL_PROPERTY_NAME))
+                .orElseThrow(RuntimeException::new);
         me = updateMe();
+        Optional.ofNullable(properties.getProperty(CAT_API_KEY_PROPERTY_NAME))
+                .ifPresent(CatFinder::setCatApiKey);
     }
 
     public Bot getMe() {
@@ -66,14 +76,24 @@ public class SpringRestLolBot implements LolBot {
                         .withParameter(OFFSET_PARAMETER, currentUpdateOffset)
                         .build(),
                 GetUpdatesResponse.class
-                );
+        );
         if (!updatesResponse.isOk())
             throw new RuntimeException("Cant't get updates!");
         List<Update> updates = updatesResponse.getUpdates();
         if (!updates.isEmpty()) {
-            currentUpdateOffset = updates.get(updates.size() - 1).getId() + 1;
+            int maxUpdateId = updates.stream().mapToInt(Update::getId)
+                    .max().getAsInt();
+            currentUpdateOffset = maxUpdateId + 1;
         }
         return updates;
+    }
+
+    @Override
+    public Message sendMessage(MessageToSend messageToSend) {
+        String url = new URLBuilder().withHost(REQUEST_URL)
+                .withPath("sendMessage")
+                .build();
+        return restTemplate.postForObject(url, messageToSend, Message.class);
     }
 
     @Override
