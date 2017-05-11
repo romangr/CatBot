@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,9 +19,8 @@ import java.util.regex.Pattern;
  */
 public class CatFinder {
 
-    static {
+    private static final Logger LOGGER = Logger.getLogger(CatFinder.class.getName());
 
-    }
     private static String URL = new URLBuilder()
             .withHost("http://thecatapi.com")
             .withPath("api/images/get")
@@ -91,7 +91,7 @@ public class CatFinder {
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         } catch (Exception e) {
-            System.out.println(e.getClass() + " " + e.getMessage());
+            LOGGER.warning(e.getClass() + " " + e.getMessage());
             return CatFinder.getCat();
         }
     }

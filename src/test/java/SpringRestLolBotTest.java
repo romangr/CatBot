@@ -5,6 +5,7 @@ import Model.Message;
 import Model.MessageToSend;
 import Model.Update;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -30,18 +31,18 @@ public class SpringRestLolBotTest {
         Assert.assertThat(me.getUsername(), is("GritenLolBot"));
     }
 
-    @Test
-    public void getUpdates() throws Exception {
-        List<Update> updates = lolBot.getUpdates();
-        System.out.println(updates);
-        List<Update> updates1 = lolBot.getUpdates();
-        Assert.assertThat(updates1.isEmpty(), is(true));
-    }
+//    @Test
+//    public void getUpdates() throws Exception {
+//        List<Update> updates = lolBot.getUpdates();
+//        System.out.println(updates);
+//        List<Update> updates1 = lolBot.getUpdates();
+//        Assert.assertThat(updates1.isEmpty(), is(true));
+//    }
 
-    @Test
-    public void sendMessage() throws Exception {
-        MessageToSend messageToSend = new MessageToSend(CHAT, TEXT);
-        Message message = lolBot.sendMessage(messageToSend);
-        Assert.assertThat(message.getText(), is(TEXT));
-    }
+//    @Test
+//    public void sendMessage() throws Exception {
+//        MessageToSend messageToSend = new MessageToSend(CHAT, TEXT);
+//        Message message = lolBot.sendMessage(messageToSend);
+//        Assert.assertThat(message.getText(), is(TEXT));
+//    }
 }
