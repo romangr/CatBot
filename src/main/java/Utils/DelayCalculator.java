@@ -12,7 +12,7 @@ public class DelayCalculator {
         ZonedDateTime zonedNow = ZonedDateTime.now();
         ZonedDateTime zonedNext18 = zonedNow.withHour(oClock).withMinute(0).withSecond(0);
         if (zonedNow.compareTo(zonedNext18) > 0) {
-            zonedNext18.plusDays(1);
+            zonedNext18 = zonedNext18.plusDays(1);
         }
         return Duration.between(zonedNow, zonedNext18);
     }
