@@ -4,8 +4,11 @@ import Model.MessageToSend;
 import Model.Update;
 import Subscription.SubscribersRepository;
 import Utils.DelayCalculator;
+import Utils.MessageFromFileReader;
 import org.springframework.web.client.ResourceAccessException;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.Date;
@@ -38,6 +41,8 @@ public class Runner {
     private static final String YOU_ARE_ALREADY_SUBSCRIBED_MESSAGE = "You have already subscribed!";
     private static final String MESSAGE_TO_UNSUBSCRIBED_ONE = "You have unsubscribed!";
     private static final String YOU_ARE_NOT_A_SUBSCRIBER_MESSAGE = "You are not a subscriber yet!";
+    private static final Path MESSAGE_TO_SUBSCRIBERS_FILE = Paths.get("message_to_subscribers.txt");
+    private static final int TIME_OCLOCK_TO_SEND_MESSAGE_TO_SUBSCRIBERS = 20;
 
     private static LolBot bot; //= new SpringRestLolBot(Paths.get("src\\test\\resources\\settings.data"));
     private static final SubscribersRepository subscribersRepository =
@@ -49,25 +54,41 @@ public class Runner {
             LOGGER.warning(e.getClass() + " " + e.getMessage());
         }
     };
-    private static Runnable sendCatsToSubscribers = new Runnable() {
+    private static Runnable sendMessageToSubscribers = new Runnable() {
         @Override
         public void run() {
-            String catUrl = CatFinder.getCat().getUrl();
+            String message = null;
+            boolean areGreetingsNeeded = true;
+            if (Files.exists(MESSAGE_TO_SUBSCRIBERS_FILE)) {
+                try {
+                    message = new MessageFromFileReader(MESSAGE_TO_SUBSCRIBERS_FILE, true).read();
+                    areGreetingsNeeded = false;
+                } catch (RuntimeException e) {
+                    LOGGER.warning("Exception during reading message to subscribers from file");
+                }
+            }
+            if (message == null) {
+                message = CatFinder.getCat().getUrl();
+            }
 
             for (Chat chat : subscribersRepository.getAllSubscribers()) {
-                final StringBuilder messageToSubscriber = new StringBuilder().append("Your daily cat");
-                Stream.of(chat.getTitle(), chat.getFirstName(), chat.getLastName(), chat.getUsername())
-                        .filter(Objects::nonNull)
-                        .findFirst()
-                        .ifPresent(identifier -> {
-                                    messageToSubscriber.append(", ")
-                                            .append(identifier)
-                                            .append("!");
-                                }
-                        );
-                messageToSubscriber.append("\n")
-                        .append(catUrl);
-                bot.sendMessage(new MessageToSend(chat, messageToSubscriber.toString()));
+                if (areGreetingsNeeded) {
+                    final StringBuilder messageToSubscriber = new StringBuilder().append("Your daily cat");
+                    Stream.of(chat.getTitle(), chat.getFirstName(), chat.getLastName(), chat.getUsername())
+                            .filter(Objects::nonNull)
+                            .findFirst()
+                            .ifPresent(identifier -> {
+                                        messageToSubscriber.append(", ")
+                                                .append(identifier)
+                                                .append("!");
+                                    }
+                            );
+                    messageToSubscriber.append("\n")
+                            .append(message);
+                    bot.sendMessage(new MessageToSend(chat, messageToSubscriber.toString()));
+                } else {
+                    bot.sendMessage(new MessageToSend(chat, message));
+                }
             }
             LOGGER.info(String.format("Cat has been sent to %d subscribers",
                     subscribersRepository.getSubscribersCount()));
@@ -88,9 +109,10 @@ public class Runner {
         scheduledExecutorService.scheduleAtFixedRate(() -> LOGGER.info("All systems are fine!"),
                 1, 1, TimeUnit.HOURS);
 
-        Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(20);
+        Duration delay =
+                DelayCalculator.calculateDelayToRunAtParticularTime(TIME_OCLOCK_TO_SEND_MESSAGE_TO_SUBSCRIBERS);
         LOGGER.info(String.format("Next sending to subscribers in %d minutes", delay.getSeconds() / 60));
-        scheduledExecutorService.scheduleAtFixedRate(sendCatsToSubscribers, delay.getSeconds(),
+        scheduledExecutorService.scheduleAtFixedRate(sendMessageToSubscribers, delay.getSeconds(),
                 DelayCalculator.getSecondsFromHours(24), TimeUnit.SECONDS);
     }
 
