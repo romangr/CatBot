@@ -14,4 +14,7 @@ public interface LolBot extends Bot {
     Bot getMe();
     List<Update> getUpdates();
     Message sendMessage(MessageToSend messageToSend);
+
+    void start();
+    void processUpdates();
 }

@@ -1,7 +1,6 @@
 package Subscription;
 
 import Model.Chat;
-import org.hamcrest.CoreMatchers;
 import org.junit.After;
 import org.junit.Test;
 
