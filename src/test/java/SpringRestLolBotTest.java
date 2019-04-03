@@ -1,48 +1,59 @@
-import JsonEntities.GetMeResponse;
-import Model.Bot;
-import Model.Chat;
-import Model.Message;
-import Model.MessageToSend;
-import Model.Update;
-import org.junit.Assert;
-import org.junit.Ignore;
+import ru.romangr.lolbot.telegram.model.Bot;
+import ru.romangr.lolbot.telegram.model.Chat;
+import ru.romangr.lolbot.telegram.model.MessageToSend;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
+import ru.romangr.lolbot.SpringRestLolBot;
+import ru.romangr.lolbot.SpringRestLolBotFactory;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.nio.file.Paths;
-import java.util.List;
+import ru.romangr.lolbot.telegram.dto.SendMessageResponse;
 
+import static org.apache.commons.lang3.StringUtils.substringAfter;
+import static org.apache.commons.lang3.StringUtils.substringBefore;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Roman 27.10.2016.
  */
 public class SpringRestLolBotTest {
 
-    public static final String TEXT = "text";
-    public static final int CHAT_ID = 48354307;
-    private static final Chat CHAT = new Chat(CHAT_ID);
-    private SpringRestLolBot lolBot = new SpringRestLolBot(Paths.get("src\\test\\resources\\settings.data"));
+  private static final String TEXT = "test message";
+  private static final int CHAT_ID = 48354307;
+  private static final Chat CHAT = new Chat(CHAT_ID);
+  private static final Path PROPERTY_FILE = Paths.get("src/test/resources/settings.data");
+  private static final Properties PROPERTIES = new Properties();
+  private SpringRestLolBot lolBot =
+      SpringRestLolBotFactory.newBot(PROPERTY_FILE);
 
-    @Test
-    public void getMe() throws Exception {
-        Bot me = lolBot.getMe();
-        Assert.assertThat(me.getFirstName(), is("GRI10"));
-        Assert.assertThat(me.getId(), is(102395457));
-        Assert.assertThat(me.getUsername(), is("GritenLolBot"));
-    }
+  @BeforeClass
+  public static void setUp() throws Exception {
+    PROPERTIES.load(Files.newInputStream(PROPERTY_FILE));
+  }
 
-//    @Test
-//    public void getUpdates() throws Exception {
-//        List<Update> updates = lolBot.getUpdates();
-//        System.out.println(updates);
-//        List<Update> updates1 = lolBot.getUpdates();
-//        Assert.assertThat(updates1.isEmpty(), is(true));
-//    }
+  @Test
+  public void getMe() throws Exception {
+    String requestUrl = PROPERTIES.getProperty("REQUEST_URL");
+    String botId = substringBefore(
+        substringAfter(requestUrl, "https://api.telegram.org/bot"), ":");
 
-//    @Test
-//    public void sendMessage() throws Exception {
-//        MessageToSend messageToSend = new MessageToSend(CHAT, TEXT);
-//        Message message = lolBot.sendMessage(messageToSend);
-//        Assert.assertThat(message.getText(), is(TEXT));
-//    }
+    Bot me = lolBot.getMe();
+
+    assertThat(me.getId(), is(Integer.valueOf(botId)));
+  }
+
+  @Test
+  public void sendMessage() throws Exception {
+    MessageToSend messageToSend = new MessageToSend(CHAT, TEXT);
+
+    SendMessageResponse message = lolBot.sendMessage(messageToSend);
+
+    assertThat(message.isOk(), is(true));
+    assertThat(message.getResult().getText(), is(TEXT));
+  }
 }
