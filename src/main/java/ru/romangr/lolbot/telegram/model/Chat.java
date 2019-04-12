@@ -1,12 +1,18 @@
 package ru.romangr.lolbot.telegram.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 import java.io.Serializable;
 
 /**
  * Roman 27.10.2016.
  */
+@Data
+@AllArgsConstructor
+@Builder
+@Setter(AccessLevel.PACKAGE)
+@EqualsAndHashCode(of = "id")
 public class Chat implements Serializable {
     private int id;
     private String title;
@@ -23,52 +29,4 @@ public class Chat implements Serializable {
         this.id = id;
     }
 
-    public Chat() {
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    @Override
-    public String toString() {
-        return "Chat{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", firstName='" + firstName + '\'' +
-                ", lastName='" + lastName + '\'' +
-                ", username='" + username + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Chat chat = (Chat) o;
-
-        return id == chat.id;
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
-    }
 }

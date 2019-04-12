@@ -1,15 +1,16 @@
 package ru.romangr.lolbot;
 
-import ru.romangr.lolbot.telegram.model.Update;
-import ru.romangr.lolbot.subscription.SubscribersService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.romangr.lolbot.telegram.TelegramRequestExecutor;
-import ru.romangr.lolbot.utils.DelayCalculator;
+import org.springframework.util.CollectionUtils;
 import ru.romangr.exceptional.Exceptional;
+import ru.romangr.lolbot.handler.UpdatesHandler;
+import ru.romangr.lolbot.subscription.SubscribersService;
+import ru.romangr.lolbot.telegram.TelegramRequestExecutor;
+import ru.romangr.lolbot.telegram.model.Update;
+import ru.romangr.lolbot.utils.DelayCalculator;
 
 import java.time.Duration;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -40,17 +41,11 @@ public class SpringRestLolBot implements RestBot {
     }
 
     private void processUpdates(List<Update> updates) {
-        if (updates.isEmpty()) {
+        if (CollectionUtils.isEmpty(updates)) {
             return;
         }
-        StringBuilder logString = new StringBuilder();
-        logString.append(new Date()).append(": ").append(updates.size()).append(" updates received from: ");
-        boolean commandsReceived = false;
         for (Update update : updates) {
-            commandsReceived = updatesHandler.handleUpdate(logString, commandsReceived, update);
-        }
-        if (commandsReceived) {
-            log.info(logString.toString());
+            updatesHandler.handleUpdate(update);
         }
     }
 
@@ -74,11 +69,11 @@ public class SpringRestLolBot implements RestBot {
 
     private Exceptional<List<Update>> getUpdates() {
         return requestExecutor.getUpdates(currentUpdateOffset)
-                .map(updates -> {
-                    updates.stream().mapToInt(Update::getId).max()
-                            .ifPresent(maxUpdateId -> currentUpdateOffset = maxUpdateId + 1);
-                    return updates;
-                });
+                .ifValue(updates -> updates.stream()
+                        .mapToInt(Update::getId)
+                        .max()
+                        .ifPresent(maxUpdateId -> currentUpdateOffset = maxUpdateId + 1)
+                );
     }
 
     private void sendMessageToSubscribers() {

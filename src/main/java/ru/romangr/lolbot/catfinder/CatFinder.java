@@ -24,26 +24,18 @@ public class CatFinder {
 
     private final RestTemplate restTemplate;
     private final String url;
-    private final String apiKey;
+
+    public CatFinder(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+        this.url = prepareUrlWithoutApiKey().build();
+    }
 
     public CatFinder(RestTemplate restTemplate, String apiKey) {
         this.restTemplate = restTemplate;
-        this.apiKey = apiKey;
-        this.url = new URLBuilder()
-                .withHost("http://thecatapi.com")
-                .withPath("api/images/get")
-                .withParameter("format", "html")
+        this.url = prepareUrlWithoutApiKey()
+                .withParameter("api_key", apiKey)
                 .build();
     }
-
-//    public void setCatApiKey(String apiKey) {
-//        URL = new URLBuilder()
-//                .withHost("http://thecatapi.com")
-//                .withPath("api/images/get")
-//                .withParameter("api_key", apiKey)
-//                .withParameter("format", "html")
-//                .build();
-//    }
 
     public Cat getCat() {
         try {
@@ -73,4 +65,10 @@ public class CatFinder {
         }
     }
 
+    private URLBuilder prepareUrlWithoutApiKey() {
+        return new URLBuilder()
+                .withHost("http://api.thecatapi.com")
+                .withPath("api/images/get")
+                .withParameter("format", "html");
+    }
 }

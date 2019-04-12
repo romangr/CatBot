@@ -1,12 +1,14 @@
 package ru.romangr.lolbot.subscription;
 
-import ru.romangr.lolbot.telegram.model.Chat;
-import lolbot.telegram.dto.BotCommandExecutor;
-import ru.romangr.lolbot.catfinder.CatFinder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.romangr.lolbot.catfinder.CatFinder;
+import ru.romangr.lolbot.telegram.TelegramActionExecutor;
 import ru.romangr.lolbot.telegram.TelegramRequestExecutor;
+import ru.romangr.lolbot.telegram.model.Chat;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
@@ -16,9 +18,11 @@ import java.util.stream.Stream;
 @RequiredArgsConstructor
 public class SubscribersService {
 
+    private static final Path MESSAGE_TO_SUBSCRIBERS_FILE = Paths.get("message_to_subscribers.txt");
+
     private final SubscribersRepository subscribersRepository;
     private final TelegramRequestExecutor requestExecutor;
-    private final BotCommandExecutor commandExecutor;
+    private final TelegramActionExecutor actionExecutor;
     private final Queue<String> messagesToSubscribers = new LinkedList<>();
     private final CatFinder catFinder;
 
@@ -59,11 +63,11 @@ public class SubscribersService {
                     messageToSubscriber.append(", ").append(identifier).append("!");
                 });
                 messageToSubscriber.append("\n").append(message);
-                commandExecutor.sendMessageSafely(chat, messageToSubscriber.toString())
+                actionExecutor.sendMessageSafely(chat, messageToSubscriber.toString())
                         .ifException(e -> log.warn("sending result to " + chat, e));
 
             } else {
-                commandExecutor.sendMessageSafely(chat, message)
+                actionExecutor.sendMessageSafely(chat, message)
                         .ifException(e -> log.warn("sending result to " + chat, e));
             }
         }
