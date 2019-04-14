@@ -1,7 +1,7 @@
+package ru.romangr.lolbot;
+
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.exceptional.Exceptional;
-import ru.romangr.lolbot.RestBot;
-import ru.romangr.lolbot.SpringRestLolBotFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

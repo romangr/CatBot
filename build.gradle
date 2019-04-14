@@ -18,11 +18,11 @@ repositories {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'Runner'
+        attributes 'Main-Class': 'ru.romangr.lolbot.Runner'
     }
 
     from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
 
