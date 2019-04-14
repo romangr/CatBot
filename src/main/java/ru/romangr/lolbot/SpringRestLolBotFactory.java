@@ -1,6 +1,6 @@
 package ru.romangr.lolbot;
 
-import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
 import ru.romangr.exceptional.Exceptional;
 import ru.romangr.lolbot.catfinder.CatFinder;
@@ -12,22 +12,20 @@ import ru.romangr.lolbot.telegram.TelegramActionExecutor;
 import ru.romangr.lolbot.telegram.TelegramRequestExecutor;
 import ru.romangr.lolbot.utils.PropertiesResolver;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 
 /**
  * Roman 23.09.2017.
  */
+@Slf4j
 public class SpringRestLolBotFactory {
 
-    public static Exceptional<RestBot> newBot(Path propertiesFile) {
-        return Exceptional.getExceptional(() -> getProperties(propertiesFile))
+    public static Exceptional<RestBot> newBot(Map<String, String> properties) {
+        return Exceptional.exceptional(properties)
                 .map(PropertiesResolver::new)
                 .safelyMap(SpringRestLolBotFactory::initialize);
-
     }
 
     private static RestBot initialize(PropertiesResolver resolver) {
@@ -59,12 +57,5 @@ public class SpringRestLolBotFactory {
                 requestExecutor,
                 actionExecutor
         );
-    }
-
-    @SneakyThrows
-    private static Properties getProperties(Path propertiesFile) {
-        Properties properties = new Properties();
-        properties.load(Files.newInputStream(propertiesFile));
-        return properties;
     }
 }
