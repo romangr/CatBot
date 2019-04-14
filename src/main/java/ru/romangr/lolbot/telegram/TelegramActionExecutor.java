@@ -1,31 +1,20 @@
 package ru.romangr.lolbot.telegram;
 
-import ru.romangr.lolbot.telegram.model.Chat;
-import ru.romangr.lolbot.telegram.model.Message;
-import ru.romangr.lolbot.telegram.model.MessageToSend;
-import ru.romangr.lolbot.telegram.dto.SendMessageResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.client.RestTemplate;
-import ru.romangr.lolbot.utils.URLBuilder;
-import ru.romangr.exceptional.Exceptional;
+import lombok.extern.slf4j.Slf4j;
+import ru.romangr.lolbot.handler.action.TelegramAction;
 
+import java.util.List;
+
+@Slf4j
 @RequiredArgsConstructor
 public class TelegramActionExecutor {
 
-    private final RestTemplate restTemplate;
-    private final String requestUrl;
-
-    public SendMessageResponse sendMessage(MessageToSend messageToSend) {
-        String url = new URLBuilder().withHost(requestUrl).withPath("sendMessage").build();
-        return restTemplate.postForObject(url, messageToSend, SendMessageResponse.class);
-    }
-
-    public Exceptional<Message> sendMessageSafely(Chat chat, String message) {
-        return Exceptional.getExceptional(() -> this.sendMessage(chat, message));
-    }
-
-    public Message sendMessage(Chat chat, String text) {
-        return this.sendMessage(new MessageToSend(chat, text)).getResult();
+    public void execute(List<TelegramAction> actions) {
+        actions.stream()
+                .map(TelegramAction::execute)
+                .forEach(exceptional -> exceptional
+                        .ifException(e -> log.warn("Exception during action execution", e)));
     }
 
 }

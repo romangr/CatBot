@@ -2,10 +2,13 @@ package ru.romangr.lolbot.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.romangr.lolbot.handler.action.TelegramAction;
+import ru.romangr.lolbot.handler.action.TelegramActionFactory;
 import ru.romangr.lolbot.subscription.SubscribersService;
-import ru.romangr.lolbot.telegram.TelegramActionExecutor;
 import ru.romangr.lolbot.telegram.model.Chat;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -13,16 +16,21 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class SendMessageToSubscribersCommandHandler extends StaticCommandHandler {
 
-    private final TelegramActionExecutor actionExecutor;
+    private final TelegramActionFactory actionFactory;
     private final SubscribersService subscribersService;
     private final Optional<Long> adminChatId;
 
     @Override
-    protected void handleCommand(Chat chat, String messageText) {
+    protected List<TelegramAction> handleCommand(Chat chat, String messageText) {
         if (isMessageFromAdmin(chat)) {
-            subscribersService.sendMessageToSubscribers();
+            var exceptional = subscribersService.sendMessageToSubscribers()
+                    .ifException(e -> log.warn("Exception during sending message to subscribers", e));
+            // TODO: use `getOrDefault(...)`
+            return exceptional.isValuePresent() ? exceptional.getValue() : Collections.emptyList();
         } else {
-            this.actionExecutor.sendMessage(chat, "No permission to execute");
+            TelegramAction action
+                    = actionFactory.newSendMessageAction(chat, "No permission to execute");
+            return List.of(action);
         }
     }
 

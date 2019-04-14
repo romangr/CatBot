@@ -2,16 +2,17 @@ package ru.romangr.lolbot.subscription;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import ru.romangr.exceptional.Exceptional;
 import ru.romangr.lolbot.catfinder.CatFinder;
-import ru.romangr.lolbot.telegram.TelegramActionExecutor;
+import ru.romangr.lolbot.catfinder.Model.Cat;
+import ru.romangr.lolbot.handler.action.TelegramAction;
+import ru.romangr.lolbot.handler.action.TelegramActionFactory;
 import ru.romangr.lolbot.telegram.TelegramRequestExecutor;
 import ru.romangr.lolbot.telegram.model.Chat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Queue;
+import java.util.*;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -19,14 +20,15 @@ import java.util.stream.Stream;
 public class SubscribersService {
 
     private static final Path MESSAGE_TO_SUBSCRIBERS_FILE = Paths.get("message_to_subscribers.txt");
+    private static final String ISSUES_DURING_SENDING_MESSAGE = "Can't send result to subscribers now, will send it later";
 
     private final SubscribersRepository subscribersRepository;
     private final TelegramRequestExecutor requestExecutor;
-    private final TelegramActionExecutor actionExecutor;
     private final Queue<String> messagesToSubscribers = new LinkedList<>();
     private final CatFinder catFinder;
+    private final TelegramActionFactory actionFactory;
 
-    public boolean sendMessageToSubscribers() {
+    public Exceptional<List<TelegramAction>> sendMessageToSubscribers() {
         String message = null;
         boolean areGreetingsNeeded = true;
         // if (Files.exists(MESSAGE_TO_SUBSCRIBERS_FILE)) {
@@ -40,8 +42,10 @@ public class SubscribersService {
         // }
 
         if (!requestExecutor.isConnectedToInternet()) {
-            log.warn("Can't send result to subscribers now, will send it later");
-            return true;
+            log.warn(ISSUES_DURING_SENDING_MESSAGE);
+            return Exceptional.exceptional(
+                    new RuntimeException(ISSUES_DURING_SENDING_MESSAGE)
+            );
         }
 
         if (!messagesToSubscribers.isEmpty()) {
@@ -52,9 +56,16 @@ public class SubscribersService {
         }
 
         if (message == null) {
-            message = catFinder.getCat().getUrl();
+            Exceptional<String> catUrl = catFinder.getCat()
+                    .ifException(e -> log.warn("Exception getting cat", e))
+                    .map(Cat::getUrl);
+            if (!catUrl.isValuePresent()) {
+                return catUrl.map(s -> List.of());
+            }
+            message = catUrl.getValue();
         }
 
+        List<TelegramAction> actions = new ArrayList<>(subscribersRepository.getSubscribersCount());
         for (Chat chat : subscribersRepository.getAllSubscribers()) {
             if (areGreetingsNeeded) {
                 final StringBuilder messageToSubscriber = new StringBuilder().append("Your daily cat");
@@ -63,16 +74,15 @@ public class SubscribersService {
                     messageToSubscriber.append(", ").append(identifier).append("!");
                 });
                 messageToSubscriber.append("\n").append(message);
-                actionExecutor.sendMessageSafely(chat, messageToSubscriber.toString())
-                        .ifException(e -> log.warn("sending result to " + chat, e));
-
+                TelegramAction action = actionFactory.newSendMessageAction(chat, messageToSubscriber.toString());
+                actions.add(action);
             } else {
-                actionExecutor.sendMessageSafely(chat, message)
-                        .ifException(e -> log.warn("sending result to " + chat, e));
+                TelegramAction action = actionFactory.newSendMessageAction(chat, message);
+                actions.add(action);
             }
         }
         log.info(String.format("Cat has been sent to %d subscribers", subscribersRepository.getSubscribersCount()));
-        return false;
+        return Exceptional.exceptional(actions);
     }
 
     public int getSubscribersCount() {

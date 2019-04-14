@@ -1,6 +1,7 @@
 package ru.romangr.lolbot.telegram.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.*;
 
 import java.io.Serializable;
@@ -13,20 +14,22 @@ import java.io.Serializable;
 @Builder
 @Setter(AccessLevel.PACKAGE)
 @EqualsAndHashCode(of = "id")
+@JsonDeserialize(builder = Chat.ChatBuilder.class)
 public class Chat implements Serializable {
     private int id;
     private String title;
-    @JsonProperty("first_name")
+
     private String firstName;
 
-    @JsonProperty("last_name")
     private String lastName;
 
-    @JsonProperty("username")
     private String username;
 
     public Chat(int id) {
         this.id = id;
     }
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class ChatBuilder {}
 
 }

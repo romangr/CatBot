@@ -1,9 +1,8 @@
 plugins {
     id "io.spring.dependency-management" version "1.0.5.RELEASE"
-    id 'com.google.cloud.tools.jib' version '1.0.2'
 }
 
-group 'GRI10'
+group 'ru.romangr'
 version '2.0-SNAPSHOT'
 
 apply plugin: 'java'
@@ -27,10 +26,6 @@ jar {
     }
 }
 
-ext {
-    jUnitVersion = "4.12"
-}
-
 dependencyManagement {
     imports {
         mavenBom 'org.springframework.boot:spring-boot-dependencies:2.1.0.RELEASE'
@@ -41,33 +36,25 @@ test {
     useJUnitPlatform()
 }
 
-jib {
-    from {
-        image = 'openjdk:alpine'
-    }
-    to {
-        image = 'lolbot'
-        tags = ['latest']
-    }
-}
-
 dependencies {
-    implementation group: 'javax.xml', name: 'jaxb-api', version: '2.1'
+    implementation('javax.xml:jaxb-api:2.1')
     implementation('org.springframework:spring-web')
     implementation('com.fasterxml.jackson.core:jackson-core')
     implementation('com.fasterxml.jackson.core:jackson-annotations')
     implementation('com.fasterxml.jackson.core:jackson-databind')
     implementation('org.apache.commons:commons-lang3')
-    implementation('com.github.romangr:exceptional:master-SNAPSHOT')
+    implementation('com.github.romangr:exceptional:4ae5ebcfe1')
     implementation('org.slf4j:slf4j-api')
-    implementation group: 'ch.qos.logback', name: 'logback-classic'
+    implementation('ch.qos.logback:logback-classic')
 
 
-    compileOnly 'org.projectlombok:lombok:1.18.6'
-    annotationProcessor 'org.projectlombok:lombok:1.18.6'
+    compileOnly('org.projectlombok:lombok:1.18.6')
+    annotationProcessor('org.projectlombok:lombok:1.18.6')
 
+    testImplementation('org.hamcrest:hamcrest-core')
     testImplementation('org.assertj:assertj-core')
+    testImplementation('org.springframework:spring-test')
     testImplementation('org.junit.jupiter:junit-jupiter:5.4.1')
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.10.0'
+    testImplementation('org.mockito:mockito-core:2.10.0')
 
 }

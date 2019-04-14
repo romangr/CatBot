@@ -6,6 +6,7 @@ import org.springframework.util.CollectionUtils;
 import ru.romangr.exceptional.Exceptional;
 import ru.romangr.lolbot.handler.UpdatesHandler;
 import ru.romangr.lolbot.subscription.SubscribersService;
+import ru.romangr.lolbot.telegram.TelegramActionExecutor;
 import ru.romangr.lolbot.telegram.TelegramRequestExecutor;
 import ru.romangr.lolbot.telegram.model.Update;
 import ru.romangr.lolbot.utils.DelayCalculator;
@@ -32,6 +33,7 @@ public class SpringRestLolBot implements RestBot {
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
     private final TelegramRequestExecutor requestExecutor;
     private int currentUpdateOffset = 0;
+    private final TelegramActionExecutor actionExecutor;
 
     private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
         updatesExceptional
@@ -77,8 +79,12 @@ public class SpringRestLolBot implements RestBot {
     }
 
     private void sendMessageToSubscribers() {
-        this.wereIssuesDuringSendingToSubscribers
-                .set(this.subscribersService.sendMessageToSubscribers());
+        this.subscribersService.sendMessageToSubscribers()
+                .ifValue(v -> {
+                    this.wereIssuesDuringSendingToSubscribers.set(false);
+                    actionExecutor.execute(v);
+                })
+                .ifException(v -> this.wereIssuesDuringSendingToSubscribers.set(true));
     }
 
 }
