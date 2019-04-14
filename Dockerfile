@@ -1,11 +1,15 @@
 FROM openjdk:11.0-slim
 
-ADD . ./app
+ADD . ./build
 
-RUN ./app/gradlew jar
+WORKDIR ./build
 
-ADD ./app/build/libs/CatBot-2.0-SNAPSHOT.jar ../app.jar
+RUN ./gradlew jar --no-daemon
 
-CMD ["rm", "-rf", "app"]
+ADD ./build/libs/CatBot-2.0-SNAPSHOT.jar ../app.jar
+
+WORKDIR ..
+
+CMD ["rm", "-rf", "build"]
 
 CMD ["java", "-jar", "app.jar"]
