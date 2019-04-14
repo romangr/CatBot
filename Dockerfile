@@ -6,7 +6,7 @@ WORKDIR ./app
 
 RUN ./gradlew jar
 
-ADD ./build/libs/CatBot-2.0-SNAPSHOT.jar ../app.jar
+RUN cp ./build/libs/CatBot-2.0-SNAPSHOT.jar ../app.jar
 
 WORKDIR ..
 
