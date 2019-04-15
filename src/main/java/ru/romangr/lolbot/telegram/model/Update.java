@@ -1,23 +1,33 @@
 package ru.romangr.lolbot.telegram.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AccessLevel;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
-import lombok.Data;
-import lombok.Setter;
+import lombok.Value;
 
 /**
  * Roman 27.10.2016.
  */
-@Data
+@Value
 @Builder
-@Setter(AccessLevel.PACKAGE)
+@JsonDeserialize(builder = Update.UpdateBuilder.class)
 public class Update {
-    @JsonProperty("update_id")
     private int id;
 
     private Message message;
 
     @JsonProperty("editedMessage")
     private Message editedMessage;
+
+    @JsonPOJOBuilder(withPrefix = "")
+    public static class UpdateBuilder {
+
+        @JsonProperty("update_id")
+        public Update.UpdateBuilder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+    }
 }
