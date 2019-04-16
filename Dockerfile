@@ -12,4 +12,6 @@ WORKDIR ..
 
 CMD ["rm", "-rf", "app"]
 
+RUN mkdir data
+
 CMD ["java", "-jar", "app.jar"]

@@ -35,8 +35,9 @@ public class SpringRestLolBotFactory {
         TelegramActionExecutor actionExecutor = new TelegramActionExecutor();
         TelegramRequestExecutor requestExecutor = new TelegramRequestExecutor(restTemplate, requestUrl);
         CatFinder catFinder = new CatFinder(restTemplate, resolver.getCatApiKey());
+        SubscribersRepository subscribersRepository = new SubscribersRepository(resolver.getSubscribersFilePath());
         SubscribersService subscribersService
-                = new SubscribersService(new SubscribersRepository(), requestExecutor, catFinder, actionFactory);
+                = new SubscribersService(subscribersRepository, requestExecutor, catFinder, actionFactory);
         Optional<Long> adminChatId = resolver.getAdminChatId();
         List<CommandHandler> handlers = List.of(
                 new StartCommandHandler(actionFactory),

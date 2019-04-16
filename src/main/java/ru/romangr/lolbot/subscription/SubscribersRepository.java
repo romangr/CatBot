@@ -29,10 +29,6 @@ public class SubscribersRepository {
       .constructCollectionType(Set.class, Chat.class);
   private Set<Chat> subscribers = new HashSet<>();
 
-  public SubscribersRepository() {
-    this(null);
-  }
-
   public SubscribersRepository(Path subscribersFile) {
     if (subscribersFile == null) {
       this.subscribersFile = DEFAULT_SUBSCRIBERS_FILE;

@@ -2,6 +2,8 @@ package ru.romangr.lolbot.utils;
 
 import lombok.RequiredArgsConstructor;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,6 +17,8 @@ public class PropertiesResolver {
     private static final String BOT_TOKEN_PROPERTY_NAME = "BOT_TOKEN";
     private static final String BOT_NAME_PROPERTY_NAME = "BOT_NAME";
     private static final int DEFAULT_UPDATES_CHECK_PERIOD = 30;
+    private static final String SUBSCRIBERS_FILE_PATH_PROPERTY_NAME = "SUBSCRIBERS_FILE_PATH";
+    private static final String DEFAULT_SUBSCRIBERS_FILE_PATH = "data/subscribers.json";
 
     private final Map<String, String> properties;
 
@@ -41,5 +45,12 @@ public class PropertiesResolver {
     public String getBotName() {
         return ofNullable(properties.get(BOT_NAME_PROPERTY_NAME))
                 .orElseThrow(() -> new RuntimeException("No bot name provided"));
+    }
+
+    public Path getSubscribersFilePath() {
+        return ofNullable(properties.get(SUBSCRIBERS_FILE_PATH_PROPERTY_NAME))
+                .or(() -> Optional.of(DEFAULT_SUBSCRIBERS_FILE_PATH))
+                .map(Paths::get)
+                .get();
     }
 }
