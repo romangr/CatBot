@@ -14,4 +14,4 @@ CMD ["rm", "-rf", "app"]
 
 RUN mkdir data
 
-CMD ["java", "-jar", "app.jar", "-Xmx50m", "-Xms15m"]
+CMD ["java", "-Xmx50m", "-Xms15m", "-jar", "app.jar"]
