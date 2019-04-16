@@ -1,5 +1,6 @@
 package ru.romangr.lolbot.telegram.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.*;
@@ -30,6 +31,20 @@ public class Chat implements Serializable {
     }
 
     @JsonPOJOBuilder(withPrefix = "")
-    public static class ChatBuilder {}
+    public static class ChatBuilder {
+
+        @JsonProperty("first_name")
+        public Chat.ChatBuilder firstName(String firstName) {
+            this.firstName = firstName;
+            return this;
+        }
+
+        @JsonProperty("last_name")
+        public Chat.ChatBuilder lastName(String lastName) {
+            this.lastName = lastName;
+            return this;
+        }
+
+    }
 
 }
