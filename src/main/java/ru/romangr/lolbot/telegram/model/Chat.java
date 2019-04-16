@@ -20,8 +20,10 @@ public class Chat implements Serializable {
     private int id;
     private String title;
 
+    @JsonProperty("first_name")
     private String firstName;
 
+    @JsonProperty("last_name")
     private String lastName;
 
     private String username;
