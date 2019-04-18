@@ -18,7 +18,7 @@ repositories {
 
 jar {
     manifest {
-        attributes 'Main-Class': 'ru.romangr.lolbot.Runner'
+        attributes 'Main-Class': 'ru.romangr.catbot.Runner'
     }
 
     from {
