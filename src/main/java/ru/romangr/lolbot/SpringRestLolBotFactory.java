@@ -15,6 +15,7 @@ import ru.romangr.lolbot.utils.PropertiesResolver;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executors;
 
 /**
  * Roman 23.09.2017.
@@ -32,7 +33,8 @@ public class SpringRestLolBotFactory {
         RestTemplate restTemplate = new RestTemplate();
         String requestUrl = resolver.getRequestUrl();
         TelegramActionFactory actionFactory = new TelegramActionFactory(restTemplate, requestUrl);
-        TelegramActionExecutor actionExecutor = new TelegramActionExecutor();
+        TelegramActionExecutor actionExecutor
+                = new TelegramActionExecutor(Executors.newSingleThreadScheduledExecutor());
         TelegramRequestExecutor requestExecutor = new TelegramRequestExecutor(restTemplate, requestUrl);
         CatFinder catFinder = new CatFinder(restTemplate, resolver.getCatApiKey());
         SubscribersRepository subscribersRepository = new SubscribersRepository(resolver.getSubscribersFilePath());
