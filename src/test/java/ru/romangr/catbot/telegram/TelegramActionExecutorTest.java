@@ -46,7 +46,7 @@ class TelegramActionExecutorTest {
         runnableHolder.get().run();
 
         assertThat(counter).hasValue(25);
-        verify(executorService).scheduleWithFixedDelay(any(), eq(30L), eq(65L), eq(TimeUnit.SECONDS));
+        verify(executorService).scheduleWithFixedDelay(any(), eq(30L), eq(2L), eq(TimeUnit.SECONDS));
     }
 
     @Test

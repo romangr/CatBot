@@ -15,11 +15,9 @@ public class TelegramActionExecutor {
     private static final int ACTIONS_TO_EXECUTE_PER_BULK = 25;
 
     private final Queue<TelegramAction> actionsQueue = new ConcurrentLinkedQueue<>();
-    private final ScheduledExecutorService executor;
 
     public TelegramActionExecutor(ScheduledExecutorService executor) {
-        this.executor = executor;
-        this.executor.scheduleWithFixedDelay(this::execute, 30, 65, TimeUnit.SECONDS);
+        executor.scheduleWithFixedDelay(this::execute, 30, 2, TimeUnit.SECONDS);
     }
 
     public void execute(List<TelegramAction> actions) {
