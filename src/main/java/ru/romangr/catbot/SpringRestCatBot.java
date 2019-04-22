@@ -3,6 +3,7 @@ package ru.romangr.catbot;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import ru.romangr.catbot.utils.PropertiesResolver;
 import ru.romangr.exceptional.Exceptional;
 import ru.romangr.catbot.handler.UpdatesHandler;
 import ru.romangr.catbot.subscription.SubscribersService;
@@ -24,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Slf4j
 @RequiredArgsConstructor
 public class SpringRestCatBot implements RestBot {
-    private static final int TIME_OCLOCK_TO_SEND_MESSAGE_TO_SUBSCRIBERS = 20;
 
     private final AtomicBoolean wereIssuesDuringSendingToSubscribers = new AtomicBoolean(false);
     private final UpdatesHandler updatesHandler;
@@ -34,6 +34,7 @@ public class SpringRestCatBot implements RestBot {
     private final TelegramRequestExecutor requestExecutor;
     private int currentUpdateOffset = 0;
     private final TelegramActionExecutor actionExecutor;
+    private final PropertiesResolver propertiesResolver;
 
     private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
         updatesExceptional
@@ -56,8 +57,8 @@ public class SpringRestCatBot implements RestBot {
         log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
         executorService.scheduleAtFixedRate(
                 () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
-        Duration delay = DelayCalculator
-                .calculateDelayToRunAtParticularTime(TIME_OCLOCK_TO_SEND_MESSAGE_TO_SUBSCRIBERS);
+        Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(
+                propertiesResolver.getTimeToSendMessageToSubscribers());
         log.info("Next sending to subscribers in {} minutes", delay.getSeconds() / 60);
         executorService.scheduleAtFixedRate(this::sendMessageToSubscribers, delay.getSeconds(),
                 DelayCalculator.getSecondsFromHours(24), TimeUnit.SECONDS);

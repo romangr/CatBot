@@ -1,5 +1,6 @@
 package ru.romangr.catbot.utils;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.time.ZonedDateTime;
 
@@ -9,7 +10,7 @@ import java.time.ZonedDateTime;
 public class DelayCalculator {
 
     public static Duration calculateDelayToRunAtParticularTime(int oClock) {
-        ZonedDateTime zonedNow = ZonedDateTime.now();
+        ZonedDateTime zonedNow = ZonedDateTime.now(Clock.systemUTC());
         ZonedDateTime zonedNext18 = zonedNow.withHour(oClock).withMinute(0).withSecond(0);
         if (zonedNow.compareTo(zonedNext18) > 0) {
             zonedNext18 = zonedNext18.plusDays(1);

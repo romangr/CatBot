@@ -1,13 +1,12 @@
 package ru.romangr.catbot.utils;
 
-import lombok.RequiredArgsConstructor;
+import static java.util.Optional.ofNullable;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Optional;
-
-import static java.util.Optional.ofNullable;
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class PropertiesResolver {
@@ -19,6 +18,9 @@ public class PropertiesResolver {
     private static final int DEFAULT_UPDATES_CHECK_PERIOD = 30;
     private static final String SUBSCRIBERS_FILE_PATH_PROPERTY_NAME = "SUBSCRIBERS_FILE_PATH";
     private static final String DEFAULT_SUBSCRIBERS_FILE_PATH = "data/subscribers.json";
+    private static final String SEND_TO_SUBSCRIBERS_TIME_PROPERTY_NAME
+        = "TIME_OCLOCK_TO_SEND_MESSAGE_TO_SUBSCRIBERS";
+    private static final int DEFAULT_TIME_TO_SEND_MESSAGE_TO_SUBSCRIBERS = 17;
 
     private final Map<String, String> properties;
 
@@ -26,6 +28,12 @@ public class PropertiesResolver {
         return ofNullable(properties.get(TELEGRAM_API_URL_PROPERTY_NAME)).flatMap(
                 apiUrl -> ofNullable(properties.get(BOT_TOKEN_PROPERTY_NAME)).map(token -> apiUrl + token))
                 .orElseThrow(() -> new RuntimeException("Request url can't be resolved!"));
+    }
+
+    public int getTimeToSendMessageToSubscribers() {
+        return ofNullable(properties.get(SEND_TO_SUBSCRIBERS_TIME_PROPERTY_NAME))
+            .map(Integer::valueOf)
+            .orElse(DEFAULT_TIME_TO_SEND_MESSAGE_TO_SUBSCRIBERS);
     }
 
     public int getUpdatesCheckPeriod() {

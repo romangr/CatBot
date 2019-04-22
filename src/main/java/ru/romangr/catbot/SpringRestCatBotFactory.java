@@ -58,7 +58,8 @@ public class SpringRestCatBotFactory {
                 subscribersService,
                 resolver.getUpdatesCheckPeriod(),
                 requestExecutor,
-                actionExecutor
+                actionExecutor,
+                resolver
         );
     }
 }
