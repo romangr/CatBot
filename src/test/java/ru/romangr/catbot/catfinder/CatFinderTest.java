@@ -5,7 +5,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.catfinder.Model.Cat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;

@@ -3,7 +3,7 @@ package ru.romangr.catbot.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.catbot.catfinder.CatFinder;
-import ru.romangr.catbot.catfinder.Model.Cat;
+import ru.romangr.catbot.catfinder.Cat;
 import ru.romangr.catbot.handler.action.TelegramAction;
 import ru.romangr.catbot.handler.action.TelegramActionFactory;
 import ru.romangr.catbot.telegram.model.Chat;

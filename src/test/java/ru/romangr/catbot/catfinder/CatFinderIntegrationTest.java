@@ -3,7 +3,6 @@ package ru.romangr.catbot.catfinder;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
 import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.catfinder.Model.Cat;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

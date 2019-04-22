@@ -43,7 +43,7 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-annotations')
     implementation('com.fasterxml.jackson.core:jackson-databind')
     implementation('org.apache.commons:commons-lang3')
-    implementation('com.github.romangr:exceptional:4ae5ebcfe1')
+    implementation('com.github.romangr:exceptional:49186515')
     implementation('org.slf4j:slf4j-api')
     implementation('ch.qos.logback:logback-classic')
 

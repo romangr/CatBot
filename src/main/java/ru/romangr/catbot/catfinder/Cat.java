@@ -1,4 +1,4 @@
-package ru.romangr.catbot.catfinder.Model;
+package ru.romangr.catbot.catfinder;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;

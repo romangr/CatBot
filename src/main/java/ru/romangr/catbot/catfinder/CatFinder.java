@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.web.client.RestTemplate;
 import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.catfinder.Model.Cat;
 import ru.romangr.catbot.utils.URLBuilder;
 
 import java.net.URI;
@@ -39,7 +38,7 @@ public class CatFinder {
     public Exceptional<Cat> getCat() {
         return Exceptional
                 .getExceptional(() -> restTemplate.exchange(requestEntity,
-                        new ParameterizedTypeReference<List<Cat>>(){}))
+                        new ParameterizedTypeReference<List<Cat>>(){}), 3)
                 .map(HttpEntity::getBody)
                 .map(list -> list.get(0));
     }
