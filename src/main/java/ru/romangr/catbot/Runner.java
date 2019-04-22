@@ -1,8 +1,6 @@
 package ru.romangr.catbot;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import ru.romangr.exceptional.Exceptional;
+import static ru.romangr.catbot.SpringRestCatBotFactory.newBot;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,16 +9,15 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-
-import static ru.romangr.catbot.SpringRestCatBotFactory.newBot;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import ru.romangr.exceptional.Exceptional;
 
 /**
  * Roman 01.04.2017.
  */
 @Slf4j
 public class Runner {
-    // todo: write good tests for bot
-
     private static final String DEFAULT_SETTING_FILE = "settings.data";
     private static final String ENABLE_ENV_SETTINGS_ENV_VAR = "CATBOT_ENV_SETTINGS";
 

@@ -29,7 +29,7 @@ public class TelegramActionExecutor {
 
   @SneakyThrows
   private void execute() {
-    log.debug("Executing a bulk of Telegram actions");
+    log.trace("Executing a bulk of Telegram actions");
     for (int i = 0; i < ACTIONS_TO_EXECUTE_PER_BULK; i++) {
       TelegramAction action = actionsQueue.poll();
       if (action == null) {
