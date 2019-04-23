@@ -16,6 +16,21 @@ repositories {
     }
 }
 
+task createCommitProperties() {
+    mkdir 'build/resources/main'
+    def buffer = new ByteArrayOutputStream()
+    buffer.withWriter("UTF-8", { writer ->
+        writer.write('GIT_REVISION=')
+    })
+    exec {
+        standardOutput = buffer
+        commandLine 'git', 'log', "--pretty=%h %ci %s", '-1'
+    }
+    new File('build/resources/main', 'build.properties').withOutputStream {stream ->
+        stream.write(buffer.toByteArray())
+    }
+}
+
 jar {
     manifest {
         attributes 'Main-Class': 'ru.romangr.catbot.Runner'
@@ -24,6 +39,8 @@ jar {
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
+
+    dependsOn createCommitProperties
 }
 
 dependencyManagement {
