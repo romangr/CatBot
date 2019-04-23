@@ -27,7 +27,10 @@ public class Runner {
   public static void main(String[] args) {
     Locale.setDefault(Locale.US);
     String gitRevision = Exceptional
-        .getExceptional(() -> getProperties(Paths.get(BUILD_INFO_PROPERTY_FILE)))
+        .exceptional(Runner.class.getClassLoader().getResource(BUILD_INFO_PROPERTY_FILE))
+        .flatMap(url -> Exceptional.getExceptional(url::toURI))
+        .safelyMap(Paths::get)
+        .map(Runner::getProperties)
         .map(map -> map.get(GIT_INFO_PROPERTY))
         .ifException(e -> log.error("Error reading build info", e))
         .getOrDefault("[UNKNOWN]");
