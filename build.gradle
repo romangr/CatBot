@@ -17,18 +17,21 @@ repositories {
 }
 
 task createCommitProperties() {
-    mkdir 'build/resources/main'
-    def buffer = new ByteArrayOutputStream()
-    buffer.withWriter("UTF-8", { writer ->
-        writer.write('GIT_REVISION=')
-    })
-    exec {
-        standardOutput = buffer
-        commandLine 'git', 'log', "--pretty=%h %ci %s", '-1'
+    doLast {
+        mkdir 'build/resources/main'
+        def buffer = new ByteArrayOutputStream()
+        buffer.withWriter("UTF-8", { writer ->
+            writer.write('GIT_REVISION=')
+        })
+        exec {
+            standardOutput = buffer
+            commandLine 'git', 'log', "--pretty=%h %ci %s", '-1'
+        }
+        new File('build/resources/main', 'build.properties').withOutputStream {stream ->
+            stream.write(buffer.toByteArray())
+        }
     }
-    new File('build/resources/main', 'build.properties').withOutputStream {stream ->
-        stream.write(buffer.toByteArray())
-    }
+    outputs.file('build/resources/main/build.properties')
 }
 
 jar {
