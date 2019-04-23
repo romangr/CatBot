@@ -2,6 +2,7 @@ package ru.romangr.catbot;
 
 import static ru.romangr.catbot.SpringRestCatBotFactory.newBot;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,19 +28,17 @@ public class Runner {
   public static void main(String[] args) {
     Locale.setDefault(Locale.US);
     String gitRevision = Exceptional
-        .exceptional(Runner.class.getClassLoader().getResource(BUILD_INFO_PROPERTY_FILE))
-        .flatMap(url -> Exceptional.getExceptional(url::toURI))
-        .safelyMap(Paths::get)
-        .map(Runner::getProperties)
-        .map(map -> map.get(GIT_INFO_PROPERTY))
+        .exceptional(Runner.class.getClassLoader().getResourceAsStream(BUILD_INFO_PROPERTY_FILE))
+        .safelyMap(Runner::getPropertiesFromStream)
+        .map(properties -> properties.getProperty(GIT_INFO_PROPERTY))
         .ifException(e -> log.error("Error reading build info", e))
         .getOrDefault("[UNKNOWN]");
     log.info("Starting bot. Build info: {}", gitRevision);
     Exceptional<RestBot> bot;
     if (args.length > 0) {
-      bot = newBot(getProperties(Paths.get(args[0])));
+      bot = newBot(getPropertiesFromFile(Paths.get(args[0])));
     } else if (Files.exists(Paths.get(DEFAULT_SETTING_FILE))) {
-      bot = newBot(getProperties(Paths.get("settings.data")));
+      bot = newBot(getPropertiesFromFile(Paths.get("settings.data")));
     } else if (System.getenv().containsKey(ENABLE_ENV_SETTINGS_ENV_VAR)) {
       bot = newBot(System.getenv());
     } else {
@@ -49,11 +48,16 @@ public class Runner {
     bot.ifValue(RestBot::start).ifException(e -> log.error("Bot initialization error", e));
   }
 
+  @SneakyThrows
+  private static Properties getPropertiesFromStream(InputStream stream) {
+    Properties properties = new Properties();
+    properties.load(stream);
+    return properties;
+  }
+
   @SuppressWarnings("unchecked")
   @SneakyThrows
-  private static Map<String, String> getProperties(Path propertiesFile) {
-    Properties properties = new Properties();
-    properties.load(Files.newInputStream(propertiesFile));
-    return (Hashtable) properties;
+  private static Map<String, String> getPropertiesFromFile(Path propertiesFile) {
+    return (Hashtable) getPropertiesFromStream(Files.newInputStream(propertiesFile));
   }
 }
