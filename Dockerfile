@@ -10,8 +10,6 @@ RUN apt-get update && \
 
 RUN ./gradlew jar
 
-RUN ls -R
-
 RUN cp ./build/libs/CatBot-2.0-SNAPSHOT.jar ../app.jar
 
 WORKDIR ..
