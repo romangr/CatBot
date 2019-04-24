@@ -23,6 +23,8 @@ public class TelegramActionExecutor {
 
   private static final int ACTIONS_TO_EXECUTE_PER_BULK = 25;
   private static final int RATE_LIMIT_AVOID_TIMEOUT_SECONDS = 10;
+  private static final int CHAT_ACTIONS_PER_MINUTE_LIMIT = 20;
+
   private final LoadingCache<Integer, AtomicInteger> chats
       = CacheBuilder.newBuilder()
       .expireAfterAccess(1, TimeUnit.MINUTES)
@@ -57,6 +59,7 @@ public class TelegramActionExecutor {
       }
       Chat chat = action.getChat();
       int chatId = chat.getId();
+      // todo: move limit detection logic to a separate class
       if (chatsToSkip.getOrDefault(chatId, false)) {
         i--;
         continue;
@@ -68,7 +71,7 @@ public class TelegramActionExecutor {
       if (executionResult == ExecutionResult.RATE_LIMIT_FAILURE) {
         log.warn("Telegram rate limit error during action execution");
         Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
-        if (chatActionsCount > 20) {
+        if (chatActionsCount > CHAT_ACTIONS_PER_MINUTE_LIMIT) {
           log.warn("Chat {} with id {} has been banned because of too many actions",
               getChatName(chat), chatId);
           chatsToSkip.put(chatId, true);
