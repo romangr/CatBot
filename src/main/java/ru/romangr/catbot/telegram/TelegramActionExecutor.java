@@ -5,14 +5,17 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.catbot.handler.action.TelegramAction;
+import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 
 @Slf4j
@@ -52,7 +55,8 @@ public class TelegramActionExecutor {
       if (action == null) {
         break;
       }
-      int chatId = action.getChat().getId();
+      Chat chat = action.getChat();
+      int chatId = chat.getId();
       if (chatsToSkip.getOrDefault(chatId, false)) {
         i--;
         continue;
@@ -62,8 +66,11 @@ public class TelegramActionExecutor {
           .ifException(e -> log.warn("Exception during action execution", e))
           .getOrDefault(ExecutionResult.FAILURE);
       if (executionResult == ExecutionResult.RATE_LIMIT_FAILURE) {
+        log.warn("Telegram rate limit error during action execution");
         Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
         if (chatActionsCount > 20) {
+          log.warn("Chat {} with id {} is banned because of too many actions", getChatName(chat),
+              chatId);
           chatsToSkip.put(chatId, true);
           break;
         }
@@ -71,5 +78,13 @@ public class TelegramActionExecutor {
         break;
       }
     }
+  }
+
+  private String getChatName(Chat chat) {
+    return Stream.of(chat.getFirstName(), chat.getLastName(), chat.getTitle(), chat.getUsername())
+        .filter(Objects::nonNull)
+        .findFirst()
+        .map(name -> "'" + name + "'")
+        .orElse("");
   }
 }
