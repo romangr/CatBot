@@ -14,7 +14,7 @@ RUN cp ./build/libs/CatBot-2.0-SNAPSHOT.jar ../app.jar
 
 WORKDIR ..
 
-CMD ["rm", "-rf", "app"]
+RUN rm -rf app
 
 RUN mkdir data
 
