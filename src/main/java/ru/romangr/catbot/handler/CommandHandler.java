@@ -1,7 +1,7 @@
 package ru.romangr.catbot.handler;
 
 import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.handler.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.telegram.model.Chat;
 
 import java.util.List;

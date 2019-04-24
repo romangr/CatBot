@@ -1,4 +1,4 @@
-package ru.romangr.catbot.handler.action;
+package ru.romangr.catbot.executor.action;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.client.RestTemplate;

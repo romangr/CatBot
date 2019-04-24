@@ -1,21 +1,29 @@
 package ru.romangr.catbot;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.client.RestTemplate;
-import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.catfinder.CatFinder;
-import ru.romangr.catbot.handler.*;
-import ru.romangr.catbot.handler.action.TelegramActionFactory;
-import ru.romangr.catbot.subscription.SubscribersRepository;
-import ru.romangr.catbot.subscription.SubscribersService;
-import ru.romangr.catbot.telegram.TelegramActionExecutor;
-import ru.romangr.catbot.telegram.TelegramRequestExecutor;
-import ru.romangr.catbot.utils.PropertiesResolver;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.client.RestTemplate;
+import ru.romangr.catbot.catfinder.CatFinder;
+import ru.romangr.catbot.executor.TelegramActionExecutor;
+import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.handler.CatCommandHandler;
+import ru.romangr.catbot.handler.CommandHandler;
+import ru.romangr.catbot.handler.HelpCommandHandler;
+import ru.romangr.catbot.handler.MessagePreprocessor;
+import ru.romangr.catbot.handler.SendMessageToSubscribersCommandHandler;
+import ru.romangr.catbot.handler.StartCommandHandler;
+import ru.romangr.catbot.handler.SubscribeCommandHandler;
+import ru.romangr.catbot.handler.UnknownCommandHandler;
+import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
+import ru.romangr.catbot.handler.UpdatesHandler;
+import ru.romangr.catbot.subscription.SubscribersRepository;
+import ru.romangr.catbot.subscription.SubscribersService;
+import ru.romangr.catbot.telegram.TelegramRequestExecutor;
+import ru.romangr.catbot.utils.PropertiesResolver;
+import ru.romangr.exceptional.Exceptional;
 
 /**
  * Roman 23.09.2017.

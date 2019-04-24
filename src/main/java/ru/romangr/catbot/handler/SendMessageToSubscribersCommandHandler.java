@@ -2,8 +2,8 @@ package ru.romangr.catbot.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import ru.romangr.catbot.handler.action.TelegramAction;
-import ru.romangr.catbot.handler.action.TelegramActionFactory;
+import ru.romangr.catbot.executor.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.subscription.SubscribersService;
 import ru.romangr.catbot.telegram.model.Chat;
 

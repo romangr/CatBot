@@ -1,4 +1,4 @@
-package ru.romangr.catbot.telegram;
+package ru.romangr.catbot.executor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
-import ru.romangr.catbot.handler.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 import ru.romangr.exceptional.Exceptional;
