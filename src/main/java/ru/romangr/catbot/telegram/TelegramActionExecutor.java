@@ -69,8 +69,8 @@ public class TelegramActionExecutor {
         log.warn("Telegram rate limit error during action execution");
         Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
         if (chatActionsCount > 20) {
-          log.warn("Chat {} with id {} is banned because of too many actions", getChatName(chat),
-              chatId);
+          log.warn("Chat {} with id {} has been banned because of too many actions",
+              getChatName(chat), chatId);
           chatsToSkip.put(chatId, true);
           break;
         }
