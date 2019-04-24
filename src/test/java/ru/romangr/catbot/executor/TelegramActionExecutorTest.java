@@ -31,6 +31,8 @@ import ru.romangr.exceptional.Exceptional;
 
 class TelegramActionExecutorTest {
 
+  private final RateLimiter rateLimiter = new RateLimiter();
+
   @Test
   void executeLessThanOneBulk() throws InterruptedException {
     ScheduledExecutorService executorService = mock(ScheduledExecutorService.class);
@@ -43,7 +45,7 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService);
+    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
     countDownLatch.await();
     ActionsToExecute actionsToExecute = new ActionsToExecute(25);
     AtomicInteger counter = actionsToExecute.getCounter();
@@ -68,7 +70,7 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService);
+    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
     countDownLatch.await();
     ActionsToExecute actionsToExecute = new ActionsToExecute(55);
     AtomicInteger counter = actionsToExecute.getCounter();
@@ -100,7 +102,7 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService);
+    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
     countDownLatch.await();
     ActionsToExecute actionsToExecute1
         = new ActionsToExecute(15, ExecutionResult.SUCCESS);
@@ -133,7 +135,7 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService);
+    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
     countDownLatch.await();
     ActionsToExecute actionsToExecute1
         = new ActionsToExecute(19, ExecutionResult.SUCCESS);
@@ -180,7 +182,7 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService);
+    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
     countDownLatch.await();
 
     ActionsToExecute actionsToExecute1 = new ActionsToExecute(35);

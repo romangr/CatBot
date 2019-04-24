@@ -52,19 +52,20 @@ public class TelegramActionExecutor {
           .ifException(e -> log.warn("Exception during action execution", e))
           .getOrDefault(ExecutionResult.FAILURE);
       if (executionResult == ExecutionResult.RATE_LIMIT_FAILURE) {
-        handleRateLimitingFailure(action, chat, chat.getId(), rateLimitResult);
+        handleRateLimitingFailure(action, rateLimitResult);
         break;
       }
     }
   }
 
-  private void handleRateLimitingFailure(TelegramAction action, Chat chat, int chatId,
-      RateLimitResult rateLimitResult) throws InterruptedException {
+  private void handleRateLimitingFailure(TelegramAction action, RateLimitResult rateLimitResult)
+      throws InterruptedException {
     log.warn("Telegram rate limit error during action execution");
     Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
+    Chat chat = action.getChat();
     if (rateLimitResult == RateLimitResult.TO_BAN) {
       log.warn("Chat {} with id {} has been banned because of too many actions",
-          getChatName(chat), chatId);
+          getChatName(chat), chat.getId());
       rateLimiter.ban(chat);
       return;
     }
