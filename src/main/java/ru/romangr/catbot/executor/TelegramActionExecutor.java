@@ -1,17 +1,13 @@
 package ru.romangr.catbot.executor;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.catbot.executor.action.TelegramAction;
@@ -19,29 +15,17 @@ import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 
 @Slf4j
+@RequiredArgsConstructor
 public class TelegramActionExecutor {
 
   private static final int ACTIONS_TO_EXECUTE_PER_BULK = 25;
   private static final int RATE_LIMIT_AVOID_TIMEOUT_SECONDS = 10;
-  private static final int CHAT_ACTIONS_PER_MINUTE_LIMIT = 20;
 
-  private final LoadingCache<Integer, AtomicInteger> chats
-      = CacheBuilder.newBuilder()
-      .expireAfterAccess(1, TimeUnit.MINUTES)
-      .maximumSize(1000)
-      .build(CacheLoader.from(key -> new AtomicInteger()));
-  private final Map<Integer, Boolean> chatsToSkip
-      = CacheBuilder.newBuilder()
-      .expireAfterAccess(1, TimeUnit.MINUTES)
-      .maximumSize(1000)
-      .build(CacheLoader.<Integer, Boolean>from(key -> {
-        throw new RuntimeException("Should not be used");
-      }))
-      .asMap();
-
+  private final RateLimiter rateLimiter;
   private final Queue<TelegramAction> actionsQueue = new ConcurrentLinkedQueue<>();
 
-  public TelegramActionExecutor(ScheduledExecutorService executor) {
+  public TelegramActionExecutor(ScheduledExecutorService executor, RateLimiter rateLimiter) {
+    this.rateLimiter = rateLimiter;
     executor.scheduleWithFixedDelay(this::execute, 30, 2, TimeUnit.SECONDS);
   }
 
@@ -58,29 +42,33 @@ public class TelegramActionExecutor {
         break;
       }
       Chat chat = action.getChat();
-      int chatId = chat.getId();
-      // todo: move limit detection logic to a separate class
-      if (chatsToSkip.getOrDefault(chatId, false)) {
+      RateLimitResult rateLimitResult = rateLimiter.check(chat);
+      if (rateLimitResult == RateLimitResult.BANNED) {
+        log.trace("Skipping action for banned user");
         i--;
         continue;
       }
-      int chatActionsCount = chats.get(chatId).getAndIncrement();
       ExecutionResult executionResult = action.execute()
           .ifException(e -> log.warn("Exception during action execution", e))
           .getOrDefault(ExecutionResult.FAILURE);
       if (executionResult == ExecutionResult.RATE_LIMIT_FAILURE) {
-        log.warn("Telegram rate limit error during action execution");
-        Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
-        if (chatActionsCount > CHAT_ACTIONS_PER_MINUTE_LIMIT) {
-          log.warn("Chat {} with id {} has been banned because of too many actions",
-              getChatName(chat), chatId);
-          chatsToSkip.put(chatId, true);
-          break;
-        }
-        actionsQueue.add(action);
+        handleRateLimitingFailure(action, chat, chat.getId(), rateLimitResult);
         break;
       }
     }
+  }
+
+  private void handleRateLimitingFailure(TelegramAction action, Chat chat, int chatId,
+      RateLimitResult rateLimitResult) throws InterruptedException {
+    log.warn("Telegram rate limit error during action execution");
+    Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
+    if (rateLimitResult == RateLimitResult.TO_BAN) {
+      log.warn("Chat {} with id {} has been banned because of too many actions",
+          getChatName(chat), chatId);
+      rateLimiter.ban(chat);
+      return;
+    }
+    actionsQueue.add(action);
   }
 
   private String getChatName(Chat chat) {

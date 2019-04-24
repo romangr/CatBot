@@ -13,6 +13,8 @@ import ru.romangr.catbot.telegram.model.Chat;
 @Slf4j
 public class RateLimiter {
 
+  private static final int CHAT_ACTIONS_PER_MINUTE_LIMIT = 20;
+
   private final LoadingCache<Integer, AtomicInteger> chats;
   private final Map<Integer, Boolean> chatsToSkip;
 
@@ -40,7 +42,7 @@ public class RateLimiter {
       incrementAndGetCounterForChat(chat);
       return RateLimitResult.BANNED;
     }
-    if (incrementAndGetCounterForChat(chat) > 20) {
+    if (incrementAndGetCounterForChat(chat) > CHAT_ACTIONS_PER_MINUTE_LIMIT) {
       return RateLimitResult.TO_BAN;
     }
     return RateLimitResult.POSITIVE;
