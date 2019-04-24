@@ -1,4 +1,4 @@
-package ru.romangr.catbot.handler.action;
+package ru.romangr.catbot.executor.action;
 
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;

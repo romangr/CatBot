@@ -3,7 +3,7 @@ package ru.romangr.catbot.handler;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import ru.romangr.catbot.handler.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramAction;
 
 import java.util.Collections;
 import java.util.List;

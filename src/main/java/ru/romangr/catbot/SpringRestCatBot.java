@@ -1,23 +1,22 @@
 package ru.romangr.catbot;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
-import ru.romangr.catbot.utils.PropertiesResolver;
-import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.handler.UpdatesHandler;
-import ru.romangr.catbot.subscription.SubscribersService;
-import ru.romangr.catbot.telegram.TelegramActionExecutor;
-import ru.romangr.catbot.telegram.TelegramRequestExecutor;
-import ru.romangr.catbot.telegram.model.Update;
-import ru.romangr.catbot.utils.DelayCalculator;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
+import ru.romangr.catbot.executor.TelegramActionExecutor;
+import ru.romangr.catbot.handler.UpdatesHandler;
+import ru.romangr.catbot.subscription.SubscribersService;
+import ru.romangr.catbot.telegram.TelegramRequestExecutor;
+import ru.romangr.catbot.telegram.model.Update;
+import ru.romangr.catbot.utils.DelayCalculator;
+import ru.romangr.catbot.utils.PropertiesResolver;
+import ru.romangr.exceptional.Exceptional;
 
 /**
  * Roman 27.10.2016.

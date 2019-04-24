@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 import ru.romangr.exceptional.Exceptional;
 import ru.romangr.catbot.catfinder.CatFinder;
 import ru.romangr.catbot.catfinder.Cat;
-import ru.romangr.catbot.handler.action.TelegramAction;
-import ru.romangr.catbot.handler.action.TelegramActionFactory;
+import ru.romangr.catbot.executor.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.telegram.model.Chat;
 
 import static org.assertj.core.api.Assertions.assertThat;

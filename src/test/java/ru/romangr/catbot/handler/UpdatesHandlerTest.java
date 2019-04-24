@@ -1,22 +1,26 @@
 package ru.romangr.catbot.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.handler.action.TelegramAction;
-import ru.romangr.catbot.telegram.TelegramActionExecutor;
+import ru.romangr.catbot.executor.TelegramActionExecutor;
+import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.Message;
 import ru.romangr.catbot.telegram.model.Update;
 import ru.romangr.catbot.telegram.model.User;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import ru.romangr.exceptional.Exceptional;
 
 class UpdatesHandlerTest {
 
