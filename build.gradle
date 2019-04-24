@@ -66,6 +66,7 @@ dependencies {
     implementation('com.github.romangr:exceptional:49186515')
     implementation('org.slf4j:slf4j-api')
     implementation('ch.qos.logback:logback-classic')
+    implementation('com.google.guava:guava:27.1-jre')
 
 
     compileOnly('org.projectlombok:lombok:1.18.6')

@@ -1,5 +1,6 @@
 package ru.romangr.catbot.handler.action;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
@@ -16,8 +17,8 @@ class SendMessageAction implements TelegramAction {
 
   private final RestTemplate restTemplate;
   private final String requestUrl;
-  private final Chat chat;
   private final String text;
+  @Getter private final Chat chat;
 
   @Override
   public Exceptional<ExecutionResult> execute() {

@@ -1,14 +1,18 @@
 package ru.romangr.catbot.telegram;
 
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import ru.romangr.catbot.handler.action.TelegramAction;
-
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import ru.romangr.catbot.handler.action.TelegramAction;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 
 @Slf4j
@@ -16,6 +20,19 @@ public class TelegramActionExecutor {
 
   private static final int ACTIONS_TO_EXECUTE_PER_BULK = 25;
   private static final int RATE_LIMIT_AVOID_TIMEOUT_SECONDS = 10;
+  private final LoadingCache<Integer, AtomicInteger> chats
+      = CacheBuilder.newBuilder()
+      .expireAfterAccess(1, TimeUnit.MINUTES)
+      .maximumSize(1000)
+      .build(CacheLoader.from(key -> new AtomicInteger()));
+  private final Map<Integer, Boolean> chatsToSkip
+      = CacheBuilder.newBuilder()
+      .expireAfterAccess(1, TimeUnit.MINUTES)
+      .maximumSize(1000)
+      .build(CacheLoader.<Integer, Boolean>from(key -> {
+        throw new RuntimeException("Should not be used");
+      }))
+      .asMap();
 
   private final Queue<TelegramAction> actionsQueue = new ConcurrentLinkedQueue<>();
 
@@ -35,12 +52,22 @@ public class TelegramActionExecutor {
       if (action == null) {
         break;
       }
+      int chatId = action.getChat().getId();
+      if (chatsToSkip.getOrDefault(chatId, false)) {
+        i--;
+        continue;
+      }
+      int chatActionsCount = chats.get(chatId).getAndIncrement();
       ExecutionResult executionResult = action.execute()
           .ifException(e -> log.warn("Exception during action execution", e))
           .getOrDefault(ExecutionResult.FAILURE);
       if (executionResult == ExecutionResult.RATE_LIMIT_FAILURE) {
-        actionsQueue.add(action);
         Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
+        if (chatActionsCount > 20) {
+          chatsToSkip.put(chatId, true);
+          break;
+        }
+        actionsQueue.add(action);
         break;
       }
     }

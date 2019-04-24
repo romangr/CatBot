@@ -7,11 +7,11 @@ import ru.romangr.catbot.telegram.model.Chat;
 @RequiredArgsConstructor
 public class TelegramActionFactory {
 
-    private final RestTemplate restTemplate;
-    private final String requestUrl;
+  private final RestTemplate restTemplate;
+  private final String requestUrl;
 
-    public TelegramAction newSendMessageAction(Chat chat, String text) {
-        return new SendMessageAction(restTemplate, requestUrl, chat, text);
-    }
+  public TelegramAction newSendMessageAction(Chat chat, String text) {
+    return new SendMessageAction(restTemplate, requestUrl, text, chat);
+  }
 
 }
