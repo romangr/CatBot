@@ -5,7 +5,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.catbot.executor.action.TelegramAction;
@@ -14,7 +13,6 @@ import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 
 @Slf4j
-@RequiredArgsConstructor
 public class TelegramActionExecutor {
 
   private static final int ACTIONS_TO_EXECUTE_PER_BULK = 25;

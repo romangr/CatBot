@@ -6,6 +6,7 @@ group 'ru.romangr'
 version '2.0-SNAPSHOT'
 
 apply plugin: 'java'
+apply plugin: 'jacoco'
 
 sourceCompatibility = 1.11
 
@@ -54,6 +55,24 @@ dependencyManagement {
 
 test {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion '0.8.2'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+        html.enabled true
+    }
+
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [])
+        })
+    }
 }
 
 dependencies {
