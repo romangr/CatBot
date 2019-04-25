@@ -28,7 +28,9 @@ task createCommitProperties() {
             standardOutput = buffer
             commandLine 'git', 'log', "--pretty=%h %ci %s", '-1'
         }
-        new File('build/resources/main', 'build.properties').withOutputStream {stream ->
+        def file = new File('build/resources/main', 'build.properties')
+        file.createNewFile()
+        file.withOutputStream { stream ->
             stream.write(buffer.toByteArray())
         }
     }
