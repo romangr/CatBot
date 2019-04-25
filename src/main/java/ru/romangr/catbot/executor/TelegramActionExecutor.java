@@ -1,12 +1,10 @@
 package ru.romangr.catbot.executor;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +40,7 @@ public class TelegramActionExecutor {
         break;
       }
       Chat chat = action.getChat();
-      RateLimitResult rateLimitResult = rateLimiter.check(chat);
-      if (rateLimitResult == RateLimitResult.BANNED) {
+      if (rateLimiter.check(chat) == RateLimitResult.BANNED) {
         log.trace("Skipping action for banned user");
         i--;
         continue;
@@ -52,31 +49,12 @@ public class TelegramActionExecutor {
           .ifException(e -> log.warn("Exception during action execution", e))
           .getOrDefault(ExecutionResult.FAILURE);
       if (executionResult == ExecutionResult.RATE_LIMIT_FAILURE) {
-        handleRateLimitingFailure(action, rateLimitResult);
+        log.warn("Telegram rate limit error during action execution");
+        Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
+        actionsQueue.add(action);
         break;
       }
     }
   }
 
-  private void handleRateLimitingFailure(TelegramAction action, RateLimitResult rateLimitResult)
-      throws InterruptedException {
-    log.warn("Telegram rate limit error during action execution");
-    Thread.sleep(RATE_LIMIT_AVOID_TIMEOUT_SECONDS * 1000);
-    Chat chat = action.getChat();
-    if (rateLimitResult == RateLimitResult.TO_BAN) {
-      log.warn("Chat {} with id {} has been banned because of too many actions",
-          getChatName(chat), chat.getId());
-      rateLimiter.ban(chat);
-      return;
-    }
-    actionsQueue.add(action);
-  }
-
-  private String getChatName(Chat chat) {
-    return Stream.of(chat.getFirstName(), chat.getLastName(), chat.getTitle(), chat.getUsername())
-        .filter(Objects::nonNull)
-        .findFirst()
-        .map(name -> "'" + name + "'")
-        .orElse("");
-  }
 }

@@ -55,7 +55,7 @@ class RateLimiterTest {
   }
 
   @Test
-  void simpleExecutionWithToBanResult() {
+  void simpleExecutionWithBanResult() {
     Chat chat = getChat(getRandomInt());
     List<RateLimitResult> checkResults =  IntStream.range(0, 21)
         .mapToObj(i -> rateLimiter.check(chat))
@@ -63,24 +63,12 @@ class RateLimiterTest {
 
     List<RateLimitResult> firstTwentyResults = checkResults.subList(0, checkResults.size() - 1);
     assertThat(firstTwentyResults).allMatch(Predicate.isEqual(RateLimitResult.POSITIVE));
-    assertThat(checkResults.get(checkResults.size() - 1)).isEqualTo(RateLimitResult.TO_BAN);
-  }
-
-  @Test
-  void simpleExecutionWithBanResult() {
-    Chat chat = getChat(getRandomInt());
-    rateLimiter.ban(chat);
-    List<RateLimitResult> checkResults =  IntStream.range(0, 25)
-        .mapToObj(i -> rateLimiter.check(chat))
-        .collect(Collectors.toList());
-
-    assertThat(checkResults).allMatch(Predicate.isEqual(RateLimitResult.BANNED));
+    assertThat(checkResults.get(checkResults.size() - 1)).isEqualTo(RateLimitResult.BANNED);
   }
 
   @Test
   void unbanAfterTimeout() throws InterruptedException {
     Chat chat = getChat(getRandomInt());
-    rateLimiter.ban(chat);
     IntStream.range(0, 25)
         .forEach(i -> rateLimiter.check(chat));
 
@@ -92,7 +80,6 @@ class RateLimiterTest {
   @Test
   void bannedAfterTimeoutIfThereWereSomeActions() throws InterruptedException {
     Chat chat = getChat(getRandomInt());
-    rateLimiter.ban(chat);
     IntStream.range(0, 25)
         .forEach(i -> rateLimiter.check(chat));
 

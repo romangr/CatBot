@@ -5,7 +5,9 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.catbot.telegram.model.Chat;
@@ -37,23 +39,27 @@ public class RateLimiter {
         .asMap();
   }
 
+  @SneakyThrows
   public RateLimitResult check(Chat chat) {
+    int actionsCount = chats.get(chat.getId()).incrementAndGet();
     if (chatsToSkip.getOrDefault(chat.getId(), false)) {
-      incrementAndGetCounterForChat(chat);
       return RateLimitResult.BANNED;
     }
-    if (incrementAndGetCounterForChat(chat) > CHAT_ACTIONS_PER_MINUTE_LIMIT) {
-      return RateLimitResult.TO_BAN;
+    if (actionsCount > CHAT_ACTIONS_PER_MINUTE_LIMIT) {
+      chatsToSkip.put(chat.getId(), true);
+      log.warn("Chat {} with id {} has been banned because of too many actions",
+          getChatName(chat), chat.getId());
+      return RateLimitResult.BANNED;
     }
     return RateLimitResult.POSITIVE;
   }
 
-  public void ban(Chat chat) {
-    chatsToSkip.put(chat.getId(), true);
+  private String getChatName(Chat chat) {
+    return Stream.of(chat.getFirstName(), chat.getLastName(), chat.getTitle(), chat.getUsername())
+        .filter(Objects::nonNull)
+        .findFirst()
+        .map(name -> "'" + name + "'")
+        .orElse("");
   }
 
-  @SneakyThrows
-  private int incrementAndGetCounterForChat(Chat chat) {
-    return chats.get(chat.getId()).incrementAndGet();
-  }
 }

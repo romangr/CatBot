@@ -185,55 +185,17 @@ class TelegramActionExecutorTest {
     TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
     countDownLatch.await();
 
-    ActionsToExecute actionsToExecute1 = new ActionsToExecute(35);
-    ActionsToExecute activeUserActions1
-        = new ActionsToExecute(15, ExecutionResult.SUCCESS, () -> 100001);
-    ActionsToExecute actionsToExecute2 = new ActionsToExecute(25);
-    ActionsToExecute activeUserActions2
-        = new ActionsToExecute(20, ExecutionResult.SUCCESS, () -> 100001);
-    ActionsToExecute activeUserActions3
-        = new ActionsToExecute(80, ExecutionResult.RATE_LIMIT_FAILURE, () -> 100001);
-    ActionsToExecute actionsToExecute3 = new ActionsToExecute(20);
-
-    List<TelegramAction> actions = new ArrayList<>(actionsToExecute1.getActions());
-    actions.addAll(activeUserActions1.getActions());
-    actions.addAll(actionsToExecute2.getActions());
-    actions.addAll(activeUserActions2.getActions());
-    actions.addAll(activeUserActions3.getActions());
-    actions.addAll(actionsToExecute3.getActions());
+    ActionsToExecute activeUserActions
+        = new ActionsToExecute(25, ExecutionResult.SUCCESS, () -> 100001);
+    List<TelegramAction> actions = new ArrayList<>(activeUserActions.getActions());
 
     actionExecutor.execute(actions);
 
     runnableHolder.get().run();
-    assertThat(actionsToExecute1.getCounter()).hasValue(25);
-    Thread.sleep(2000);
+    assertThat(activeUserActions.getCounter()).hasValue(20);
 
     runnableHolder.get().run();
-    assertThat(actionsToExecute1.getCounter()).hasValue(35);
-    assertThat(activeUserActions1.getCounter()).hasValue(15);
-    Thread.sleep(2000);
-
-    runnableHolder.get().run();
-    assertThat(actionsToExecute2.getCounter()).hasValue(25);
-    Thread.sleep(2000);
-
-    runnableHolder.get().run();
-    assertThat(activeUserActions2.getCounter()).hasValue(20);
-    assertThat(activeUserActions3.getCounter()).hasValue(1); // the first rate limited action
-    Thread.sleep(2000);
-
-    runnableHolder.get().run();
-    assertThat(activeUserActions3.getCounter())
-        .hasValue(1); // actions for this user should not be executed
-    assertThat(actionsToExecute3.getCounter()).hasValue(20);
-
-    // after timout user should be 'unbanned'
-    Thread.sleep(Duration.ofMinutes(1).toMillis());
-    ActionsToExecute activeUserActions4
-        = new ActionsToExecute(10, ExecutionResult.SUCCESS, () -> 100001);
-    actionExecutor.execute(activeUserActions4.getActions());
-    runnableHolder.get().run();
-    assertThat(activeUserActions4.getCounter()).hasValue(10);
+    assertThat(activeUserActions.getCounter()).hasValue(20);
   }
 
   private static class ActionsToExecute {
