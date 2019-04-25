@@ -44,7 +44,7 @@ public class SpringRestCatBotFactory {
     TelegramActionFactory actionFactory = new TelegramActionFactory(restTemplate, requestUrl);
     RateLimiter rateLimiter = new RateLimiter();
     TelegramActionExecutor actionExecutor = new TelegramActionExecutor(
-        Executors.newSingleThreadScheduledExecutor(), rateLimiter);
+        Executors.newSingleThreadScheduledExecutor(), rateLimiter, actionFactory);
     TelegramRequestExecutor requestExecutor = new TelegramRequestExecutor(restTemplate, requestUrl);
     CatFinder catFinder = new CatFinder(restTemplate, resolver.getCatApiKey());
     SubscribersRepository subscribersRepository = new SubscribersRepository(

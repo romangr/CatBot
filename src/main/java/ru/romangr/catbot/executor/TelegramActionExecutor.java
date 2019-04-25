@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import ru.romangr.catbot.executor.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 
@@ -18,12 +19,16 @@ public class TelegramActionExecutor {
 
   private static final int ACTIONS_TO_EXECUTE_PER_BULK = 25;
   private static final int RATE_LIMIT_AVOID_TIMEOUT_SECONDS = 10;
+  private static final String TOO_MANY_REQUESTS_MESSAGE = "You are sending too many requests";
 
   private final RateLimiter rateLimiter;
+  private final TelegramActionFactory actionFactory;
   private final Queue<TelegramAction> actionsQueue = new ConcurrentLinkedQueue<>();
 
-  public TelegramActionExecutor(ScheduledExecutorService executor, RateLimiter rateLimiter) {
+  public TelegramActionExecutor(ScheduledExecutorService executor, RateLimiter rateLimiter,
+      TelegramActionFactory actionFactory) {
     this.rateLimiter = rateLimiter;
+    this.actionFactory = actionFactory;
     executor.scheduleWithFixedDelay(this::execute, 30, 2, TimeUnit.SECONDS);
   }
 
@@ -40,8 +45,14 @@ public class TelegramActionExecutor {
         break;
       }
       Chat chat = action.getChat();
-      if (rateLimiter.check(chat) == RateLimitResult.BANNED) {
+      RateLimitResult rateLimitResult = rateLimiter.check(chat);
+      if (rateLimitResult == RateLimitResult.BANNED
+          || rateLimitResult == RateLimitResult.MADE_BANNED) {
         log.trace("Skipping action for banned user");
+        if (rateLimitResult == RateLimitResult.MADE_BANNED) {
+          actionFactory.newSendMessageAction(chat, TOO_MANY_REQUESTS_MESSAGE).execute()
+              .ifException(e -> log.warn("Exception during sending rate limit message", e));
+        }
         i--;
         continue;
       }

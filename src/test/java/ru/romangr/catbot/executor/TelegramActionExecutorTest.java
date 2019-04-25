@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.executor.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.ExecutionResult;
 import ru.romangr.exceptional.Exceptional;
@@ -45,7 +47,9 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
+    TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+    TelegramActionExecutor actionExecutor
+        = new TelegramActionExecutor(executorService, rateLimiter, actionFactory);
     countDownLatch.await();
     ActionsToExecute actionsToExecute = new ActionsToExecute(25);
     AtomicInteger counter = actionsToExecute.getCounter();
@@ -56,6 +60,7 @@ class TelegramActionExecutorTest {
 
     assertThat(counter).hasValue(25);
     verify(executorService).scheduleWithFixedDelay(any(), eq(30L), eq(2L), eq(TimeUnit.SECONDS));
+    verifyZeroInteractions(actionFactory);
   }
 
   @Test
@@ -70,7 +75,9 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
+    TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+    TelegramActionExecutor actionExecutor
+        = new TelegramActionExecutor(executorService, rateLimiter, actionFactory);
     countDownLatch.await();
     ActionsToExecute actionsToExecute = new ActionsToExecute(55);
     AtomicInteger counter = actionsToExecute.getCounter();
@@ -88,6 +95,7 @@ class TelegramActionExecutorTest {
     runnableHolder.get().run();
 
     assertThat(counter).hasValue(55);
+    verifyZeroInteractions(actionFactory);
   }
 
   @Test
@@ -102,7 +110,9 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
+    TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+    TelegramActionExecutor actionExecutor
+        = new TelegramActionExecutor(executorService, rateLimiter, actionFactory);
     countDownLatch.await();
     ActionsToExecute actionsToExecute1
         = new ActionsToExecute(15, ExecutionResult.SUCCESS);
@@ -121,6 +131,7 @@ class TelegramActionExecutorTest {
     int actionsExecuted = actionsToExecute1.getCounter().get()
         + actionsToExecute2.getCounter().get() + actionsToExecute3.getCounter().get();
     assertThat(actionsExecuted).isEqualTo(25);
+    verifyZeroInteractions(actionFactory);
   }
 
   @Test
@@ -135,7 +146,9 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
+    TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+    TelegramActionExecutor actionExecutor
+        = new TelegramActionExecutor(executorService, rateLimiter, actionFactory);
     countDownLatch.await();
     ActionsToExecute actionsToExecute1
         = new ActionsToExecute(19, ExecutionResult.SUCCESS);
@@ -168,6 +181,7 @@ class TelegramActionExecutorTest {
     int actionsExecuted = actionsToExecute1.getCounter().get()
         + rateLimitingCounter.get() + actionsToExecute3.getCounter().get();
     assertThat(actionsExecuted).isEqualTo(26);
+    verifyZeroInteractions(actionFactory);
   }
 
   @Test
@@ -182,7 +196,15 @@ class TelegramActionExecutorTest {
           countDownLatch.countDown();
           return mock(ScheduledFuture.class);
         });
-    TelegramActionExecutor actionExecutor = new TelegramActionExecutor(executorService, rateLimiter);
+    TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+    TelegramAction tooManyRequestsMessageAction = mock(TelegramAction.class);
+    given(actionFactory.newSendMessageAction(any(), any()))
+        .willReturn(tooManyRequestsMessageAction);
+    given(tooManyRequestsMessageAction.execute())
+        .willReturn(Exceptional.exceptional(ExecutionResult.SUCCESS));
+    given(tooManyRequestsMessageAction.getChat()).willReturn(getChat(100001));
+    TelegramActionExecutor actionExecutor
+        = new TelegramActionExecutor(executorService, rateLimiter, actionFactory);
     countDownLatch.await();
 
     ActionsToExecute activeUserActions
@@ -193,6 +215,7 @@ class TelegramActionExecutorTest {
 
     runnableHolder.get().run();
     assertThat(activeUserActions.getCounter()).hasValue(20);
+    verify(tooManyRequestsMessageAction).execute();
 
     runnableHolder.get().run();
     assertThat(activeUserActions.getCounter()).hasValue(20);

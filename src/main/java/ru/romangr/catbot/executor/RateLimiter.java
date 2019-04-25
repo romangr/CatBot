@@ -49,7 +49,7 @@ public class RateLimiter {
       chatsToSkip.put(chat.getId(), true);
       log.warn("Chat {} with id {} has been banned because of too many actions",
           getChatName(chat), chat.getId());
-      return RateLimitResult.BANNED;
+      return RateLimitResult.MADE_BANNED;
     }
     return RateLimitResult.POSITIVE;
   }

@@ -57,12 +57,13 @@ class RateLimiterTest {
   @Test
   void simpleExecutionWithBanResult() {
     Chat chat = getChat(getRandomInt());
-    List<RateLimitResult> checkResults =  IntStream.range(0, 21)
+    List<RateLimitResult> checkResults =  IntStream.range(0, 22)
         .mapToObj(i -> rateLimiter.check(chat))
         .collect(Collectors.toList());
 
-    List<RateLimitResult> firstTwentyResults = checkResults.subList(0, checkResults.size() - 1);
+    List<RateLimitResult> firstTwentyResults = checkResults.subList(0, checkResults.size() - 2);
     assertThat(firstTwentyResults).allMatch(Predicate.isEqual(RateLimitResult.POSITIVE));
+    assertThat(checkResults.get(checkResults.size() - 2)).isEqualTo(RateLimitResult.MADE_BANNED);
     assertThat(checkResults.get(checkResults.size() - 1)).isEqualTo(RateLimitResult.BANNED);
   }
 
