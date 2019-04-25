@@ -1,12 +1,10 @@
-FROM openjdk:11.0-slim
+FROM openjdk:13-alpine
 
 ADD . ./app
 
 WORKDIR ./app
 
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
+RUN apk update && apk upgrade && apk add --no-cache bash git openssh
 
 RUN ./gradlew jar
 
