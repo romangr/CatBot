@@ -1,10 +1,10 @@
 FROM openjdk:13-alpine
 
+RUN apk update && apk upgrade && apk add --no-cache bash git openssh
+
 ADD . ./app
 
 WORKDIR ./app
-
-RUN apk update && apk upgrade && apk add --no-cache bash git openssh
 
 RUN ./gradlew jar
 
