@@ -1,0 +1,11 @@
+language: java
+
+services:
+  - docker
+
+script:
+  - ./gradlew jar
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t catbot:latest .
+  - docker tag catbot:latest $DOCKER_USERNAME/catbot:latest
+  - docker push $DOCKER_USERNAME/catbot:latest
