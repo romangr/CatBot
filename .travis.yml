@@ -5,10 +5,18 @@ jdk:
 services:
   - docker
 
-script:
-  - set -e
-  - ./gradlew jar
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-  - docker build -t catbot:latest .
-  - docker tag catbot:latest $DOCKER_USERNAME/catbot:latest
-  - docker push $DOCKER_USERNAME/catbot:latest
+jobs:  
+  include:
+    - stage: "Tests"                # naming the Tests stage
+      name: "Unit Tests"            # names the first Tests stage job
+      script: 
+       - ./gradlew test
+       - set -e
+    - stage: "Docker image"
+      name: "Build docker image"
+      script:
+       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+       - docker build -t catbot:latest .
+       - docker tag catbot:latest $DOCKER_USERNAME/catbot:latest
+    - script: docker push $DOCKER_USERNAME/catbot:latest
+      name: "Push docker image"
