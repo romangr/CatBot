@@ -1,12 +1,14 @@
 package ru.romangr.catbot.subscription;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.telegram.model.Chat;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -16,12 +18,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 class SubscribersRepositoryTest {
 
-    private static final Path SUBSCRIBERS_TEST_FILE = Paths.get("src/test/resources/subscribers.json");
-    private SubscribersRepository repository = new SubscribersRepository(SUBSCRIBERS_TEST_FILE);
+    private Path subscribersFile;
+    private SubscribersRepository repository;
+
+    @BeforeEach
+    void setUp() throws IOException {
+        this.subscribersFile = Files.createTempFile(null, "subscribers.json");
+        try (Writer w = Files.newBufferedWriter(this.subscribersFile)) {
+            w.write("[]");
+        }
+        this.repository = new SubscribersRepository(subscribersFile);
+    }
 
     @AfterEach
     void tearDown() throws Exception {
-        Files.deleteIfExists(SUBSCRIBERS_TEST_FILE);
+        Files.deleteIfExists(subscribersFile);
     }
 
     @Test
@@ -36,7 +47,7 @@ class SubscribersRepositoryTest {
     void addSubscriber() {
         repository.addSubscriber(new Chat(1));
         repository.addSubscriber(new Chat(2));
-        SubscribersRepository repositoryAfterRestart = new SubscribersRepository(SUBSCRIBERS_TEST_FILE);
+        SubscribersRepository repositoryAfterRestart = new SubscribersRepository(subscribersFile);
         Collection<Chat> subscribers = repositoryAfterRestart.getAllSubscribers();
         assertThat(subscribers).hasSize(2);
     }
