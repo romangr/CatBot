@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.util.CollectionUtils;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.telegram.model.Chat;
@@ -145,10 +146,11 @@ class UpdatesHandlerTest {
             List.of(),
             HandlingStatus.SKIPPED
         )));
+    TelegramAction unknownHandlerAction = mock(TelegramAction.class);
     given(unknownCommandHandler.handle(any()))
         .willReturn(Exceptional.exceptional(
             new HandlingResult(
-                List.of(mock(TelegramAction.class)),
+                List.of(unknownHandlerAction),
                 HandlingStatus.HANDLED
             )
         ));
@@ -184,8 +186,15 @@ class UpdatesHandlerTest {
 
     verify(actionExecutor, times(2)).execute(actionsCaptor.capture());
     List<List<TelegramAction>> actions = actionsCaptor.getAllValues();
-    assertThat(actions)
-        .allMatch(List::isEmpty);
+    long emptyActionLists = actions.stream()
+        .filter(CollectionUtils::isEmpty)
+        .count();
+    assertThat(emptyActionLists).isEqualTo(1);
+    long notEmptyActionLists = actions.stream()
+        .filter(list -> !CollectionUtils.isEmpty(list))
+        .filter(list -> list.contains(unknownHandlerAction))
+        .count();
+    assertThat(notEmptyActionLists).isEqualTo(1);
 
     verifyNoMoreInteractions(messagePreprocessor, commandHandler1, commandHandler2,
         unknownCommandHandler, actionExecutor);
