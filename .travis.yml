@@ -13,7 +13,7 @@ jobs:
        - ./gradlew test
        - set -e
     - stage: "Docker image"
-      if: head_branch = master
+      if: branch = master AND type = push
       name: "Build & push docker image"
       script:
        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
