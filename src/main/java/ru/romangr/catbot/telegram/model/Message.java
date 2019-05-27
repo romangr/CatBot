@@ -14,13 +14,13 @@ import lombok.Value;
 @JsonDeserialize(builder = Message.MessageBuilder.class)
 public class Message {
     @JsonProperty("message_id")
-    private int id;
+    public int id;
 
-    private User from;
+    public User from;
 
-    private Chat chat;
+    public Chat chat;
 
-    private String text;
+    public String text;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class MessageBuilder {

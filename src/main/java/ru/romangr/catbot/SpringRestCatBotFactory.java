@@ -2,7 +2,6 @@ package ru.romangr.catbot;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
@@ -51,7 +50,7 @@ public class SpringRestCatBotFactory {
         resolver.getSubscribersFilePath());
     SubscribersService subscribersService
         = new SubscribersService(subscribersRepository, requestExecutor, catFinder, actionFactory);
-    Optional<Long> adminChatId = resolver.getAdminChatId();
+    var adminChatId = resolver.getAdminChatId().orElse(null);
     List<CommandHandler> handlers = List.of(
         new StartCommandHandler(actionFactory),
         new HelpCommandHandler(actionFactory),
