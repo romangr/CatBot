@@ -77,6 +77,12 @@ jacocoTestReport {
     }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 dependencies {
     implementation('javax.xml:jaxb-api:2.1')
     implementation('org.springframework:spring-web')

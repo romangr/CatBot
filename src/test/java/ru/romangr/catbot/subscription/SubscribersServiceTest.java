@@ -5,7 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -67,7 +66,7 @@ class SubscribersServiceTest {
     verifyNoMoreInteractions(actionFactory);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);
-    verify(repository, times(2)).getSubscribersCount();
+    verify(repository).getSubscribersCount();
     verify(repository).getAllSubscribers();
     verifyNoMoreInteractions(repository);
     verifyZeroInteractions(catFinder);
@@ -93,7 +92,7 @@ class SubscribersServiceTest {
     verifyNoMoreInteractions(actionFactory);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);
-    verify(repository, times(2)).getSubscribersCount();
+    verify(repository).getSubscribersCount();
     verify(repository).getAllSubscribers();
     verifyNoMoreInteractions(repository);
     verify(catFinder).getCat();
