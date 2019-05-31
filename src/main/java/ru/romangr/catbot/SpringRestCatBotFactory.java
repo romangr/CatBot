@@ -9,6 +9,7 @@ import ru.romangr.catbot.catfinder.CatFinder;
 import ru.romangr.catbot.executor.RateLimiter;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.handler.AddMessageToSubscribersCommandHandler;
 import ru.romangr.catbot.handler.CatCommandHandler;
 import ru.romangr.catbot.handler.CommandHandler;
 import ru.romangr.catbot.handler.HelpCommandHandler;
@@ -57,7 +58,8 @@ public class SpringRestCatBotFactory {
         new CatCommandHandler(actionFactory, catFinder),
         new SubscribeCommandHandler(actionFactory, subscribersService),
         new UnsubscribeCommandHandler(actionFactory, subscribersService),
-        new SendMessageToSubscribersCommandHandler(actionFactory, subscribersService, adminChatId)
+        new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId),
+        new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId)
     );
     UnknownCommandHandler unknownCommandHandler = new UnknownCommandHandler(actionFactory);
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());

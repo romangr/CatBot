@@ -6,7 +6,10 @@ import ru.romangr.catbot.executor.action.TelegramActionFactory
 import ru.romangr.catbot.telegram.TelegramRequestExecutor
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.exceptional.Exceptional
-import java.util.*
+import java.util.ArrayList
+import java.util.LinkedList
+import java.util.Objects
+import java.util.Optional
 import java.util.function.Function
 import java.util.stream.Stream
 
@@ -18,6 +21,9 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
 
     val subscribersCount: Int
         get() = subscribersRepository.subscribersCount
+
+    val messageQueueLength: Int
+        get() = messagesToSubscribers.size
 
     fun sendMessageToSubscribers(): Exceptional<List<TelegramAction>> {
         if (!requestExecutor.isConnectedToInternet) {

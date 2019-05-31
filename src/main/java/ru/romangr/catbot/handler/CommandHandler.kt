@@ -20,3 +20,7 @@ abstract class CommandHandler {
 
     protected abstract fun handleCommand(chat: Chat, messageText: String): List<TelegramAction>
 }
+
+fun isMessageNotFromAdmin(adminChatId: Long?, chat: Chat): Boolean {
+    return !(adminChatId?.equals(chat.id!!.toLong()) ?: false)
+}
