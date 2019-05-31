@@ -27,20 +27,20 @@ public class Runner {
 
   public static void main(String[] args) {
     Locale.setDefault(Locale.US);
-    String gitRevision = Exceptional
+    String buildInfo = Exceptional
         .exceptional(Runner.class.getClassLoader().getResourceAsStream(BUILD_INFO_PROPERTY_FILE))
         .safelyMap(Runner::getPropertiesFromStream)
         .map(properties -> properties.getProperty(GIT_INFO_PROPERTY))
         .ifException(e -> log.error("Error reading build info", e))
         .getOrDefault("[UNKNOWN]");
-    log.info("Starting bot. Build info: {}", gitRevision);
+    log.info("Starting bot. Build info: {}", buildInfo);
     Exceptional<RestBot> bot;
     if (args.length > 0) {
-      bot = newBot(getPropertiesFromFile(Paths.get(args[0])));
+      bot = newBot(getPropertiesFromFile(Paths.get(args[0])), buildInfo);
     } else if (Files.exists(Paths.get(DEFAULT_SETTING_FILE))) {
-      bot = newBot(getPropertiesFromFile(Paths.get("settings.data")));
+      bot = newBot(getPropertiesFromFile(Paths.get("settings.data")), buildInfo);
     } else if (System.getenv().containsKey(ENABLE_ENV_SETTINGS_ENV_VAR)) {
-      bot = newBot(System.getenv());
+      bot = newBot(System.getenv(), buildInfo);
     } else {
       log.error("Please provide settings file as an argument");
       return;

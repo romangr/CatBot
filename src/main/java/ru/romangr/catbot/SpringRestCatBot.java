@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.handler.UpdatesHandler;
 import ru.romangr.catbot.subscription.SubscribersService;
+import ru.romangr.catbot.telegram.TelegramAdminNotifier;
 import ru.romangr.catbot.telegram.TelegramRequestExecutor;
 import ru.romangr.catbot.telegram.model.Update;
 import ru.romangr.catbot.utils.DelayCalculator;
@@ -34,6 +35,7 @@ public class SpringRestCatBot implements RestBot {
     private int currentUpdateOffset = 0;
     private final TelegramActionExecutor actionExecutor;
     private final PropertiesResolver propertiesResolver;
+  private final TelegramAdminNotifier adminNotifier;
 
     private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
         updatesExceptional
@@ -54,6 +56,7 @@ public class SpringRestCatBot implements RestBot {
     @Override
     public void start() {
         log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
+      adminNotifier.botStarted();
         executorService.scheduleAtFixedRate(
                 () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
         Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(

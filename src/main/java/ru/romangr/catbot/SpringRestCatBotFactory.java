@@ -22,6 +22,7 @@ import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
 import ru.romangr.catbot.handler.UpdatesHandler;
 import ru.romangr.catbot.subscription.SubscribersRepository;
 import ru.romangr.catbot.subscription.SubscribersService;
+import ru.romangr.catbot.telegram.TelegramAdminNotifier;
 import ru.romangr.catbot.telegram.TelegramRequestExecutor;
 import ru.romangr.catbot.utils.PropertiesResolver;
 import ru.romangr.exceptional.Exceptional;
@@ -32,9 +33,8 @@ import ru.romangr.exceptional.Exceptional;
 @Slf4j
 public class SpringRestCatBotFactory {
 
-  public static Exceptional<RestBot> newBot(Map<String, String> properties) {
-    return Exceptional.exceptional(properties)
-        .map(PropertiesResolver::new)
+  public static Exceptional<RestBot> newBot(Map<String, String> properties, String buildInfo) {
+    return Exceptional.exceptional(new PropertiesResolver(properties, buildInfo))
         .safelyMap(SpringRestCatBotFactory::initialize);
   }
 
@@ -65,13 +65,16 @@ public class SpringRestCatBotFactory {
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());
     UpdatesHandler updatesHandler
         = new UpdatesHandler(messagePreprocessor, handlers, unknownCommandHandler, actionExecutor);
+    TelegramAdminNotifier adminNotifier
+        = new TelegramAdminNotifier(actionFactory, actionExecutor, resolver, adminChatId);
     return new SpringRestCatBot(
         updatesHandler,
         subscribersService,
         resolver.getUpdatesCheckPeriod(),
         requestExecutor,
         actionExecutor,
-        resolver
+        resolver,
+        adminNotifier
     );
   }
 }

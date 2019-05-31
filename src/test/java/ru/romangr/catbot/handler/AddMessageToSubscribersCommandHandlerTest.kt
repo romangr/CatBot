@@ -2,7 +2,6 @@ package ru.romangr.catbot.handler
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.BDDMockito.given
 import org.mockito.Mockito.mock
@@ -13,14 +12,13 @@ import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
 import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.model.Chat
+import ru.romangr.catbot.test.utils.anyChat
 
 internal class AddMessageToSubscribersCommandHandlerTest {
 
     private val subscribersService: SubscribersService = mock(SubscribersService::class.java)
     private val actionFactory: TelegramActionFactory = mock(TelegramActionFactory::class.java)
     private val handler = AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, 1)
-
-    private fun anyChat() = any(Chat::class.java) ?: Chat(234234)
 
     @Test
     internal fun validArgument() {
