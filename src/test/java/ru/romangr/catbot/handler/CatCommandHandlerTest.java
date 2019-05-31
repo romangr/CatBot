@@ -1,18 +1,21 @@
 package ru.romangr.catbot.handler;
 
-import org.junit.jupiter.api.Test;
-import ru.romangr.exceptional.Exceptional;
-import ru.romangr.catbot.catfinder.CatFinder;
-import ru.romangr.catbot.catfinder.Cat;
-import ru.romangr.catbot.executor.action.TelegramAction;
-import ru.romangr.catbot.executor.action.TelegramActionFactory;
-import ru.romangr.catbot.telegram.model.Chat;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static ru.romangr.exceptional.Exceptional.exceptional;
+
+import org.junit.jupiter.api.Test;
+import ru.romangr.catbot.catfinder.Cat;
+import ru.romangr.catbot.catfinder.CatFinder;
+import ru.romangr.catbot.executor.action.TelegramAction;
+import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.telegram.model.Chat;
+import ru.romangr.exceptional.Exceptional;
 
 class CatCommandHandlerTest {
 
@@ -22,10 +25,8 @@ class CatCommandHandlerTest {
 
     @Test
     void handleCommandSuccessfully() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
-        given(catFinder.getCat()).willReturn(exceptional(Cat.builder().url("url").build()));
+        Chat chat = new Chat(1);
+        given(catFinder.getCat()).willReturn(exceptional(new Cat("url")));
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
 
@@ -43,9 +44,7 @@ class CatCommandHandlerTest {
 
     @Test
     void skipUnknownCommand() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
 
         Exceptional<HandlingResult> result = handler.handle(chat, "unknown");
 
@@ -58,11 +57,9 @@ class CatCommandHandlerTest {
 
     @Test
     void handleCommandWithException() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
         given(actionFactory.newSendMessageAction(any(), any())).willThrow(RuntimeException.class);
-        given(catFinder.getCat()).willReturn(Exceptional.exceptional(Cat.builder().url("test").build()));
+        given(catFinder.getCat()).willReturn(Exceptional.exceptional(new Cat("test")));
 
         Exceptional<HandlingResult> result = handler.handle(chat, "/cat");
 
@@ -75,9 +72,7 @@ class CatCommandHandlerTest {
 
     @Test
     void handleCommandWithGettingCatException() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
         given(catFinder.getCat()).willReturn(Exceptional.exceptional(new RuntimeException()));

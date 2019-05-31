@@ -4,21 +4,22 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Value;
 
 /**
  * Roman 27.10.2016.
  */
-@Value
+@Data
 @Builder
 @JsonDeserialize(builder = Update.UpdateBuilder.class)
 public class Update {
-    private int id;
+    public int id;
 
-    private Message message;
+    public Message message;
 
     @JsonProperty("editedMessage")
-    private Message editedMessage;
+    public Message editedMessage;
 
     @JsonPOJOBuilder(withPrefix = "")
     public static class UpdateBuilder {

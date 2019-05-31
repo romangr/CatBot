@@ -1,5 +1,6 @@
 plugins {
     id "io.spring.dependency-management" version "1.0.5.RELEASE"
+    id 'org.jetbrains.kotlin.jvm' version '1.3.31'
 }
 
 group 'ru.romangr'
@@ -50,7 +51,7 @@ jar {
 
 dependencyManagement {
     imports {
-        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.1.0.RELEASE'
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:2.1.5.RELEASE'
     }
 }
 
@@ -76,17 +77,28 @@ jacocoTestReport {
     }
 }
 
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
 dependencies {
     implementation('javax.xml:jaxb-api:2.1')
     implementation('org.springframework:spring-web')
     implementation('com.fasterxml.jackson.core:jackson-core')
     implementation('com.fasterxml.jackson.core:jackson-annotations')
     implementation('com.fasterxml.jackson.core:jackson-databind')
+    implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
     implementation('org.apache.commons:commons-lang3')
     implementation('com.github.romangr:exceptional:49186515')
     implementation('org.slf4j:slf4j-api')
     implementation('ch.qos.logback:logback-classic')
     implementation('com.google.guava:guava:27.1-jre')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.3.31"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.3.31"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.31"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.31"
 
 
     compileOnly('org.projectlombok:lombok:1.18.6')

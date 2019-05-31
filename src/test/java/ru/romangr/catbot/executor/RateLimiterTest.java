@@ -97,10 +97,9 @@ class RateLimiterTest {
   }
 
   private static Chat getChat(int id) {
-    return Chat.builder()
-        .firstName("test")
-        .id(id)
-        .build();
+    Chat chat = new Chat(id);
+    chat.setFirstName("test");
+    return chat;
   }
 
   private static int getRandomInt() {

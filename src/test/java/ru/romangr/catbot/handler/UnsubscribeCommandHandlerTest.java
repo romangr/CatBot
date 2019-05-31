@@ -1,17 +1,19 @@
 package ru.romangr.catbot.handler;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.verifyZeroInteractions;
+
 import org.junit.jupiter.api.Test;
-import ru.romangr.exceptional.Exceptional;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.subscription.SubscribersService;
 import ru.romangr.catbot.telegram.model.Chat;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
+import ru.romangr.exceptional.Exceptional;
 
 class UnsubscribeCommandHandlerTest {
 
@@ -21,9 +23,7 @@ class UnsubscribeCommandHandlerTest {
 
     @Test
     void handleCommandSuccessfullyForASubscriber() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
         given(subscribersService.deleteSubscriber(any())).willReturn(true);
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
@@ -44,9 +44,7 @@ class UnsubscribeCommandHandlerTest {
 
     @Test
     void handleCommandSuccessfullyForOneWhoIsAlreadyASubscriber() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
         given(subscribersService.deleteSubscriber(any())).willReturn(false);
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
@@ -65,9 +63,7 @@ class UnsubscribeCommandHandlerTest {
 
     @Test
     void skipUnknownCommand() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
 
         Exceptional<HandlingResult> result = handler.handle(chat, "unknown");
 
@@ -80,9 +76,7 @@ class UnsubscribeCommandHandlerTest {
 
     @Test
     void handleCommandWithException() {
-        Chat chat = Chat.builder()
-                .id(1)
-                .build();
+        Chat chat = new Chat(1);
         given(subscribersService.deleteSubscriber(any())).willThrow(RuntimeException.class);
 
         Exceptional<HandlingResult> result = handler.handle(chat, "/unsubscribe");

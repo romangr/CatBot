@@ -2,7 +2,6 @@ package ru.romangr.catbot;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.client.RestTemplate;
@@ -10,6 +9,7 @@ import ru.romangr.catbot.catfinder.CatFinder;
 import ru.romangr.catbot.executor.RateLimiter;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.handler.AddMessageToSubscribersCommandHandler;
 import ru.romangr.catbot.handler.CatCommandHandler;
 import ru.romangr.catbot.handler.CommandHandler;
 import ru.romangr.catbot.handler.HelpCommandHandler;
@@ -51,14 +51,15 @@ public class SpringRestCatBotFactory {
         resolver.getSubscribersFilePath());
     SubscribersService subscribersService
         = new SubscribersService(subscribersRepository, requestExecutor, catFinder, actionFactory);
-    Optional<Long> adminChatId = resolver.getAdminChatId();
+    var adminChatId = resolver.getAdminChatId().orElse(null);
     List<CommandHandler> handlers = List.of(
         new StartCommandHandler(actionFactory),
         new HelpCommandHandler(actionFactory),
         new CatCommandHandler(actionFactory, catFinder),
         new SubscribeCommandHandler(actionFactory, subscribersService),
         new UnsubscribeCommandHandler(actionFactory, subscribersService),
-        new SendMessageToSubscribersCommandHandler(actionFactory, subscribersService, adminChatId)
+        new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId),
+        new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId)
     );
     UnknownCommandHandler unknownCommandHandler = new UnknownCommandHandler(actionFactory);
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());
