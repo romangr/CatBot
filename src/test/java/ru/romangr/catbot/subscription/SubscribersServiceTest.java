@@ -3,6 +3,7 @@ package ru.romangr.catbot.subscription;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -16,6 +17,7 @@ import ru.romangr.catbot.catfinder.Cat;
 import ru.romangr.catbot.catfinder.CatFinder;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.telegram.TelegramAdminNotifier;
 import ru.romangr.catbot.telegram.TelegramRequestExecutor;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.exceptional.Exceptional;
@@ -28,8 +30,9 @@ class SubscribersServiceTest {
   private TelegramRequestExecutor requestExecutor = mock(TelegramRequestExecutor.class);
   private CatFinder catFinder = mock(CatFinder.class);
   private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+  private TelegramAdminNotifier notifier = mock(TelegramAdminNotifier.class);
   private SubscribersService service
-      = new SubscribersService(repository, requestExecutor, catFinder, actionFactory);
+      = new SubscribersService(repository, requestExecutor, catFinder, actionFactory, notifier);
 
 
   @Test
@@ -97,6 +100,34 @@ class SubscribersServiceTest {
     verifyNoMoreInteractions(repository);
     verify(catFinder).getCat();
     verifyNoMoreInteractions(catFinder);
+  }
+
+  @Test
+  void addSubscriber() {
+    given(repository.addSubscriber(any())).willReturn(true);
+
+    Chat subscriber = new Chat(1);
+    boolean isAdded = service.addSubscriber(subscriber);
+
+    assertThat(isAdded).isTrue();
+    verify(repository).addSubscriber(same(subscriber));
+    verifyNoMoreInteractions(repository);
+    verify(notifier).newSubscriber(same(subscriber));
+    verifyNoMoreInteractions(notifier);
+  }
+
+  @Test
+  void deleteSubscriber() {
+    given(repository.deleteSubscriber(any())).willReturn(true);
+
+    Chat subscriber = new Chat(1);
+    boolean isDeleted = service.deleteSubscriber(subscriber);
+
+    assertThat(isDeleted).isTrue();
+    verify(repository).deleteSubscriber(same(subscriber));
+    verifyNoMoreInteractions(repository);
+    verify(notifier).unsubscribed(same(subscriber));
+    verifyNoMoreInteractions(notifier);
   }
 
   @NotNull

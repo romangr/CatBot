@@ -3,6 +3,7 @@ package ru.romangr.catbot.subscription
 import ru.romangr.catbot.catfinder.CatFinder
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.telegram.TelegramAdminNotifier
 import ru.romangr.catbot.telegram.TelegramRequestExecutor
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.exceptional.Exceptional
@@ -16,7 +17,8 @@ import java.util.stream.Stream
 class SubscribersService(private val subscribersRepository: SubscribersRepository,
                          private val requestExecutor: TelegramRequestExecutor,
                          private val catFinder: CatFinder,
-                         private val actionFactory: TelegramActionFactory) {
+                         private val actionFactory: TelegramActionFactory,
+                         private val notifier: TelegramAdminNotifier) {
     private val messagesToSubscribers = LinkedList<String>()
 
     val subscribersCount: Int
@@ -65,10 +67,14 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
     }
 
     fun deleteSubscriber(subscriber: Chat): Boolean {
+        Exceptional.getExceptional { notifier.unsubscribed(subscriber) }
+                .ifException { log.warn("Error trying to notify the admin", it) }
         return subscribersRepository.deleteSubscriber(subscriber)
     }
 
     fun addSubscriber(subscriber: Chat): Boolean {
+        Exceptional.getExceptional { notifier.newSubscriber(subscriber) }
+                .ifException { log.warn("Error trying to notify the admin", it) }
         return subscribersRepository.addSubscriber(subscriber)
     }
 

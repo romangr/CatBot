@@ -49,9 +49,16 @@ public class SpringRestCatBotFactory {
     CatFinder catFinder = new CatFinder(restTemplate, resolver.getCatApiKey());
     SubscribersRepository subscribersRepository = new SubscribersRepository(
         resolver.getSubscribersFilePath());
-    SubscribersService subscribersService
-        = new SubscribersService(subscribersRepository, requestExecutor, catFinder, actionFactory);
     var adminChatId = resolver.getAdminChatId().orElse(null);
+    TelegramAdminNotifier adminNotifier
+        = new TelegramAdminNotifier(actionFactory, actionExecutor, resolver, adminChatId);
+    SubscribersService subscribersService = new SubscribersService(
+        subscribersRepository,
+        requestExecutor,
+        catFinder,
+        actionFactory,
+        adminNotifier
+    );
     List<CommandHandler> handlers = List.of(
         new StartCommandHandler(actionFactory),
         new HelpCommandHandler(actionFactory),
@@ -65,8 +72,6 @@ public class SpringRestCatBotFactory {
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());
     UpdatesHandler updatesHandler
         = new UpdatesHandler(messagePreprocessor, handlers, unknownCommandHandler, actionExecutor);
-    TelegramAdminNotifier adminNotifier
-        = new TelegramAdminNotifier(actionFactory, actionExecutor, resolver, adminChatId);
     return new SpringRestCatBot(
         updatesHandler,
         subscribersService,

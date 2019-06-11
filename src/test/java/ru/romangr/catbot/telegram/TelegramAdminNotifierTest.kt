@@ -26,11 +26,11 @@ internal class TelegramAdminNotifierTest {
 
     @Test
     internal fun buildInfoIsSentOnStartWhenAdminChatIdIsPresent() {
-        val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, 1L)
         val action = mock(TelegramAction::class.java)
         given(actionFactory.newSendMessageAction(anyChat(), anyString()))
                 .willReturn(action)
         given(propertiesResolver.buildInfo).willReturn("info")
+        val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, 1L)
 
         notifier.botStarted()
 
@@ -43,10 +43,13 @@ internal class TelegramAdminNotifierTest {
 
     @Test
     internal fun buildInfoIsNotSentOnStartWhenAdminChatIdIsNotPresent() {
+        given(propertiesResolver.buildInfo).willReturn("info")
         val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, null)
 
         notifier.botStarted()
 
-        verifyZeroInteractions(actionFactory, actionExecutor, propertiesResolver)
+        verify(propertiesResolver).buildInfo
+        verifyNoMoreInteractions(propertiesResolver)
+        verifyZeroInteractions(actionFactory, actionExecutor)
     }
 }
