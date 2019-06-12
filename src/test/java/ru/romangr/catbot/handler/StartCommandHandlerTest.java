@@ -34,7 +34,7 @@ class StartCommandHandlerTest {
         assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.HANDLED);
         assertThat(handlingResult.getActions()).hasSize(1);
         verify(actionFactory)
-                .newSendMessageAction(chat, "Type /cat to get a random cat :3");
+                .newSendMessageAction(chat,"/cat to get a random cat 🐱\n/subscribe to get a random cat every day 🐈");
         verifyNoMoreInteractions(actionFactory);
     }
 
