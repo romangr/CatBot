@@ -18,50 +18,51 @@ import ru.romangr.exceptional.Exceptional;
 
 class StartCommandHandlerTest {
 
-    private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
-    private CommandHandler handler = new StartCommandHandler(actionFactory);
+  private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+  private CommandHandler handler = new StartCommandHandler(actionFactory);
 
-    @Test
-    void handleCommandSuccessfully() {
-        Chat chat = new Chat(1);
-        given(actionFactory.newSendMessageAction(any(), any()))
-                .willReturn(mock(TelegramAction.class));
+  @Test
+  void handleCommandSuccessfully() {
+    Chat chat = new Chat(1);
+    given(actionFactory.newSendMessageAction(any(), any()))
+        .willReturn(mock(TelegramAction.class));
 
-        Exceptional<HandlingResult> result = handler.handle(chat, "/start");
+    Exceptional<HandlingResult> result = handler.handle(chat, "/start");
 
-        assertThat(result.isValuePresent()).isTrue();
-        HandlingResult handlingResult = result.getValue();
-        assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.HANDLED);
-        assertThat(handlingResult.getActions()).hasSize(1);
-        verify(actionFactory)
-                .newSendMessageAction(chat,"/cat to get a random cat 🐱\n/subscribe to get a random cat every day 🐈");
-        verifyNoMoreInteractions(actionFactory);
-    }
+    assertThat(result.isValuePresent()).isTrue();
+    HandlingResult handlingResult = result.getValue();
+    assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.HANDLED);
+    assertThat(handlingResult.getActions()).hasSize(1);
+    verify(actionFactory)
+        .newSendMessageAction(chat,
+            "/cat to get a random cat 🐱\n/subscribe to get a random cat every day 🐈");
+    verifyNoMoreInteractions(actionFactory);
+  }
 
-    @Test
-    void skipUnknownCommand() {
-        Chat chat = new Chat(1);
+  @Test
+  void skipUnknownCommand() {
+    Chat chat = new Chat(1);
 
-        Exceptional<HandlingResult> result = handler.handle(chat, "unknown");
+    Exceptional<HandlingResult> result = handler.handle(chat, "unknown");
 
-        assertThat(result.isValuePresent()).isTrue();
-        HandlingResult handlingResult = result.getValue();
-        assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.SKIPPED);
-        assertThat(handlingResult.getActions()).isEmpty();
-        verifyZeroInteractions(actionFactory);
-    }
+    assertThat(result.isValuePresent()).isTrue();
+    HandlingResult handlingResult = result.getValue();
+    assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.SKIPPED);
+    assertThat(handlingResult.getActions()).isEmpty();
+    verifyZeroInteractions(actionFactory);
+  }
 
-    @Test
-    void handleCommandWithException() {
-        Chat chat = new Chat(1);
-        given(actionFactory.newSendMessageAction(any(), any()))
-                .willThrow(RuntimeException.class);
+  @Test
+  void handleCommandWithException() {
+    Chat chat = new Chat(1);
+    given(actionFactory.newSendMessageAction(any(), any()))
+        .willThrow(RuntimeException.class);
 
-        Exceptional<HandlingResult> result = handler.handle(chat, "/start");
+    Exceptional<HandlingResult> result = handler.handle(chat, "/start");
 
-        assertThat(result.isException()).isTrue();
-        result.ifException(e -> assertThat(e).isExactlyInstanceOf(RuntimeException.class));
-        verify(actionFactory).newSendMessageAction(eq(chat), anyString());
-    }
+    assertThat(result.isException()).isTrue();
+    result.ifException(e -> assertThat(e).isExactlyInstanceOf(RuntimeException.class));
+    verify(actionFactory).newSendMessageAction(eq(chat), anyString());
+  }
 
 }

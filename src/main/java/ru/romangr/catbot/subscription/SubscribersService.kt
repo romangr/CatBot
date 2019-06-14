@@ -8,9 +8,9 @@ import ru.romangr.catbot.telegram.TelegramRequestExecutor
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.exceptional.Exceptional
 import java.util.ArrayList
-import java.util.LinkedList
 import java.util.Objects
 import java.util.Optional
+import java.util.concurrent.ConcurrentLinkedQueue
 import java.util.function.Function
 import java.util.stream.Stream
 
@@ -19,7 +19,7 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
                          private val catFinder: CatFinder,
                          private val actionFactory: TelegramActionFactory,
                          private val notifier: TelegramAdminNotifier) {
-    private val messagesToSubscribers = LinkedList<String>()
+    private val messagesToSubscribers = ConcurrentLinkedQueue<String>()
 
     val subscribersCount: Int
         get() = subscribersRepository.subscribersCount

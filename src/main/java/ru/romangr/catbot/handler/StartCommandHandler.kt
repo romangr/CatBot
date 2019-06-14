@@ -15,8 +15,7 @@ class StartCommandHandler(private val actionFactory: TelegramActionFactory)
     }
 
     companion object {
-        private const val HELP_STRING = 
-        """/cat to get a random cat 🐱
+        private const val HELP_STRING = """/cat to get a random cat 🐱
 /subscribe to get a random cat every day 🐈"""
     }
 }
