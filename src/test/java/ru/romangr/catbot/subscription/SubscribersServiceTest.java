@@ -107,9 +107,9 @@ class SubscribersServiceTest {
     given(repository.addSubscriber(any())).willReturn(true);
 
     Chat subscriber = new Chat(1);
-    boolean isAdded = service.addSubscriber(subscriber);
+    Exceptional<Boolean> isAdded = service.addSubscriber(subscriber);
 
-    assertThat(isAdded).isTrue();
+    assertThat(isAdded.getValue()).isTrue();
     verify(repository).addSubscriber(same(subscriber));
     verifyNoMoreInteractions(repository);
     verify(notifier).newSubscriber(same(subscriber));

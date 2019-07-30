@@ -72,11 +72,15 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
         return subscribersRepository.deleteSubscriber(subscriber)
     }
 
-    fun addSubscriber(subscriber: Chat): Boolean {
-        Exceptional.getExceptional { notifier.newSubscriber(subscriber) }
-                .ifException { log.warn("Error trying to notify the admin", it) }
-        return subscribersRepository.addSubscriber(subscriber)
-    }
+    fun addSubscriber(subscriber: Chat): Exceptional<Boolean> =
+            Exceptional.getExceptional { subscribersRepository.addSubscriber(subscriber) }
+                    .ifValue { isAdded ->
+                        if (isAdded) {
+                            Exceptional.getExceptional { notifier.newSubscriber(subscriber) }
+                                    .ifException { log.warn("Error trying to notify the admin", it) }
+                        }
+                    }
+
 
     private fun getActionsForAllSubscribers(message: String,
                                             prefixSupplier: Function<Chat, String>?)

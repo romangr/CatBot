@@ -24,7 +24,7 @@ class SubscribeCommandHandlerTest {
     @Test
     void handleCommandSuccessfullyForNewSubscriber() {
         Chat chat = new Chat(1);
-        given(subscribersService.addSubscriber(any())).willReturn(true);
+      given(subscribersService.addSubscriber(any())).willReturn(Exceptional.exceptional(true));
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
         given(subscribersService.getSubscribersCount()).willReturn(10);
@@ -45,7 +45,7 @@ class SubscribeCommandHandlerTest {
     @Test
     void handleCommandSuccessfullyForOneWhoIsAlreadyASubscriber() {
         Chat chat = new Chat(1);
-        given(subscribersService.addSubscriber(any())).willReturn(false);
+      given(subscribersService.addSubscriber(any())).willReturn(Exceptional.exceptional(false));
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
 
@@ -77,13 +77,18 @@ class SubscribeCommandHandlerTest {
     @Test
     void handleCommandWithException() {
         Chat chat = new Chat(1);
-        given(subscribersService.addSubscriber(any())).willThrow(RuntimeException.class);
+      given(subscribersService.addSubscriber(any()))
+          .willReturn(Exceptional.exceptional(new RuntimeException()));
 
         Exceptional<HandlingResult> result = handler.handle(chat, "/subscribe");
 
-        assertThat(result.isException()).isTrue();
-        result.ifException(e -> assertThat(e).isExactlyInstanceOf(RuntimeException.class));
-        verifyZeroInteractions(actionFactory);
+      assertThat(result.isValuePresent()).isTrue();
+      HandlingResult handlingResult = result.getValue();
+      assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.HANDLED);
+      assertThat(handlingResult.getActions()).hasSize(1);
+      verify(actionFactory).newSendMessageAction(chat,
+          "Sorry, some error occurred when we tried to subscribe you, please try later");
+      verifyNoMoreInteractions(actionFactory);
         verify(subscribersService).addSubscriber(chat);
         verifyNoMoreInteractions(subscribersService);
     }
