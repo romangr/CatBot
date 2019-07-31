@@ -13,10 +13,14 @@ import java.util.stream.Stream
 
 class TelegramAdminNotifier(private val actionFactory: TelegramActionFactory,
                             private val actionExecutor: TelegramActionExecutor,
-                            private val propertiesResolver: PropertiesResolver,
+                            propertiesResolver: PropertiesResolver,
                             private val adminChatId: Long?) {
 
-    private val botStartedMessage = "Bot started! ${propertiesResolver.buildInfo}"
+    private val botStartedMessage = """
+        |Bot started! ${propertiesResolver.buildInfo}
+        |Updates check period: ${propertiesResolver.updatesCheckPeriod}
+        |Time to send a message to subscribers: ${propertiesResolver.timeToSendMessageToSubscribers}"""
+            .trimMargin()
     private val newSubscriberMessage = Function<String, String> { "New subscriber: $it" }
     private val unsubscribedMessage = Function<String, String> { "Unsubscribed: $it" }
 

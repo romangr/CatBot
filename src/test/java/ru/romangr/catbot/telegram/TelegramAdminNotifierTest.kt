@@ -30,12 +30,20 @@ internal class TelegramAdminNotifierTest {
         given(actionFactory.newSendMessageAction(anyChat(), anyString()))
                 .willReturn(action)
         given(propertiesResolver.buildInfo).willReturn("info")
+        given(propertiesResolver.updatesCheckPeriod).willReturn(30)
+        given(propertiesResolver.timeToSendMessageToSubscribers).willReturn(17)
         val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, 1L)
 
         notifier.botStarted()
 
-        verify(actionFactory).newSendMessageAction(Chat(1), "Bot started! info")
+        verify(actionFactory).newSendMessageAction(Chat(1),
+                """Bot started! info
+                |Updates check period: 30
+                |Time to send a message to subscribers: 17
+            """.trimMargin())
         verify(propertiesResolver).buildInfo
+        verify(propertiesResolver).updatesCheckPeriod
+        verify(propertiesResolver).timeToSendMessageToSubscribers
         verify(actionExecutor).execute(actionCaptor.capture())
         assertThat(actionCaptor.value).hasSize(1).first().isSameAs(action)
         verifyNoMoreInteractions(actionFactory, actionExecutor, propertiesResolver)
@@ -44,11 +52,15 @@ internal class TelegramAdminNotifierTest {
     @Test
     internal fun buildInfoIsNotSentOnStartWhenAdminChatIdIsNotPresent() {
         given(propertiesResolver.buildInfo).willReturn("info")
+        given(propertiesResolver.updatesCheckPeriod).willReturn(30)
+        given(propertiesResolver.timeToSendMessageToSubscribers).willReturn(17)
         val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, null)
 
         notifier.botStarted()
 
         verify(propertiesResolver).buildInfo
+        verify(propertiesResolver).updatesCheckPeriod
+        verify(propertiesResolver).timeToSendMessageToSubscribers
         verifyNoMoreInteractions(propertiesResolver)
         verifyZeroInteractions(actionFactory, actionExecutor)
     }
