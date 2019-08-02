@@ -26,68 +26,75 @@ import ru.romangr.exceptional.Exceptional;
 @RequiredArgsConstructor
 public class SpringRestCatBot implements RestBot {
 
-    private final AtomicBoolean wereIssuesDuringSendingToSubscribers = new AtomicBoolean(false);
-    private final UpdatesHandler updatesHandler;
-    private final SubscribersService subscribersService;
-    private final int updatesCheckPeriod;
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-    private final TelegramRequestExecutor requestExecutor;
-    private int currentUpdateOffset = 0;
-    private final TelegramActionExecutor actionExecutor;
-    private final PropertiesResolver propertiesResolver;
+  private final AtomicBoolean wereIssuesDuringSendingToSubscribers = new AtomicBoolean(false);
+  private final UpdatesHandler updatesHandler;
+  private final SubscribersService subscribersService;
+  private final int updatesCheckPeriod;
+  private final ScheduledExecutorService updatesReceivingExecutorService
+      = Executors.newSingleThreadScheduledExecutor();
+  private final ScheduledExecutorService subscriptionExecutorService
+      = Executors.newSingleThreadScheduledExecutor();
+  private final TelegramRequestExecutor requestExecutor;
+  private final TelegramActionExecutor actionExecutor;
+  private final PropertiesResolver propertiesResolver;
+  private int currentUpdateOffset = 0;
   private final TelegramAdminNotifier adminNotifier;
 
-    private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
-        updatesExceptional
-                .ifException(e -> log.warn("Error getting updates from Telegram API", e))
-                .ifValue(this::processUpdates)
-                .ifException(e -> log.warn("Exception during processing updates", e));
-    }
+  private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
+    updatesExceptional
+        .ifException(e -> log.warn("Error getting updates from Telegram API", e))
+        .ifValue(this::processUpdates)
+        .ifException(e -> log.warn("Exception during processing updates", e));
+  }
 
-    private void processUpdates(List<Update> updates) {
-        if (CollectionUtils.isEmpty(updates)) {
-            return;
-        }
-        for (Update update : updates) {
-            updatesHandler.handleUpdate(update);
-        }
+  private void processUpdates(List<Update> updates) {
+    if (CollectionUtils.isEmpty(updates)) {
+      return;
     }
+    for (Update update : updates) {
+      updatesHandler.handleUpdate(update);
+    }
+  }
 
-    @Override
-    public void start() {
-        log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
-      adminNotifier.botStarted();
-        executorService.scheduleAtFixedRate(
-                () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
-        Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(
-                propertiesResolver.getTimeToSendMessageToSubscribers());
-        log.info("Next sending to subscribers in {} minutes", delay.getSeconds() / 60);
-        executorService.scheduleAtFixedRate(this::sendMessageToSubscribers, delay.getSeconds(),
-                DelayCalculator.getSecondsFromHours(24), TimeUnit.SECONDS);
-        executorService.scheduleAtFixedRate(() -> {
-            log.info("All systems are fine!");
-            if (wereIssuesDuringSendingToSubscribers.get()) {
-                sendMessageToSubscribers();
-            }
-        }, 1, 1, TimeUnit.HOURS);
-    }
+  @Override
+  public void start() {
+    log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
+    adminNotifier.botStarted();
+    updatesReceivingExecutorService.scheduleAtFixedRate(
+        () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
+    Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(
+        propertiesResolver.getTimeToSendMessageToSubscribers());
+    log.info("Next sending to subscribers in {} minutes", delay.getSeconds() / 60);
+    subscriptionExecutorService
+        .scheduleAtFixedRate(this::sendMessageToSubscribers, delay.getSeconds(),
+            DelayCalculator.getSecondsFromHours(24), TimeUnit.SECONDS);
+    subscriptionExecutorService.scheduleAtFixedRate(() -> {
+      log.info("All systems are fine!");
+      if (wereIssuesDuringSendingToSubscribers.get()) {
+        sendMessageToSubscribers();
+      }
+    }, 1, 1, TimeUnit.HOURS);
+  }
 
-    private Exceptional<List<Update>> getUpdates() {
-        return requestExecutor.getUpdates(currentUpdateOffset)
-                .ifValue(updates -> updates.stream()
-                        .mapToInt(Update::getId)
-                        .max()
-                        .ifPresent(maxUpdateId -> currentUpdateOffset = maxUpdateId + 1)
-                );
-    }
+  private Exceptional<List<Update>> getUpdates() {
+    return requestExecutor.getUpdates(currentUpdateOffset)
+        .ifValue(updates -> updates.stream()
+            .mapToInt(Update::getId)
+            .max()
+            .ifPresent(maxUpdateId -> currentUpdateOffset = maxUpdateId + 1)
+        );
+  }
 
-    private void sendMessageToSubscribers() {
-        this.subscribersService.sendMessageToSubscribers()
-                .ifValue(v -> {
-                    this.wereIssuesDuringSendingToSubscribers.set(false);
-                    actionExecutor.execute(v);
-                })
-                .ifException(v -> this.wereIssuesDuringSendingToSubscribers.set(true));
-    }
+  private void sendMessageToSubscribers() {
+    this.subscribersService.sendMessageToSubscribers()
+        .ifValue(v -> {
+          this.wereIssuesDuringSendingToSubscribers.set(false);
+          actionExecutor.execute(v);
+        })
+        .ifException(e -> {
+          this.wereIssuesDuringSendingToSubscribers.set(true);
+          log.warn("Failed to send message to subscribers", e);
+        });
+  }
 
 }
