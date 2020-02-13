@@ -7,12 +7,8 @@ import ru.romangr.catbot.telegram.TelegramAdminNotifier
 import ru.romangr.catbot.telegram.TelegramRequestExecutor
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.exceptional.Exceptional
-import java.util.ArrayList
-import java.util.Objects
-import java.util.Optional
+import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
-import java.util.function.Function
-import java.util.stream.Stream
 
 class SubscribersService(private val subscribersRepository: SubscribersRepository,
                          private val requestExecutor: TelegramRequestExecutor,
@@ -39,25 +35,24 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
         if (messageFromQueue != null) {
             log.info("Message from queue will be sent. There are {} posts left in the queue",
                     messagesToSubscribers.size)
-            return getActionsForAllSubscribers(messageFromQueue, null)
+            return getActionsForAllSubscribers(messageFromQueue) { chat, message ->
+                processTemplateVariables(chat, message)
+            }
         }
 
         return catFinder.cat
                 .ifException { e -> log.warn("Exception getting cat", e) }
                 .map { it.url }
                 .flatMap {
-                    getActionsForAllSubscribers(it, Function { chat ->
+                    getActionsForAllSubscribers(it) { chat, message ->
                         val messageToSubscriber = StringBuilder().append("Your daily cat")
-                        Stream.of(chat.title, chat.firstName, chat.lastName, chat.username)
-                                .filter { Objects.nonNull(it) }
-                                .findFirst()
-                                .ifPresent { identifier ->
-                                    messageToSubscriber.append(", ")
-                                            .append(identifier)
-                                            .append("!")
-                                }
-                        messageToSubscriber.append("\n").toString()
-                    })
+                        resolveUserIdentifier(chat)?.let { identifier ->
+                            messageToSubscriber.append(", ")
+                                    .append(identifier)
+                                    .append("!")
+                        }
+                        messageToSubscriber.append("\n").append(message).toString()
+                    }
                 }
                 .ifValue { log.info("Cat will be sent to {} subscribers", it.size) }
     }
@@ -83,15 +78,12 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
 
 
     private fun getActionsForAllSubscribers(message: String,
-                                            prefixSupplier: Function<Chat, String>?)
+                                            messagePreprocessor: (Chat, String) -> String)
             : Exceptional<List<TelegramAction>> {
         val actions = ArrayList<TelegramAction>(subscribersRepository.subscribersCount)
         for (chat in subscribersRepository.allSubscribers) {
-            Optional.ofNullable(prefixSupplier)
-                    .map { prefixSupplier!!.apply(chat) + message }
-                    .or { Optional.of(message) }
-                    .map<TelegramAction> { m -> actionFactory.newSendMessageAction(chat, m) }
-                    .ifPresent { a -> actions.add(a) }
+            val action = actionFactory.newSendMessageAction(chat, messagePreprocessor(chat, message))
+            actions.add(action)
         }
         return Exceptional.exceptional(actions)
     }
