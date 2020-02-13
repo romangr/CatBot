@@ -8,7 +8,6 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
 import ru.romangr.catbot.executor.TelegramActionExecutor
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
@@ -62,6 +61,6 @@ internal class TelegramAdminNotifierTest {
         verify(propertiesResolver).updatesCheckPeriod
         verify(propertiesResolver).timeToSendMessageToSubscribers
         verifyNoMoreInteractions(propertiesResolver)
-        verifyZeroInteractions(actionFactory, actionExecutor)
+        verifyNoMoreInteractions(actionFactory, actionExecutor)
     }
 }

@@ -24,6 +24,14 @@ class Chat : Serializable {
 
     constructor()
 
+    constructor(id: Int?, title: String?, firstName: String?, lastName: String?, username: String?) {
+        this.id = id
+        this.title = title
+        this.firstName = firstName
+        this.lastName = lastName
+        this.username = username
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

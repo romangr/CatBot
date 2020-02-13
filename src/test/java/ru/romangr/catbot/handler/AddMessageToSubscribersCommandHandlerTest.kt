@@ -7,7 +7,6 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
-import org.mockito.Mockito.verifyZeroInteractions
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
 import ru.romangr.catbot.subscription.SubscribersService
@@ -68,7 +67,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
         assertThat(result.value.status).isEqualTo(HandlingStatus.HANDLED)
         assertThat(result.value.actions).hasSize(1)
         verify(actionFactory).newSendMessageAction(chat, "Argument is empty or blank")
-        verifyZeroInteractions(subscribersService, actionFactory)
+        verifyNoMoreInteractions(subscribersService, actionFactory)
     }
 
     @Test
@@ -79,7 +78,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
         assertThat(result.isValuePresent).isTrue()
         assertThat(result.value.status).isEqualTo(HandlingStatus.HANDLED)
         assertThat(result.value.actions).hasSize(0)
-        verifyZeroInteractions(subscribersService, actionFactory)
+        verifyNoMoreInteractions(subscribersService, actionFactory)
     }
 
     @Test
@@ -90,6 +89,6 @@ internal class AddMessageToSubscribersCommandHandlerTest {
         assertThat(result.isValuePresent).isTrue()
         assertThat(result.value.status).isEqualTo(HandlingStatus.SKIPPED)
         assertThat(result.value.actions).hasSize(0)
-        verifyZeroInteractions(subscribersService, actionFactory)
+        verifyNoMoreInteractions(subscribersService, actionFactory)
     }
 }
