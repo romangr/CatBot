@@ -97,9 +97,7 @@ class RateLimiterTest {
   }
 
   private static Chat getChat(int id) {
-    Chat chat = new Chat(id);
-    chat.setFirstName("test");
-    return chat;
+    return new Chat(id, null, "test", null, null);
   }
 
   private static int getRandomInt() {

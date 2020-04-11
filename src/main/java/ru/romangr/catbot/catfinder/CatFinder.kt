@@ -21,12 +21,12 @@ class CatFinder {
 
     val cat: Exceptional<Cat>
         get() = Exceptional
-                .getExceptional<ResponseEntity<List<Cat>>>({
+                .getExceptional<ResponseEntity<List<Cat>>> {
                     restTemplate.exchange(requestEntity,
                             object : ParameterizedTypeReference<List<Cat>>() {
 
                             })
-                }, 3)
+                }
                 .map { it.body }
                 .map { list -> list?.get(0) }
 

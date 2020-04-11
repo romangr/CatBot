@@ -27,12 +27,12 @@ class SubscribersServiceTest {
 
   private static final String NO_INTERNET_MESSAGE = "Can't send result to subscribers now, will send it later";
 
-  private SubscribersRepository repository = mock(SubscribersRepository.class);
-  private TelegramRequestExecutor requestExecutor = mock(TelegramRequestExecutor.class);
-  private CatFinder catFinder = mock(CatFinder.class);
-  private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
-  private TelegramAdminNotifier notifier = mock(TelegramAdminNotifier.class);
-  private SubscribersService service
+  private final SubscribersRepository repository = mock(SubscribersRepository.class);
+  private final TelegramRequestExecutor requestExecutor = mock(TelegramRequestExecutor.class);
+  private final CatFinder catFinder = mock(CatFinder.class);
+  private final TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
+  private final TelegramAdminNotifier notifier = mock(TelegramAdminNotifier.class);
+  private final SubscribersService service
       = new SubscribersService(repository, requestExecutor, catFinder, actionFactory, notifier);
 
 
@@ -117,8 +117,10 @@ class SubscribersServiceTest {
     assertThat(result.isValuePresent()).isTrue();
     List<TelegramAction> actions = result.getValue();
     assertThat(actions).hasSize(2);
-    verify(actionFactory).newSendMessageAction(eq(chat1), eq("Your daily cat, username_1!\ncat_url"));
-    verify(actionFactory).newSendMessageAction(eq(chat2), eq("Your daily cat, username_2!\ncat_url"));
+    verify(actionFactory)
+        .newSendMessageAction(eq(chat1), eq("Your daily cat, username_1!\ncat_url"));
+    verify(actionFactory)
+        .newSendMessageAction(eq(chat2), eq("Your daily cat, username_2!\ncat_url"));
     verifyNoMoreInteractions(actionFactory);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);
@@ -133,7 +135,7 @@ class SubscribersServiceTest {
   void addSubscriber() {
     given(repository.addSubscriber(any())).willReturn(true);
 
-    Chat subscriber = new Chat(1);
+    Chat subscriber = new Chat(1, null, null, null, null);
     Exceptional<Boolean> isAdded = service.addSubscriber(subscriber);
 
     assertThat(isAdded.getValue()).isTrue();
@@ -147,7 +149,7 @@ class SubscribersServiceTest {
   void deleteSubscriber() {
     given(repository.deleteSubscriber(any())).willReturn(true);
 
-    Chat subscriber = new Chat(1);
+    Chat subscriber = new Chat(1, null, null, null, null);
     boolean isDeleted = service.deleteSubscriber(subscriber);
 
     assertThat(isDeleted).isTrue();
@@ -159,8 +161,6 @@ class SubscribersServiceTest {
 
   @NotNull
   private Chat getChat(int id, String username) {
-    Chat chat = new Chat(id);
-    chat.setUsername(username);
-    return chat;
+    return new Chat(id, null, null, null, username);
   }
 }

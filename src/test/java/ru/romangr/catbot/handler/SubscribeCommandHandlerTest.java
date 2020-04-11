@@ -23,7 +23,7 @@ class SubscribeCommandHandlerTest {
 
     @Test
     void handleCommandSuccessfullyForNewSubscriber() {
-        Chat chat = new Chat(1);
+        Chat chat = new Chat(1, null, null, null, null);
       given(subscribersService.addSubscriber(any())).willReturn(Exceptional.exceptional(true));
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
@@ -44,7 +44,7 @@ class SubscribeCommandHandlerTest {
 
     @Test
     void handleCommandSuccessfullyForOneWhoIsAlreadyASubscriber() {
-        Chat chat = new Chat(1);
+        Chat chat = new Chat(1, null, null, null, null);
       given(subscribersService.addSubscriber(any())).willReturn(Exceptional.exceptional(false));
         given(actionFactory.newSendMessageAction(any(), any()))
                 .willReturn(mock(TelegramAction.class));
@@ -63,7 +63,7 @@ class SubscribeCommandHandlerTest {
 
     @Test
     void skipUnknownCommand() {
-        Chat chat = new Chat(1);
+        Chat chat = new Chat(1, null, null, null, null);
 
         Exceptional<HandlingResult> result = handler.handle(chat, "unknown");
 
@@ -76,7 +76,7 @@ class SubscribeCommandHandlerTest {
 
     @Test
     void handleCommandWithException() {
-        Chat chat = new Chat(1);
+        Chat chat = new Chat(1, null, null, null, null);
       given(subscribersService.addSubscriber(any()))
           .willReturn(Exceptional.exceptional(new RuntimeException()));
 
