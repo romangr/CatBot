@@ -13,9 +13,6 @@ sourceCompatibility = 1.11
 
 repositories {
     mavenCentral()
-    maven {
-        url "https://jitpack.io"
-    }
 }
 
 task createCommitProperties() {
@@ -91,7 +88,7 @@ dependencies {
     implementation('com.fasterxml.jackson.core:jackson-databind')
     implementation('com.fasterxml.jackson.module:jackson-module-kotlin')
     implementation('org.apache.commons:commons-lang3')
-    implementation('com.github.romangr:exceptional:49186515')
+    implementation('ru.romangr:exceptional:0.2.0')
     implementation('org.slf4j:slf4j-api')
     implementation('ch.qos.logback:logback-classic')
     implementation('com.google.guava:guava:27.1-jre')
