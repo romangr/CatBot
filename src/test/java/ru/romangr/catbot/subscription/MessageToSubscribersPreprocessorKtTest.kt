@@ -16,8 +16,7 @@ internal class MessageToSubscribersPreprocessorKtTest {
     )
     @ParameterizedTest
     internal fun processTemplateVariablesForChats(chatName: String, template: String, expectedResult: String) {
-        val chat = Chat(id = 1)
-        chat.firstName = chatName
+        val chat = Chat(id = 1, firstName = chatName)
 
         val actualResult = processTemplateVariables(chat, template)
 

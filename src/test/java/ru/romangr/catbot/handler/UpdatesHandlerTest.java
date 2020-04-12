@@ -52,11 +52,7 @@ class UpdatesHandlerTest {
             HandlingStatus.SKIPPED
         )));
 
-    Chat chat = new Chat(123123);
-    chat.setFirstName("first");
-    chat.setLastName("last");
-    chat.setTitle("title");
-    chat.setUsername("username");
+    Chat chat = new Chat(123123, "title", "first", "last", "username");
 
     User user = User.builder()
         .firstName("first")
@@ -99,11 +95,7 @@ class UpdatesHandlerTest {
     given(commandHandler2.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new RuntimeException()));
 
-    Chat chat = new Chat(123123);
-    chat.setFirstName("first");
-    chat.setLastName("last");
-    chat.setTitle("title");
-    chat.setUsername("username");
+    Chat chat = new Chat(123123, "title", "first", "last", "username");
 
     User user = User.builder()
         .firstName("first")
@@ -155,11 +147,7 @@ class UpdatesHandlerTest {
             )
         ));
 
-    Chat chat = new Chat(123123);
-    chat.setFirstName("first");
-    chat.setLastName("last");
-    chat.setTitle("title");
-    chat.setUsername("username");
+    Chat chat = new Chat(123123, "title", "first", "last", "username");
 
     User user = User.builder()
         .firstName("first")

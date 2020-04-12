@@ -22,5 +22,5 @@ abstract class CommandHandler {
 }
 
 fun isMessageNotFromAdmin(adminChatId: Long?, chat: Chat): Boolean {
-    return !(adminChatId?.equals(chat.id!!.toLong()) ?: false)
+    return !(adminChatId?.equals(chat.id.toLong()) ?: false)
 }

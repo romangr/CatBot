@@ -6,31 +6,13 @@ import java.io.Serializable
 /**
  * Roman 27.10.2016.
  */
-class Chat : Serializable {
-    var id: Int? = null
-    var title: String? = null
-
-    @JsonProperty("first_name")
-    var firstName: String? = null
-
-    @JsonProperty("last_name")
-    var lastName: String? = null
-
-    var username: String? = null
-
-    constructor(id: Int) {
-        this.id = id
-    }
-
-    constructor()
-
-    constructor(id: Int?, title: String?, firstName: String?, lastName: String?, username: String?) {
-        this.id = id
-        this.title = title
-        this.firstName = firstName
-        this.lastName = lastName
-        this.username = username
-    }
+data class Chat(
+        @JsonProperty("id") val id: Int,
+        @JsonProperty("title") val title: String? = null,
+        @JsonProperty("first_name") val firstName: String? = null,
+        @JsonProperty("last_name") val lastName: String? = null,
+        @JsonProperty("username") val username: String? = null
+) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -44,7 +26,7 @@ class Chat : Serializable {
     }
 
     override fun hashCode(): Int {
-        return id ?: 0
+        return id
     }
 
 
