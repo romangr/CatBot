@@ -19,7 +19,7 @@ import ru.romangr.exceptional.Exceptional;
 class HelpCommandHandlerTest {
 
     private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
-    private CommandHandler handler = new HelpCommandHandler(actionFactory);
+    private CommandHandler handler = new HelpCommandHandler(actionFactory, 17);
 
     @Test
     void handleCommandSuccessfully() {
@@ -34,7 +34,8 @@ class HelpCommandHandlerTest {
         assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.HANDLED);
         assertThat(handlingResult.getActions()).hasSize(1);
         verify(actionFactory)
-                .newSendMessageAction(chat, "Type /cat to get a random cat :3");
+                .newSendMessageAction(chat, "/cat to get a random cat \uD83D\uDC31\n"
+                    + "/subscribe to get a random cat every day \uD83D\uDC08 (17:00 UTC)");
         verifyNoMoreInteractions(actionFactory);
     }
 

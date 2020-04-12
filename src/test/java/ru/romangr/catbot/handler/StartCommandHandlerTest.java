@@ -35,7 +35,10 @@ class StartCommandHandlerTest {
     assertThat(handlingResult.getActions()).hasSize(1);
     verify(actionFactory)
         .newSendMessageAction(chat,
-            "/cat to get a random cat 🐱\n/subscribe to get a random cat every day 🐈");
+            "Hi, let's see what cats we have for today!\n"
+                + "/cat to get a random cat \uD83D\uDC31\n"
+                + "/subscribe to get a random cat every day \uD83D\uDC08\n"
+                + "If you like it — share this bot with your friends!");
     verifyNoMoreInteractions(actionFactory);
   }
 

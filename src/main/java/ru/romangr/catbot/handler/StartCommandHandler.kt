@@ -11,11 +11,13 @@ class StartCommandHandler(private val actionFactory: TelegramActionFactory)
     : StaticCommandHandler() {
 
     override fun handleCommand(chat: Chat, messageText: String): List<TelegramAction> {
-        return listOf(actionFactory.newSendMessageAction(chat, HELP_STRING))
+        return listOf(actionFactory.newSendMessageAction(chat, START_MESSAGE))
     }
 
     companion object {
-        private const val HELP_STRING = """/cat to get a random cat 🐱
-/subscribe to get a random cat every day 🐈"""
+        private const val START_MESSAGE = """Hi, let's see what cats we have for today!
+/cat to get a random cat 🐱
+/subscribe to get a random cat every day 🐈
+If you like it — share this bot with your friends!"""
     }
 }

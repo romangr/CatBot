@@ -61,7 +61,7 @@ public class SpringRestCatBotFactory {
     );
     List<CommandHandler> handlers = List.of(
         new StartCommandHandler(actionFactory),
-        new HelpCommandHandler(actionFactory),
+        new HelpCommandHandler(actionFactory, resolver.getTimeToSendMessageToSubscribers()),
         new CatCommandHandler(actionFactory, catFinder),
         new SubscribeCommandHandler(actionFactory, subscribersService),
         new UnsubscribeCommandHandler(actionFactory, subscribersService),
