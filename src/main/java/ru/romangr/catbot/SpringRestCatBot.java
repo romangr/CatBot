@@ -59,7 +59,7 @@ public class SpringRestCatBot implements RestBot {
   @Override
   public void start() {
     log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
-    adminNotifier.botStarted();
+    adminNotifier.botStarted(subscribersService.getSubscribersCount());
     updatesReceivingExecutorService.scheduleAtFixedRate(
         () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
     Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(

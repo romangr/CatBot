@@ -33,12 +33,13 @@ internal class TelegramAdminNotifierTest {
         given(propertiesResolver.timeToSendMessageToSubscribers).willReturn(17)
         val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, 1L)
 
-        notifier.botStarted()
+        notifier.botStarted(15)
 
         verify(actionFactory).newSendMessageAction(Chat(1),
                 """Bot started! info
                 |Updates check period: 30
                 |Time to send a message to subscribers: 17
+                |Number of subscribers: 15
             """.trimMargin())
         verify(propertiesResolver).buildInfo
         verify(propertiesResolver).updatesCheckPeriod
@@ -55,7 +56,7 @@ internal class TelegramAdminNotifierTest {
         given(propertiesResolver.timeToSendMessageToSubscribers).willReturn(17)
         val notifier = TelegramAdminNotifier(actionFactory, actionExecutor, propertiesResolver, null)
 
-        notifier.botStarted()
+        notifier.botStarted(15)
 
         verify(propertiesResolver).buildInfo
         verify(propertiesResolver).updatesCheckPeriod
