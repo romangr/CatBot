@@ -24,8 +24,10 @@ class TelegramAdminNotifier(private val actionFactory: TelegramActionFactory,
     private val newSubscriberMessage = Function<String, String> { "New subscriber: $it" }
     private val unsubscribedMessage = Function<String, String> { "Unsubscribed: $it" }
 
-    fun botStarted() {
-        notifyAdmin(Function { this.sendMessageAction(it, botStartedMessage) })
+    fun botStarted(subscribersCount: Int) {
+        val subscribersInfo = "Number of subscribers: $subscribersCount"
+        val message = botStartedMessage + '\n' + subscribersInfo
+        notifyAdmin(Function { this.sendMessageAction(it, message) })
     }
 
     fun newSubscriber(subscriber: Chat) {
