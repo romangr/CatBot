@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static ru.romangr.catbot.test.utils.TestUtilsKt.anyMessage;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -37,7 +38,15 @@ class UpdatesHandlerTest {
 
   @Test
   void handleSuccessfully() {
-    given(messagePreprocessor.process(anyString())).willReturn("/preprocessed");
+    Chat chat = new Chat(123123, "title", "first", "last", "username");
+    User user = User.builder()
+        .firstName("first")
+        .lastName("last")
+        .id(123123)
+        .username("username")
+        .build();
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null);
+    given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any())).willReturn(
         Exceptional.exceptional(
             new HandlingResult(
@@ -52,39 +61,35 @@ class UpdatesHandlerTest {
             HandlingStatus.SKIPPED
         )));
 
-    Chat chat = new Chat(123123, "title", "first", "last", "username");
+    Message message = new Message(345, user, chat, "/test", null);
+    Update update = Update.builder()
+        .id(0)
+        .message(message)
+        .build();
 
+    updatesHandler.handleUpdate(update);
+
+    verify(messagePreprocessor).process(message);
+    verify(commandHandler1).handle(chat, preprocessedMessage);
+    verify(commandHandler2).handle(chat, preprocessedMessage);
+    verify(actionExecutor).execute(actionsCaptor.capture());
+    List<TelegramAction> actions = actionsCaptor.getValue();
+    assertThat(actions).hasSize(1);
+    verifyNoMoreInteractions(messagePreprocessor, commandHandler1, commandHandler2, actionExecutor);
+    verifyNoMoreInteractions(unknownCommandHandler);
+  }
+
+  @Test
+  void handleWithException() {
+    Chat chat = new Chat(123123, "title", "first", "last", "username");
     User user = User.builder()
         .firstName("first")
         .lastName("last")
         .id(123123)
         .username("username")
         .build();
-
-    Update update = Update.builder()
-        .id(0)
-        .message(Message.builder()
-            .chat(chat)
-            .from(user)
-            .text("/test")
-            .build())
-        .build();
-
-    updatesHandler.handleUpdate(update);
-
-    verify(messagePreprocessor).process("/test");
-    verify(commandHandler1).handle(chat, "/preprocessed");
-    verify(commandHandler2).handle(chat, "/preprocessed");
-    verify(actionExecutor).execute(actionsCaptor.capture());
-    List<TelegramAction> actions = actionsCaptor.getValue();
-    assertThat(actions).hasSize(1);
-    verifyNoMoreInteractions(messagePreprocessor, commandHandler1, commandHandler2, actionExecutor);
-    verifyZeroInteractions(unknownCommandHandler);
-  }
-
-  @Test
-  void handleWithException() {
-    given(messagePreprocessor.process(anyString())).willReturn("/preprocessed");
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null);
+    given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any()))
         .willReturn(Exceptional.exceptional(
             new HandlingResult(
@@ -95,39 +100,35 @@ class UpdatesHandlerTest {
     given(commandHandler2.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new RuntimeException()));
 
-    Chat chat = new Chat(123123, "title", "first", "last", "username");
+    Message message = new Message(345, user, chat, "/test", null);
+    Update update = Update.builder()
+        .id(0)
+        .message(message)
+        .build();
 
+    updatesHandler.handleUpdate(update);
+
+    verify(messagePreprocessor).process(message);
+    verify(commandHandler1).handle(chat, preprocessedMessage);
+    verify(commandHandler2).handle(chat, preprocessedMessage);
+    verify(actionExecutor).execute(actionsCaptor.capture());
+    List<TelegramAction> actions = actionsCaptor.getValue();
+    assertThat(actions).hasSize(1);
+    verifyNoMoreInteractions(messagePreprocessor, commandHandler1, commandHandler2, actionExecutor);
+    verifyNoMoreInteractions(unknownCommandHandler);
+  }
+
+  @Test
+  void handleUnknownCommand() {
+    Chat chat = new Chat(123123, "title", "first", "last", "username");
     User user = User.builder()
         .firstName("first")
         .lastName("last")
         .id(123123)
         .username("username")
         .build();
-
-    Update update = Update.builder()
-        .id(0)
-        .message(Message.builder()
-            .chat(chat)
-            .from(user)
-            .text("/test")
-            .build())
-        .build();
-
-    updatesHandler.handleUpdate(update);
-
-    verify(messagePreprocessor).process("/test");
-    verify(commandHandler1).handle(chat, "/preprocessed");
-    verify(commandHandler2).handle(chat, "/preprocessed");
-    verify(actionExecutor).execute(actionsCaptor.capture());
-    List<TelegramAction> actions = actionsCaptor.getValue();
-    assertThat(actions).hasSize(1);
-    verifyNoMoreInteractions(messagePreprocessor, commandHandler1, commandHandler2, actionExecutor);
-    verifyZeroInteractions(unknownCommandHandler);
-  }
-
-  @Test
-  void handleUnknownCommand() {
-    given(messagePreprocessor.process(anyString())).willReturn("/preprocessed");
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null);
+    given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new HandlingResult(
             List.of(),
@@ -147,29 +148,17 @@ class UpdatesHandlerTest {
             )
         ));
 
-    Chat chat = new Chat(123123, "title", "first", "last", "username");
-
-    User user = User.builder()
-        .firstName("first")
-        .lastName("last")
-        .id(123123)
-        .username("username")
-        .build();
-
+    Message message = new Message(345, user, chat, "/test", null);
     Update update = Update.builder()
         .id(0)
-        .message(Message.builder()
-            .chat(chat)
-            .from(user)
-            .text("/test")
-            .build())
+        .message(message)
         .build();
 
     updatesHandler.handleUpdate(update);
 
-    verify(messagePreprocessor).process("/test");
-    verify(commandHandler1).handle(chat, "/preprocessed");
-    verify(commandHandler2).handle(chat, "/preprocessed");
+    verify(messagePreprocessor).process(message);
+    verify(commandHandler1).handle(chat, preprocessedMessage);
+    verify(commandHandler2).handle(chat, preprocessedMessage);
     verify(unknownCommandHandler).handle(chat);
 
     verify(actionExecutor, times(2)).execute(actionsCaptor.capture());

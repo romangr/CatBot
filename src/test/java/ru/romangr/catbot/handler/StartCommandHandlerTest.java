@@ -14,6 +14,8 @@ import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.telegram.model.Chat;
+import ru.romangr.catbot.telegram.model.Message;
+import ru.romangr.catbot.telegram.model.User;
 import ru.romangr.exceptional.Exceptional;
 
 class StartCommandHandlerTest {
@@ -24,10 +26,12 @@ class StartCommandHandlerTest {
   @Test
   void handleCommandSuccessfully() {
     Chat chat = new Chat(1, null, null, null, null);
+    User user = User.builder().id(1).build();
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
+    Message message = new Message(4234, user, chat, "/start", null);
 
-    Exceptional<HandlingResult> result = handler.handle(chat, "/start");
+    Exceptional<HandlingResult> result = handler.handle(chat, message);
 
     assertThat(result.isValuePresent()).isTrue();
     HandlingResult handlingResult = result.getValue();
@@ -45,8 +49,10 @@ class StartCommandHandlerTest {
   @Test
   void skipUnknownCommand() {
     Chat chat = new Chat(1, null, null, null, null);
+    User user = User.builder().id(1).build();
+    Message message = new Message(4234, user, chat, "unknown", null);
 
-    Exceptional<HandlingResult> result = handler.handle(chat, "unknown");
+    Exceptional<HandlingResult> result = handler.handle(chat, message);
 
     assertThat(result.isValuePresent()).isTrue();
     HandlingResult handlingResult = result.getValue();
@@ -58,10 +64,12 @@ class StartCommandHandlerTest {
   @Test
   void handleCommandWithException() {
     Chat chat = new Chat(1, null, null, null, null);
+    User user = User.builder().id(1).build();
     given(actionFactory.newSendMessageAction(any(), any()))
         .willThrow(RuntimeException.class);
+    Message message = new Message(4234, user, chat, "/start", null);
 
-    Exceptional<HandlingResult> result = handler.handle(chat, "/start");
+    Exceptional<HandlingResult> result = handler.handle(chat, message);
 
     assertThat(result.isException()).isTrue();
     result.ifException(e -> assertThat(e).isExactlyInstanceOf(RuntimeException.class));

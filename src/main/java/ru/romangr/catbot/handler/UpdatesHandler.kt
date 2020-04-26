@@ -12,10 +12,9 @@ class UpdatesHandler(private val messagePreprocessor: MessagePreprocessor,
 
     fun handleUpdate(update: Update) {
         val chat = getChatFromUpdate(update)
-        val messageText = update.message.text
-        val preprocessedText = messagePreprocessor.process(messageText)
+        val preprocessedMessage = messagePreprocessor.process(update.message)
         val results = commandHandlers.stream()
-                .map { commandHandler -> commandHandler.handle(chat, preprocessedText) }
+                .map { commandHandler -> commandHandler.handle(chat, preprocessedMessage) }
                 .collect(Collectors.toList())
         results.stream()
                 .filter { it.isException }
@@ -24,7 +23,7 @@ class UpdatesHandler(private val messagePreprocessor: MessagePreprocessor,
                 .map { handlingResultExceptional -> handlingResultExceptional.map { it.status } }
                 .noneMatch { e -> e.isException || e.value == HandlingStatus.HANDLED }
         if (notHandledAtAll) {
-            log.debug("Unknown command: {}", messageText)
+            log.debug("Unknown message type: {}", update.message)
             unknownCommandHandler.handle(chat)
                     .ifValue { handlingResult -> actionExecutor.execute(handlingResult.actions) }
         }

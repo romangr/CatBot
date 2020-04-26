@@ -1,5 +1,15 @@
 package ru.romangr.catbot.subscription;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+
+import java.util.List;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.catfinder.Cat;
@@ -10,18 +20,6 @@ import ru.romangr.catbot.telegram.TelegramAdminNotifier;
 import ru.romangr.catbot.telegram.TelegramRequestExecutor;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.exceptional.Exceptional;
-
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 class SubscribersServiceTest {
 
@@ -47,7 +45,7 @@ class SubscribersServiceTest {
     assertThat(result.getException().getMessage()).isEqualTo(NO_INTERNET_MESSAGE);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);
-    verifyZeroInteractions(repository, catFinder, actionFactory);
+    verifyNoMoreInteractions(repository, catFinder, actionFactory);
   }
 
   @Test
@@ -58,15 +56,17 @@ class SubscribersServiceTest {
     Chat chat2 = getChat(2, "username_2");
     given(repository.getAllSubscribers()).willReturn(List.of(chat1, chat2));
     given(actionFactory.newSendMessageAction(any(), any())).willReturn(mock(TelegramAction.class));
-    service.addMessageToSubscribers("Some message");
+    service.addMessageToSubscribers(MessageToSubscribers.Factory.textMessage("Some message"));
 
     Exceptional<List<TelegramAction>> result = service.sendMessageToSubscribers();
 
     assertThat(result.isValuePresent()).isTrue();
     List<TelegramAction> actions = result.getValue();
     assertThat(actions).hasSize(2);
-    verify(actionFactory).newSendMessageAction(eq(chat1), eq("Some message"));
-    verify(actionFactory).newSendMessageAction(eq(chat2), eq("Some message"));
+    MessageToSubscribers messageToSubscribers
+        = MessageToSubscribers.Factory.textMessage("Some message");
+    verify(actionFactory).newAction(eq(chat1), eq(messageToSubscribers));
+    verify(actionFactory).newAction(eq(chat2), eq(messageToSubscribers));
     verifyNoMoreInteractions(actionFactory);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);
@@ -84,15 +84,19 @@ class SubscribersServiceTest {
     Chat chat2 = getChat(2, "username_2");
     given(repository.getAllSubscribers()).willReturn(List.of(chat1, chat2));
     given(actionFactory.newSendMessageAction(any(), any())).willReturn(mock(TelegramAction.class));
-    service.addMessageToSubscribers("Some message for $idf");
+    service.addMessageToSubscribers(MessageToSubscribers.Factory.textMessage("Some message for $idf"));
 
     Exceptional<List<TelegramAction>> result = service.sendMessageToSubscribers();
 
     assertThat(result.isValuePresent()).isTrue();
     List<TelegramAction> actions = result.getValue();
     assertThat(actions).hasSize(2);
-    verify(actionFactory).newSendMessageAction(eq(chat1), eq("Some message for username_1"));
-    verify(actionFactory).newSendMessageAction(eq(chat2), eq("Some message for username_2"));
+    MessageToSubscribers messageToSubscribers1
+        = MessageToSubscribers.Factory.textMessage("Some message for username_1");
+    verify(actionFactory).newAction(eq(chat1), eq(messageToSubscribers1));
+    MessageToSubscribers messageToSubscribers2
+        = MessageToSubscribers.Factory.textMessage("Some message for username_2");
+    verify(actionFactory).newAction(eq(chat2), eq(messageToSubscribers2));
     verifyNoMoreInteractions(actionFactory);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);
@@ -117,10 +121,12 @@ class SubscribersServiceTest {
     assertThat(result.isValuePresent()).isTrue();
     List<TelegramAction> actions = result.getValue();
     assertThat(actions).hasSize(2);
-    verify(actionFactory)
-        .newSendMessageAction(eq(chat1), eq("Your daily cat, username_1!\ncat_url"));
-    verify(actionFactory)
-        .newSendMessageAction(eq(chat2), eq("Your daily cat, username_2!\ncat_url"));
+    MessageToSubscribers messageToSubscribers1
+        = MessageToSubscribers.Factory.textMessage("Your daily cat, username_1!\ncat_url");
+    verify(actionFactory).newAction(eq(chat1), eq(messageToSubscribers1));
+    MessageToSubscribers messageToSubscribers2
+        = MessageToSubscribers.Factory.textMessage("Your daily cat, username_2!\ncat_url");
+    verify(actionFactory).newAction(eq(chat2), eq(messageToSubscribers2));
     verifyNoMoreInteractions(actionFactory);
     verify(requestExecutor).isConnectedToInternet();
     verifyNoMoreInteractions(requestExecutor);

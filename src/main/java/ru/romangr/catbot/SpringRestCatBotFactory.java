@@ -20,6 +20,7 @@ import ru.romangr.catbot.handler.SubscribeCommandHandler;
 import ru.romangr.catbot.handler.UnknownCommandHandler;
 import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
 import ru.romangr.catbot.handler.UpdatesHandler;
+import ru.romangr.catbot.handler.VideoHandler;
 import ru.romangr.catbot.subscription.SubscribersRepository;
 import ru.romangr.catbot.subscription.SubscribersService;
 import ru.romangr.catbot.telegram.TelegramAdminNotifier;
@@ -66,7 +67,8 @@ public class SpringRestCatBotFactory {
         new SubscribeCommandHandler(actionFactory, subscribersService),
         new UnsubscribeCommandHandler(actionFactory, subscribersService),
         new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId),
-        new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId)
+        new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId),
+        new VideoHandler(actionFactory, subscribersService, adminChatId)
     );
     UnknownCommandHandler unknownCommandHandler = new UnknownCommandHandler(actionFactory);
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());

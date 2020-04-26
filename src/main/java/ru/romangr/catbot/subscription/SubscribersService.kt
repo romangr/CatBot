@@ -15,7 +15,7 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
                          private val catFinder: CatFinder,
                          private val actionFactory: TelegramActionFactory,
                          private val notifier: TelegramAdminNotifier) {
-    private val messagesToSubscribers = ConcurrentLinkedQueue<String>()
+    private val messagesToSubscribers = ConcurrentLinkedQueue<MessageToSubscribers>()
 
     val subscribersCount: Int
         get() = subscribersRepository.subscribersCount
@@ -42,22 +42,26 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
 
         return catFinder.cat
                 .ifException { e -> log.warn("Exception getting cat", e) }
-                .map { it.url }
+                .map { MessageToSubscribers.textMessage(it.url) }
                 .flatMap {
                     getActionsForAllSubscribers(it) { chat, message ->
+                        if (message.type != MessageToSubscribersType.TEXT) {
+                            return@getActionsForAllSubscribers message
+                        }
                         val messageToSubscriber = StringBuilder().append("Your daily cat")
                         resolveUserIdentifier(chat)?.let { identifier ->
                             messageToSubscriber.append(", ")
                                     .append(identifier)
                                     .append("!")
                         }
-                        messageToSubscriber.append("\n").append(message).toString()
+                        messageToSubscriber.append("\n").append(message.text).toString()
+                        MessageToSubscribers.textMessage(messageToSubscriber.toString())
                     }
                 }
                 .ifValue { log.info("Cat will be sent to {} subscribers", it.size) }
     }
 
-    fun addMessageToSubscribers(message: String) {
+    fun addMessageToSubscribers(message: MessageToSubscribers) {
         messagesToSubscribers.add(message)
     }
 
@@ -77,12 +81,13 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
                     }
 
 
-    private fun getActionsForAllSubscribers(message: String,
-                                            messagePreprocessor: (Chat, String) -> String)
+    private fun getActionsForAllSubscribers(message: MessageToSubscribers,
+                                            messagePreprocessor: (Chat, MessageToSubscribers) ->
+                                            MessageToSubscribers)
             : Exceptional<List<TelegramAction>> {
         val actions = ArrayList<TelegramAction>(subscribersRepository.subscribersCount)
         for (chat in subscribersRepository.allSubscribers) {
-            val action = actionFactory.newSendMessageAction(chat, messagePreprocessor(chat, message))
+            val action = actionFactory.newAction(chat, messagePreprocessor(chat, message))
             actions.add(action)
         }
         return Exceptional.exceptional(actions)

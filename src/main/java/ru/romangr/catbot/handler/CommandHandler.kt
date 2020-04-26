@@ -2,23 +2,24 @@ package ru.romangr.catbot.handler
 
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.telegram.model.Chat
+import ru.romangr.catbot.telegram.model.Message
 import ru.romangr.exceptional.Exceptional
 
 abstract class CommandHandler {
 
-    fun handle(chat: Chat, messageText: String): Exceptional<HandlingResult> {
-        return if (isApplicable(messageText)) {
+    fun handle(chat: Chat, message: Message): Exceptional<HandlingResult> {
+        return if (isApplicable(message)) {
             Exceptional.getExceptional {
-                HandlingResult(handleCommand(chat, messageText), HandlingStatus.HANDLED)
+                HandlingResult(handleCommand(chat, message), HandlingStatus.HANDLED)
             }
         } else Exceptional.exceptional(
                 HandlingResult(emptyList(), HandlingStatus.SKIPPED)
         )
     }
 
-    internal abstract fun isApplicable(messageText: String): Boolean
+    internal abstract fun isApplicable(message: Message): Boolean
 
-    protected abstract fun handleCommand(chat: Chat, messageText: String): List<TelegramAction>
+    protected abstract fun handleCommand(chat: Chat, message: Message): List<TelegramAction>
 }
 
 fun isMessageNotFromAdmin(adminChatId: Long?, chat: Chat): Boolean {
