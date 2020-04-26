@@ -11,7 +11,7 @@ class UnsubscribeCommandHandler(private val actionFactory: TelegramActionFactory
                                 private val subscribersService: SubscribersService)
     : StaticCommandHandler() {
 
-    override fun handleCommand(chat: Chat, messageText: String): List<TelegramAction> {
+    override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> {
         val isDeleted = subscribersService.deleteSubscriber(chat)
         val message: String
         if (isDeleted) {

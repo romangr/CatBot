@@ -3,11 +3,11 @@ package ru.romangr.catbot.telegram.model;
 /**
  * Roman 02.04.2017.
  */
-public class MessageToSend {
+public class TextMessageToSend {
     private int chat_id;
     private String text;
 
-    public MessageToSend(Chat chat, String text) {
+    public TextMessageToSend(Chat chat, String text) {
         chat_id = chat.getId();
         this.text = text;
     }

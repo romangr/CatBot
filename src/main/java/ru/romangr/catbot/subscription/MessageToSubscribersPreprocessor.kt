@@ -8,13 +8,16 @@ enum class MessageToSubscribersTemplateVariable(val variable: String, val extrac
     IDENTIFIER("idf", { chat -> resolveUserIdentifier(chat) })
 }
 
-fun processTemplateVariables(chat: Chat, message: String): String {
-    var processedMessage = message
+fun processTemplateVariables(chat: Chat, message: MessageToSubscribers): MessageToSubscribers {
+    if (message.type != MessageToSubscribersType.TEXT) {
+        return message
+    }
+    var processedMessage : String = message.text!!
     for (templateVariable in MessageToSubscribersTemplateVariable.values()) {
         val value = templateVariable.extractor(chat)
-        value?.let { processedMessage = message.replace("$" + templateVariable.variable, it) }
+        value?.let { processedMessage = processedMessage.replace("$" + templateVariable.variable, it) }
     }
-    return processedMessage
+    return MessageToSubscribers.textMessage(processedMessage)
 }
 
 fun resolveUserIdentifier(chat: Chat): String? {

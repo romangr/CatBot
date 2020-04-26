@@ -1,43 +1,25 @@
 package ru.romangr.catbot.executor.action
 
-import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestTemplate
 import ru.romangr.catbot.telegram.dto.SendMessageResponse
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.ExecutionResult
 import ru.romangr.catbot.telegram.model.Message
-import ru.romangr.catbot.telegram.model.MessageToSend
-import ru.romangr.catbot.utils.URLBuilder
+import ru.romangr.catbot.telegram.model.TextMessageToSend
 import ru.romangr.exceptional.Exceptional
 
-internal class SendMessageAction(private val restTemplate: RestTemplate,
-                                 private val requestUrl: String,
+internal class SendMessageAction(restTemplate: RestTemplate,
+                                 requestUrl: String,
                                  private val text: String,
-                                 override val chat: Chat) : TelegramAction {
+                                 override val chat: Chat)
+    : AbstractTelegramAction<Message, SendMessageResponse>(restTemplate, requestUrl) {
 
     override fun execute(): Exceptional<ExecutionResult> {
-        return sendMessageSafely(chat, text)
+        return sendMessageSafely(TextMessageToSend(chat, text))
     }
 
-    private fun sendMessageSafely(chat: Chat, message: String): Exceptional<ExecutionResult> {
-        return Exceptional.getExceptional {
-            val url = URLBuilder().withHost(requestUrl).withPath("sendMessage").build()
-            restTemplate
-                    .postForObject(url, MessageToSend(chat, message), SendMessageResponse::class.java)
-        }
-                .map<Message> { it?.result }
-                .map { ExecutionResult.SUCCESS }
-                .resumeOnException { e ->
-                    if (e is HttpClientErrorException && isTooManyRequestStatus(e)) {
-                        return@resumeOnException ExecutionResult.RATE_LIMIT_FAILURE
-                    }
-                    ExecutionResult.FAILURE
-                }
-    }
+    override fun methodName(): String = "sendMessage"
 
-    private fun isTooManyRequestStatus(e: Exception): Boolean {
-        return (e as HttpClientErrorException).statusCode == HttpStatus.TOO_MANY_REQUESTS
-    }
+    override fun responseClass(): Class<SendMessageResponse> = SendMessageResponse::class.java
 
 }

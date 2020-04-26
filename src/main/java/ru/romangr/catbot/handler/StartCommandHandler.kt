@@ -10,7 +10,7 @@ import ru.romangr.catbot.telegram.model.Chat
 class StartCommandHandler(private val actionFactory: TelegramActionFactory)
     : StaticCommandHandler() {
 
-    override fun handleCommand(chat: Chat, messageText: String): List<TelegramAction> {
+    override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> {
         return listOf(actionFactory.newSendMessageAction(chat, START_MESSAGE))
     }
 

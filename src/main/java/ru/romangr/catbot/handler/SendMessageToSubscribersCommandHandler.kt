@@ -12,7 +12,7 @@ class SendMessageToSubscribersCommandHandler(private val subscribersService: Sub
                                              private val adminChatId: Long?)
     : StaticCommandHandler() {
 
-    override fun handleCommand(chat: Chat, messageText: String): List<TelegramAction> {
+    override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> {
         if (isMessageNotFromAdmin(this.adminChatId, chat)) {
             return emptyList()
         }

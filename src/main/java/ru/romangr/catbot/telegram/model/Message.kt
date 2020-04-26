@@ -1,0 +1,15 @@
+package ru.romangr.catbot.telegram.model
+
+import com.fasterxml.jackson.annotation.JsonProperty
+import ru.romangr.catbot.telegram.dto.Video
+
+/**
+ * Roman 27.10.2016.
+ */
+data class Message(
+        @JsonProperty("message_id") val id: Long,
+        val from: User,
+        val chat: Chat,
+        val text: String? = null,
+        val video: Video? = null
+)

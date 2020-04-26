@@ -13,7 +13,7 @@ class HelpCommandHandler(private val actionFactory: TelegramActionFactory,
             """/cat to get a random cat 🐱
 /subscribe to get a random cat every day 🐈 ($timeToSendMessageToSubscribers:00 UTC)"""
 
-    override fun handleCommand(chat: Chat, messageText: String): List<TelegramAction> {
+    override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> {
         return listOf(actionFactory.newSendMessageAction(chat, helpMessage))
     }
 

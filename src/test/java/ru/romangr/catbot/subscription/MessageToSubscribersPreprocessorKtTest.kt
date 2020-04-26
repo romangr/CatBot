@@ -1,6 +1,7 @@
 package ru.romangr.catbot.subscription
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.CsvSource
@@ -15,12 +16,22 @@ internal class MessageToSubscribersPreprocessorKtTest {
             delimiter = '_'
     )
     @ParameterizedTest
-    internal fun processTemplateVariablesForChats(chatName: String, template: String, expectedResult: String) {
+    internal fun processTemplateVariablesForChats(chatName: String, message: String, expectedResult: String) {
         val chat = Chat(id = 1, firstName = chatName)
 
-        val actualResult = processTemplateVariables(chat, template)
+        val actualResult = processTemplateVariables(chat, MessageToSubscribers.textMessage(message))
 
-        assertThat(actualResult).isEqualTo(expectedResult)
+        assertThat(actualResult.text).isEqualTo(expectedResult)
+    }
+
+    @Test
+    internal fun nullText() {
+        val chat = Chat(id = 1, firstName = "chatName")
+
+        val actualResult = processTemplateVariables(chat, MessageToSubscribers.videoMessage("id"))
+
+        assertThat(actualResult.text).isNull()
+        assertThat(actualResult.videoId).isEqualTo("id")
     }
 
     @ParameterizedTest

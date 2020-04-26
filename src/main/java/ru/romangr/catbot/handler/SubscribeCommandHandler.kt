@@ -13,7 +13,7 @@ class SubscribeCommandHandler(private val actionFactory: TelegramActionFactory,
 
     private val log = LoggerFactory.getLogger(CatCommandHandler::class.java)
 
-    override fun handleCommand(chat: Chat, messageText: String): List<TelegramAction> =
+    override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> =
             subscribersService.addSubscriber(chat)
                     .ifException { log.warn("Error adding subscriber", it) }
                     .map {
