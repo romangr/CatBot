@@ -2,6 +2,7 @@ package ru.romangr.catbot.handler
 
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.subscription.MessageToSubscribers
 import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.model.Chat
@@ -9,7 +10,8 @@ import ru.romangr.catbot.telegram.model.Message
 
 class DocumentHandler(private val actionFactory: TelegramActionFactory,
                       private val subscribersService: SubscribersService,
-                      private val adminChatId: Long?) : CommandHandler() {
+                      private val adminChatId: Long?,
+                      statisticService: StatisticService) : CommandHandler(statisticService) {
 
     override fun isApplicable(message: Message): Boolean {
         return message.document != null

@@ -7,6 +7,7 @@ import org.mockito.BDDMockito.given
 import org.mockito.Mockito.*
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.subscription.MessageToSubscribers
 import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.model.Chat
@@ -18,7 +19,13 @@ internal class AddMessageToSubscribersCommandHandlerTest {
 
     private val subscribersService: SubscribersService = mock(SubscribersService::class.java)
     private val actionFactory: TelegramActionFactory = mock(TelegramActionFactory::class.java)
-    private val handler = AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, 1)
+    private val statisticService: StatisticService = mock(StatisticService::class.java)
+    private val handler = AddMessageToSubscribersCommandHandler(
+            subscribersService,
+            actionFactory,
+            1,
+            statisticService
+    )
 
     @Test
     internal fun validArgument() {
@@ -37,6 +44,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
         verify(actionFactory).newSendMessageAction(chat, "Message is added to the queue, there are 1 message(s)")
         verify(subscribersService).addMessageToSubscribers(MessageToSubscribers.textMessage("test"))
         verify(subscribersService).messageQueueLength
+        verify(statisticService).registerAction("AddMessageToSubscribersCommandHandler")
         verifyNoMoreInteractions(subscribersService, actionFactory)
     }
 

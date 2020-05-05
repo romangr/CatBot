@@ -7,6 +7,7 @@ import org.mockito.BDDMockito
 import org.mockito.Mockito
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.subscription.MessageToSubscribers
 import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.dto.Document
@@ -19,7 +20,8 @@ internal class DocumentHandlerTest {
 
     private val subscribersService: SubscribersService = Mockito.mock(SubscribersService::class.java)
     private val actionFactory: TelegramActionFactory = Mockito.mock(TelegramActionFactory::class.java)
-    private val handler = DocumentHandler(actionFactory, subscribersService, 1)
+    private val statisticService: StatisticService = Mockito.mock(StatisticService::class.java)
+    private val handler = DocumentHandler(actionFactory, subscribersService, 1, statisticService)
 
     @Test
     internal fun validArgument() {

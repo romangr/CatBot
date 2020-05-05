@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.subscription.SubscribersService;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.Message;
@@ -20,7 +21,8 @@ class UnsubscribeCommandHandlerTest {
 
   private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
   private SubscribersService subscribersService = mock(SubscribersService.class);
-  private CommandHandler handler = new UnsubscribeCommandHandler(actionFactory, subscribersService);
+  private StatisticService statisticService = mock(StatisticService.class);
+  private CommandHandler handler = new UnsubscribeCommandHandler(actionFactory, subscribersService, statisticService);
 
   @Test
   void handleCommandSuccessfullyForASubscriber() {

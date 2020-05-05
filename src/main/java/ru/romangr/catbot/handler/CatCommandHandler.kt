@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor
 import ru.romangr.catbot.catfinder.CatFinder
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.telegram.model.Chat
 
 @StaticCommand(BotCommand.CAT)
 @RequiredArgsConstructor
 class CatCommandHandler(private val actionFactory: TelegramActionFactory,
-                        private val catFinder: CatFinder) : StaticCommandHandler() {
+                        private val catFinder: CatFinder,
+                        statisticService: StatisticService)
+    : StaticCommandHandler(statisticService) {
 
     override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> {
         return catFinder.cat

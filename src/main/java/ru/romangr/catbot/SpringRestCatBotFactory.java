@@ -16,11 +16,13 @@ import ru.romangr.catbot.handler.HelpCommandHandler;
 import ru.romangr.catbot.handler.MessagePreprocessor;
 import ru.romangr.catbot.handler.SendMessageToSubscribersCommandHandler;
 import ru.romangr.catbot.handler.StartCommandHandler;
+import ru.romangr.catbot.handler.StatisticsCommandHandler;
 import ru.romangr.catbot.handler.SubscribeCommandHandler;
 import ru.romangr.catbot.handler.UnknownCommandHandler;
 import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
 import ru.romangr.catbot.handler.UpdatesHandler;
 import ru.romangr.catbot.handler.DocumentHandler;
+import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.subscription.SubscribersRepository;
 import ru.romangr.catbot.subscription.SubscribersService;
 import ru.romangr.catbot.telegram.TelegramAdminNotifier;
@@ -60,15 +62,17 @@ public class SpringRestCatBotFactory {
         actionFactory,
         adminNotifier
     );
+    StatisticService statisticService = new StatisticService();
     List<CommandHandler> handlers = List.of(
-        new StartCommandHandler(actionFactory),
-        new HelpCommandHandler(actionFactory, resolver.getTimeToSendMessageToSubscribers()),
-        new CatCommandHandler(actionFactory, catFinder),
-        new SubscribeCommandHandler(actionFactory, subscribersService),
-        new UnsubscribeCommandHandler(actionFactory, subscribersService),
-        new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId),
-        new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId),
-        new DocumentHandler(actionFactory, subscribersService, adminChatId)
+        new StartCommandHandler(actionFactory, statisticService),
+        new HelpCommandHandler(actionFactory, resolver.getTimeToSendMessageToSubscribers(), statisticService),
+        new CatCommandHandler(actionFactory, catFinder, statisticService),
+        new SubscribeCommandHandler(actionFactory, subscribersService, statisticService),
+        new UnsubscribeCommandHandler(actionFactory, subscribersService, statisticService),
+        new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId, statisticService),
+        new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId, statisticService),
+        new DocumentHandler(actionFactory, subscribersService, adminChatId, statisticService),
+        new StatisticsCommandHandler(actionFactory, adminChatId, statisticService)
     );
     UnknownCommandHandler unknownCommandHandler = new UnknownCommandHandler(actionFactory);
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());

@@ -3,13 +3,15 @@ package ru.romangr.catbot.handler
 import org.slf4j.LoggerFactory
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.model.Chat
 
 @StaticCommand(BotCommand.SUBSCRIBE)
 class SubscribeCommandHandler(private val actionFactory: TelegramActionFactory,
-                              private val subscribersService: SubscribersService)
-    : StaticCommandHandler() {
+                              private val subscribersService: SubscribersService,
+                              statisticService: StatisticService)
+    : StaticCommandHandler(statisticService) {
 
     private val log = LoggerFactory.getLogger(CatCommandHandler::class.java)
 

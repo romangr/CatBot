@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.Message;
 import ru.romangr.catbot.telegram.model.User;
@@ -21,7 +22,8 @@ import ru.romangr.exceptional.Exceptional;
 class HelpCommandHandlerTest {
 
   private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
-  private CommandHandler handler = new HelpCommandHandler(actionFactory, 17);
+  private StatisticService statisticService = mock(StatisticService.class);
+  private CommandHandler handler = new HelpCommandHandler(actionFactory, 17, statisticService);
 
   @Test
   void handleCommandSuccessfully() {

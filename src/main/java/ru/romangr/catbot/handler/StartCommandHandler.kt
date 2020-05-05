@@ -3,12 +3,14 @@ package ru.romangr.catbot.handler
 import lombok.RequiredArgsConstructor
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.telegram.model.Chat
 
 @StaticCommand(BotCommand.START)
 @RequiredArgsConstructor
-class StartCommandHandler(private val actionFactory: TelegramActionFactory)
-    : StaticCommandHandler() {
+class StartCommandHandler(private val actionFactory: TelegramActionFactory,
+                          statisticService: StatisticService)
+    : StaticCommandHandler(statisticService) {
 
     override fun handleStringCommand(chat: Chat, text: String): List<TelegramAction> {
         return listOf(actionFactory.newSendMessageAction(chat, START_MESSAGE))
