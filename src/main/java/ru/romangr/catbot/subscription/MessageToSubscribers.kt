@@ -2,13 +2,13 @@ package ru.romangr.catbot.subscription
 
 class MessageToSubscribers {
     val text: String?
-    val videoId: String?
+    val documentId: String?
     val type: MessageToSubscribersType
 
-    private constructor(text: String? = null, videoId: String? = null,
+    private constructor(text: String? = null, documentId: String? = null,
                         type: MessageToSubscribersType) {
         this.text = text
-        this.videoId = videoId
+        this.documentId = documentId
         this.type = type
     }
 
@@ -17,8 +17,8 @@ class MessageToSubscribers {
             return MessageToSubscribers(text, null, MessageToSubscribersType.TEXT)
         }
 
-        fun videoMessage(videoId: String): MessageToSubscribers {
-            return MessageToSubscribers(null, videoId, MessageToSubscribersType.VIDEO)
+        fun documentMessage(videoId: String): MessageToSubscribers {
+            return MessageToSubscribers(null, videoId, MessageToSubscribersType.DOCUMENT)
         }
     }
 
@@ -29,7 +29,7 @@ class MessageToSubscribers {
         other as MessageToSubscribers
 
         if (text != other.text) return false
-        if (videoId != other.videoId) return false
+        if (documentId != other.documentId) return false
         if (type != other.type) return false
 
         return true
@@ -37,13 +37,13 @@ class MessageToSubscribers {
 
     override fun hashCode(): Int {
         var result = text?.hashCode() ?: 0
-        result = 31 * result + (videoId?.hashCode() ?: 0)
+        result = 31 * result + (documentId?.hashCode() ?: 0)
         result = 31 * result + type.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "MessageToSubscribers(text=$text, videoId=$videoId, type=$type)"
+        return "MessageToSubscribers(text=$text, documentId=$documentId, type=$type)"
     }
 
 
@@ -51,5 +51,5 @@ class MessageToSubscribers {
 
 enum class MessageToSubscribersType {
     TEXT,
-    VIDEO
+    DOCUMENT
 }

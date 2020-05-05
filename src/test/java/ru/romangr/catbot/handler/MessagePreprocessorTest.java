@@ -29,6 +29,6 @@ class MessagePreprocessorTest {
         .id(123123)
         .username("username")
         .build();
-    return new Message(213, user, chat, text, null);
+    return new Message(213, user, chat, text, null, null);
   }
 }

@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 import static ru.romangr.exceptional.Exceptional.exceptional;
 
 import org.junit.jupiter.api.Test;
@@ -32,7 +31,7 @@ class CatCommandHandlerTest {
     given(catFinder.getCat()).willReturn(exceptional(new Cat("url")));
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
-    Message message = new Message(4234, user, chat, "/cat", null);
+    Message message = new Message(4234, user, chat, "/cat", null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 
@@ -50,7 +49,7 @@ class CatCommandHandlerTest {
   void skipUnknownCommand() {
     Chat chat = new Chat(1, null, null, null, null);
     User user = User.builder().id(1).build();
-    Message message = new Message(4234, user, chat, "unknown", null);
+    Message message = new Message(4234, user, chat, "unknown", null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 
@@ -67,7 +66,7 @@ class CatCommandHandlerTest {
     User user = User.builder().id(1).build();
     given(actionFactory.newSendMessageAction(any(), any())).willThrow(RuntimeException.class);
     given(catFinder.getCat()).willReturn(Exceptional.exceptional(new Cat("test")));
-    Message message = new Message(4234, user, chat, "/cat", null);
+    Message message = new Message(4234, user, chat, "/cat", null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 
@@ -85,7 +84,7 @@ class CatCommandHandlerTest {
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
     given(catFinder.getCat()).willReturn(Exceptional.exceptional(new RuntimeException()));
-    Message message = new Message(4234, user, chat, "/cat", null);
+    Message message = new Message(4234, user, chat, "/cat", null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 

@@ -1,15 +1,12 @@
 package ru.romangr.catbot.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static ru.romangr.catbot.test.utils.TestUtilsKt.anyMessage;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -45,7 +42,7 @@ class UpdatesHandlerTest {
         .id(123123)
         .username("username")
         .build();
-    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null);
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null);
     given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any())).willReturn(
         Exceptional.exceptional(
@@ -61,7 +58,7 @@ class UpdatesHandlerTest {
             HandlingStatus.SKIPPED
         )));
 
-    Message message = new Message(345, user, chat, "/test", null);
+    Message message = new Message(345, user, chat, "/test", null, null);
     Update update = Update.builder()
         .id(0)
         .message(message)
@@ -88,7 +85,7 @@ class UpdatesHandlerTest {
         .id(123123)
         .username("username")
         .build();
-    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null);
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null);
     given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any()))
         .willReturn(Exceptional.exceptional(
@@ -100,7 +97,7 @@ class UpdatesHandlerTest {
     given(commandHandler2.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new RuntimeException()));
 
-    Message message = new Message(345, user, chat, "/test", null);
+    Message message = new Message(345, user, chat, "/test", null, null);
     Update update = Update.builder()
         .id(0)
         .message(message)
@@ -127,7 +124,7 @@ class UpdatesHandlerTest {
         .id(123123)
         .username("username")
         .build();
-    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null);
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null);
     given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new HandlingResult(
@@ -148,7 +145,7 @@ class UpdatesHandlerTest {
             )
         ));
 
-    Message message = new Message(345, user, chat, "/test", null);
+    Message message = new Message(345, user, chat, "/test", null, null);
     Update update = Update.builder()
         .id(0)
         .message(message)
