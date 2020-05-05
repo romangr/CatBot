@@ -2,11 +2,13 @@ package ru.romangr.catbot.handler
 
 import org.apache.commons.lang3.StringUtils
 import ru.romangr.catbot.executor.action.TelegramAction
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.Message
 import java.util.*
 
-abstract class StaticCommandHandler : CommandHandler() {
+abstract class StaticCommandHandler(statisticService: StatisticService)
+    : CommandHandler(statisticService) {
 
     private val command: String =
             Optional.ofNullable(this.javaClass.getAnnotation(StaticCommand::class.java))

@@ -13,6 +13,7 @@ import ru.romangr.catbot.catfinder.Cat;
 import ru.romangr.catbot.catfinder.CatFinder;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
+import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.telegram.model.Chat;
 import ru.romangr.catbot.telegram.model.Message;
 import ru.romangr.catbot.telegram.model.User;
@@ -22,7 +23,8 @@ class CatCommandHandlerTest {
 
   private TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
   private CatFinder catFinder = mock(CatFinder.class);
-  private CommandHandler handler = new CatCommandHandler(actionFactory, catFinder);
+  private StatisticService statisticService = mock(StatisticService.class);
+  private CommandHandler handler = new CatCommandHandler(actionFactory, catFinder, statisticService);
 
   @Test
   void handleCommandSuccessfully() {

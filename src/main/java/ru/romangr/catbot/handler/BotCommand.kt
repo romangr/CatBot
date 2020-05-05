@@ -1,6 +1,6 @@
 package ru.romangr.catbot.handler
 
-import java.util.Arrays
+import java.util.*
 import java.util.stream.Collectors
 
 enum class BotCommand(val command: String) {
@@ -10,7 +10,8 @@ enum class BotCommand(val command: String) {
     UNSUBSCRIBE("/unsubscribe"),
     HELP("/help"),
     SEND_MESSAGE_TO_SUBSCRIBERS("/smts"),
-    ADD_MESSAGE_TO_SUBSCRIBERS("/amts");
+    ADD_MESSAGE_TO_SUBSCRIBERS("/amts"),
+    STATISTICS("/stats");
 
 
     companion object {

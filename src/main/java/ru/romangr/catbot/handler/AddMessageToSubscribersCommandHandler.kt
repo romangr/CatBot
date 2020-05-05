@@ -3,6 +3,7 @@ package ru.romangr.catbot.handler
 import org.apache.commons.lang3.StringUtils
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
+import ru.romangr.catbot.statistic.StatisticService
 import ru.romangr.catbot.subscription.MessageToSubscribers
 import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.model.Chat
@@ -10,8 +11,9 @@ import ru.romangr.catbot.telegram.model.Chat
 @OneArgumentCommand(BotCommand.ADD_MESSAGE_TO_SUBSCRIBERS)
 class AddMessageToSubscribersCommandHandler(private val subscribersService: SubscribersService,
                                             private val actionFactory: TelegramActionFactory,
-                                            private val adminChatId: Long?)
-    : OneArgumentCommandHandler() {
+                                            private val adminChatId: Long?,
+                                            statisticService: StatisticService)
+    : OneArgumentCommandHandler(statisticService) {
 
     override fun handleCommandWithArgument(chat: Chat, argument: String): List<TelegramAction> {
         if (isMessageNotFromAdmin(this.adminChatId, chat)) {
