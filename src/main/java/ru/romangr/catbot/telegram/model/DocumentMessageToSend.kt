@@ -2,7 +2,7 @@ package ru.romangr.catbot.telegram.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
-data class VideoMessageToSend(
+data class DocumentMessageToSend(
         @JsonProperty("chat_id") val chatId: Int,
-        @JsonProperty("video") val videoId: String
+        @JsonProperty("document") val documentId: String
 )

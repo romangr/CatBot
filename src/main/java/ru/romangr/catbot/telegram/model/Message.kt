@@ -1,6 +1,7 @@
 package ru.romangr.catbot.telegram.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import ru.romangr.catbot.telegram.dto.Document
 import ru.romangr.catbot.telegram.dto.Video
 
 /**
@@ -11,5 +12,6 @@ data class Message(
         val from: User,
         val chat: Chat,
         val text: String? = null,
-        val video: Video? = null
+        val video: Video? = null,
+        val document: Document? = null
 )

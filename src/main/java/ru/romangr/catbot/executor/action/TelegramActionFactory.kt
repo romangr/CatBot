@@ -15,13 +15,13 @@ class TelegramActionFactory(private val restTemplate: RestTemplate,
     }
 
     fun newSendVideoAction(chat: Chat, videoId: String): TelegramAction {
-        return SendVideoAction(restTemplate, requestUrl, videoId, chat)
+        return SendDocumentAction(restTemplate, requestUrl, videoId, chat)
     }
 
     fun newAction(chat: Chat, message: MessageToSubscribers): TelegramAction =
             when (message.type) {
                 MessageToSubscribersType.TEXT -> newSendMessageAction(chat, message.text!!)
-                MessageToSubscribersType.VIDEO -> newSendVideoAction(chat, message.videoId!!)
+                MessageToSubscribersType.DOCUMENT -> newSendVideoAction(chat, message.documentId!!)
             }
 
 }

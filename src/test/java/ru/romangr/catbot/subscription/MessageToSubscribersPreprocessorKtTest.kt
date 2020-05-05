@@ -28,10 +28,10 @@ internal class MessageToSubscribersPreprocessorKtTest {
     internal fun nullText() {
         val chat = Chat(id = 1, firstName = "chatName")
 
-        val actualResult = processTemplateVariables(chat, MessageToSubscribers.videoMessage("id"))
+        val actualResult = processTemplateVariables(chat, MessageToSubscribers.documentMessage("id"))
 
         assertThat(actualResult.text).isNull()
-        assertThat(actualResult.videoId).isEqualTo("id")
+        assertThat(actualResult.documentId).isEqualTo("id")
     }
 
     @ParameterizedTest

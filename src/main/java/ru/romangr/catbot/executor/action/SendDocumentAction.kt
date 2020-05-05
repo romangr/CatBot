@@ -3,22 +3,22 @@ package ru.romangr.catbot.executor.action
 import org.springframework.web.client.RestTemplate
 import ru.romangr.catbot.telegram.dto.SendVideoResponse
 import ru.romangr.catbot.telegram.model.Chat
+import ru.romangr.catbot.telegram.model.DocumentMessageToSend
 import ru.romangr.catbot.telegram.model.ExecutionResult
 import ru.romangr.catbot.telegram.model.Message
-import ru.romangr.catbot.telegram.model.VideoMessageToSend
 import ru.romangr.exceptional.Exceptional
 
-internal class SendVideoAction(restTemplate: RestTemplate,
-                               requestUrl: String,
-                               private val videoId: String,
-                               override val chat: Chat)
+internal class SendDocumentAction(restTemplate: RestTemplate,
+                                  requestUrl: String,
+                                  private val fileId: String,
+                                  override val chat: Chat)
     : AbstractTelegramAction<Message, SendVideoResponse>(restTemplate, requestUrl) {
 
     override fun execute(): Exceptional<ExecutionResult> {
-        return sendMessageSafely(VideoMessageToSend(chat.id, videoId))
+        return sendMessageSafely(DocumentMessageToSend(chat.id, fileId))
     }
 
-    override fun methodName(): String = "sendVideo"
+    override fun methodName(): String = "sendDocument"
 
     override fun responseClass(): Class<SendVideoResponse> = SendVideoResponse::class.java
 
