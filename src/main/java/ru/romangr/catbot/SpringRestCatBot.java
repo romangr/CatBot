@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -39,12 +40,14 @@ public class SpringRestCatBot implements RestBot {
   private final PropertiesResolver propertiesResolver;
   private int currentUpdateOffset = 0;
   private final TelegramAdminNotifier adminNotifier;
+  private final AtomicInteger updatesCheckCounter = new AtomicInteger();
 
   private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
+    updatesCheckCounter.incrementAndGet();
     updatesExceptional
-        .ifException(e -> log.warn("Error getting updates from Telegram API", e))
+        .handleException(e -> log.warn("Error getting updates from Telegram API", e))
         .ifValue(this::processUpdates)
-        .ifException(e -> log.warn("Exception during processing updates", e));
+        .handleException(e -> log.warn("Exception during processing updates", e));
   }
 
   private void processUpdates(List<Update> updates) {
@@ -69,7 +72,7 @@ public class SpringRestCatBot implements RestBot {
         .scheduleAtFixedRate(this::sendMessageToSubscribers, delay.getSeconds(),
             DelayCalculator.getSecondsFromHours(24), TimeUnit.SECONDS);
     subscriptionExecutorService.scheduleAtFixedRate(() -> {
-      log.info("All systems are fine!");
+      log.info("All systems are fine! Updates check counter: {}", updatesCheckCounter.get());
       if (wereIssuesDuringSendingToSubscribers.get()) {
         sendMessageToSubscribers();
       }
