@@ -47,7 +47,7 @@ class SubscribersRepositoryTest {
     assertThat(subscribers).hasSize(2);
 
     Chat firstChat = subscribers.stream()
-        .filter(chat -> Integer.valueOf(1).equals(chat.getId()))
+        .filter(chat -> Long.valueOf(1).equals(chat.getId()))
         .findAny()
         .orElseThrow();
     assertThat(firstChat.getFirstName()).isEqualTo("first_name");

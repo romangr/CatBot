@@ -12,15 +12,15 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.stream.Stream
 
 class RateLimiter internal constructor(limitPeriod: Duration, banTimeout: Duration) {
-    private val chats: LoadingCache<Int, AtomicInteger> = CacheBuilder.newBuilder()
+    private val chats: LoadingCache<Long, AtomicInteger> = CacheBuilder.newBuilder()
             .expireAfterWrite(limitPeriod)
             .maximumSize(1000)
-            .build(CacheLoader.from { _: Int? -> AtomicInteger() })
+            .build(CacheLoader.from { _: Long? -> AtomicInteger() })
 
-    private val chatsToSkip: MutableMap<Int, Boolean> = CacheBuilder.newBuilder()
+    private val chatsToSkip: MutableMap<Long, Boolean> = CacheBuilder.newBuilder()
             .expireAfterAccess(banTimeout)
             .maximumSize(1000)
-            .build(CacheLoader.from<Int, Boolean> {
+            .build(CacheLoader.from<Long, Boolean> {
                 throw RuntimeException("Should not be used")
             })
             .asMap()
