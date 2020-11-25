@@ -50,5 +50,5 @@ class TelegramAdminNotifier(private val actionFactory: TelegramActionFactory,
     }
 
     private fun sendMessageAction(it: Long, message: String) =
-            actionFactory.newSendMessageAction(Chat(it.toInt()), message)
+            actionFactory.newSendMessageAction(Chat(it), message)
 }

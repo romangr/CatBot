@@ -1,13 +1,12 @@
 package ru.romangr.catbot.telegram.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import java.io.Serializable
 
 /**
  * Roman 27.10.2016.
  */
 data class Chat(
-        @JsonProperty("id") val id: Int,
+        @JsonProperty("id") val id: Long,
         @JsonProperty("title") val title: String? = null,
         @JsonProperty("first_name") val firstName: String? = null,
         @JsonProperty("last_name") val lastName: String? = null,
@@ -26,7 +25,7 @@ data class Chat(
     }
 
     override fun hashCode(): Int {
-        return id
+        return id.hashCode()
     }
 
 

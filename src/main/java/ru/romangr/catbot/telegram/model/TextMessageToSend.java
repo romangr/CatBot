@@ -4,7 +4,7 @@ package ru.romangr.catbot.telegram.model;
  * Roman 02.04.2017.
  */
 public class TextMessageToSend {
-    private int chat_id;
+    private long chat_id;
     private String text;
 
     public TextMessageToSend(Chat chat, String text) {
@@ -12,7 +12,7 @@ public class TextMessageToSend {
         this.text = text;
     }
 
-    public int getChat_id() {
+    public long getChat_id() {
         return chat_id;
     }
 
