@@ -11,15 +11,16 @@ import ru.romangr.exceptional.Exceptional
 internal class SendMessageAction(restTemplate: RestTemplate,
                                  requestUrl: String,
                                  private val text: String,
-                                 override val chat: Chat)
-    : AbstractTelegramAction<Message, SendMessageResponse>(restTemplate, requestUrl) {
+                                 override val chat: Chat,
+                                 errorHandler: ((ExecutionResult) -> Unit)?)
+  : AbstractTelegramAction<Message, SendMessageResponse>(restTemplate, requestUrl, errorHandler) {
 
-    override fun execute(): Exceptional<ExecutionResult> {
-        return sendMessageSafely(TextMessageToSend(chat, text))
-    }
+  override fun execute(): Exceptional<ExecutionResult> {
+    return sendMessageSafely(TextMessageToSend(chat, text))
+  }
 
-    override fun methodName(): String = "sendMessage"
+  override fun methodName(): String = "sendMessage"
 
-    override fun responseClass(): Class<SendMessageResponse> = SendMessageResponse::class.java
+  override fun responseClass(): Class<SendMessageResponse> = SendMessageResponse::class.java
 
 }
