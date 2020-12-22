@@ -33,7 +33,7 @@ class CatFinder {
     constructor(restTemplate: RestTemplate) {
         this.restTemplate = restTemplate
         val url = URI.create(prepareUrlWithoutApiKey().build())
-        requestEntity = getResponseEntity(url)
+        requestEntity = getRequestEntity(url)
     }
 
     constructor(restTemplate: RestTemplate, apiKey: String) {
@@ -41,7 +41,7 @@ class CatFinder {
         val url = URI.create(prepareUrlWithoutApiKey()
                 .withParameter("api_key", apiKey)
                 .build())
-        requestEntity = getResponseEntity(url)
+        requestEntity = getRequestEntity(url)
     }
 
 
@@ -52,7 +52,7 @@ class CatFinder {
                 .withParameter("format", "json")
     }
 
-    private fun getResponseEntity(url: URI): RequestEntity<Void> {
+    private fun getRequestEntity(url: URI): RequestEntity<Void> {
         return RequestEntity.get(url)
                 .accept(MediaType.APPLICATION_JSON_UTF8)
                 .build()
