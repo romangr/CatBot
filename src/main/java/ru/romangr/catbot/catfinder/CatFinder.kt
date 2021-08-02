@@ -2,6 +2,7 @@ package ru.romangr.catbot.catfinder
 
 import lombok.extern.slf4j.Slf4j
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.http.ResponseEntity
@@ -27,6 +28,13 @@ class CatFinder {
 
                             })
                 }
+                .safelyMap {
+                    if (it.statusCode != HttpStatus.OK) {
+                        val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
+                        throw RuntimeException(message)
+                    }
+                    return@safelyMap it
+                }
                 .map { it.body }
                 .map { list -> list?.get(0) }
 
@@ -47,7 +55,7 @@ class CatFinder {
 
     private fun prepareUrlWithoutApiKey(): URLBuilder {
         return URLBuilder()
-                .withHost("http://api.thecatapi.com")
+                .withHost("https://api.thecatapi.com")
                 .withPath("api/images/get")
                 .withParameter("format", "json")
     }

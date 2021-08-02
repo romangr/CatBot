@@ -19,8 +19,8 @@ class CatCommandHandler(private val actionFactory: TelegramActionFactory,
                 .map { it.url }
                 .ifException { e -> log.warn("/cat can't be handled", e) }
                 .resumeOnException { ERROR_MESSAGE }
-                .map { catUrl -> listOf((actionFactory.newSendMessageAction(chat, catUrl))) }
-                .value
+                .getOrDefault(ERROR_MESSAGE)
+                .let { catUrl -> listOf((actionFactory.newSendMessageAction(chat, catUrl))) }
     }
 
     companion object {
