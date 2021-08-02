@@ -21,13 +21,13 @@ class CatFinderTest {
     @Test
     void getCatSuccessfully() {
         MockRestServiceServer.createServer(restTemplate)
-                .expect(requestTo("http://api.thecatapi.com/api/images/get?format=json"))
-                .andRespond(withSuccess("[{\"url\": \"http://example.com/test.jpg\"}]",
+                .expect(requestTo("https://api.thecatapi.com/api/images/get?format=json"))
+                .andRespond(withSuccess("[{\"url\": \"https://example.com/test.jpg\"}]",
                         MediaType.APPLICATION_JSON_UTF8));
 
         Exceptional<Cat> cat = catFinder.getCat();
 
         assertThat(cat.isValuePresent()).isTrue();
-        assertThat(cat.getValue().getUrl()).isEqualTo("http://example.com/test.jpg");
+        assertThat(cat.getValue().getUrl()).isEqualTo("https://example.com/test.jpg");
     }
 }
