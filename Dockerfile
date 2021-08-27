@@ -1,4 +1,4 @@
-FROM openjdk:14-alpine
+FROM amazoncorretto:16-alpine
 
 ADD ./build/libs/CatBot-2.0-SNAPSHOT.jar ./app.jar
 

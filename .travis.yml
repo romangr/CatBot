@@ -1,7 +1,7 @@
 dist: trusty
 language: java
 jdk:
-  - openjdk14
+  - openjdk16
 services:
   - docker
 
