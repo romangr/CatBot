@@ -13,7 +13,7 @@ import lombok.Value;
 @Builder
 @JsonDeserialize(builder = User.UserBuilder.class)
 public class User {
-    private int id;
+    private long id;
 
     @JsonProperty("first_name")
     private String firstName;
