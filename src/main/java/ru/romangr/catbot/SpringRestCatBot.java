@@ -38,7 +38,7 @@ public class SpringRestCatBot implements RestBot {
   private final TelegramRequestExecutor requestExecutor;
   private final TelegramActionExecutor actionExecutor;
   private final PropertiesResolver propertiesResolver;
-  private int currentUpdateOffset = 0;
+  private long currentUpdateOffset = 0;
   private final TelegramAdminNotifier adminNotifier;
   private final AtomicInteger updatesCheckCounter = new AtomicInteger();
 
@@ -82,7 +82,7 @@ public class SpringRestCatBot implements RestBot {
   private Exceptional<List<Update>> getUpdates() {
     return requestExecutor.getUpdates(currentUpdateOffset)
         .ifValue(updates -> updates.stream()
-            .mapToInt(Update::getId)
+            .mapToLong(Update::getId)
             .max()
             .ifPresent(maxUpdateId -> currentUpdateOffset = maxUpdateId + 1)
         );

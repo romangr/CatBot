@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Value;
 
 /**
  * Roman 27.10.2016.
@@ -14,7 +13,7 @@ import lombok.Value;
 @Builder
 @JsonDeserialize(builder = Update.UpdateBuilder.class)
 public class Update {
-    public int id;
+    public long id;
 
     public Message message;
 
