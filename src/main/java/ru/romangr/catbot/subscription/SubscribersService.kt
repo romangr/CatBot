@@ -1,6 +1,7 @@
 package ru.romangr.catbot.subscription
 
 import ru.romangr.catbot.catfinder.CatFinder
+import ru.romangr.catbot.delayed.DelayedMessageRepository
 import ru.romangr.catbot.executor.action.TelegramAction
 import ru.romangr.catbot.executor.action.TelegramActionFactory
 import ru.romangr.catbot.telegram.TelegramAdminNotifier
@@ -9,20 +10,19 @@ import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.ExecutionResult
 import ru.romangr.exceptional.Exceptional
 import java.util.ArrayList
-import java.util.concurrent.ConcurrentLinkedQueue
 
 class SubscribersService(private val subscribersRepository: SubscribersRepository,
                          private val requestExecutor: TelegramRequestExecutor,
                          private val catFinder: CatFinder,
                          private val actionFactory: TelegramActionFactory,
-                         private val notifier: TelegramAdminNotifier) {
-  private val messagesToSubscribers = ConcurrentLinkedQueue<MessageToSubscribers>()
+                         private val notifier: TelegramAdminNotifier,
+                         private val delayedMessageRepository: DelayedMessageRepository) {
 
   val subscribersCount: Int
     get() = subscribersRepository.subscribersCount
 
   val messageQueueLength: Int
-    get() = messagesToSubscribers.size
+    get() = delayedMessageRepository.count()
 
   fun sendMessageToSubscribers(): Exceptional<List<TelegramAction>> {
     if (!requestExecutor.isConnectedToInternet) {
@@ -32,10 +32,10 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
       )
     }
 
-    val messageFromQueue = messagesToSubscribers.poll()
+    val messageFromQueue = delayedMessageRepository.nextMessage()
     if (messageFromQueue != null) {
       log.info("Message from queue will be sent. There are {} posts left in the queue",
-          messagesToSubscribers.size)
+          delayedMessageRepository.count())
       return getActionsForAllSubscribers(messageFromQueue) { chat, message ->
         processTemplateVariables(chat, message)
       }
@@ -63,7 +63,7 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
   }
 
   fun addMessageToSubscribers(message: MessageToSubscribers) {
-    messagesToSubscribers.add(message)
+    delayedMessageRepository.add(message)
   }
 
   fun deleteSubscriber(subscriber: Chat): Boolean {
