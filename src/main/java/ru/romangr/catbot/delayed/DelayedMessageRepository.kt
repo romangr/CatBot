@@ -1,13 +1,29 @@
 package ru.romangr.catbot.delayed
 
 import org.jooq.DSLContext
+import org.jooq.impl.DSL
+import org.slf4j.LoggerFactory
 import ru.romangr.catbot.subscription.MessageToSubscribers
 import ru.romangr.catbot.tables.DelayedPost.DELAYED_POST
 import java.time.Clock
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class DelayedMessageRepository(private val jooqContext: DSLContext) {
+
+  init {
+    if (jooqContext.meta().getTables(DELAYED_POST.name).isEmpty()) {
+      log.info("No ${DELAYED_POST.name} table found, creating")
+      jooqContext.createTable(DELAYED_POST)
+          .column(DELAYED_POST.ID)
+          .column(DELAYED_POST.TEXT)
+          .column(DELAYED_POST.SUBMITTED)
+          .constraints(
+              DSL.constraint("PK_DELAYED_POST").primaryKey(DELAYED_POST.ID)
+          )
+          .execute()
+    }
+  }
 
   fun count(): Int = jooqContext.selectCount().from(DELAYED_POST).fetch()[0].value1()
 
@@ -27,9 +43,11 @@ class DelayedMessageRepository(private val jooqContext: DSLContext) {
   fun add(message: MessageToSubscribers) {
     jooqContext.insertInto(DELAYED_POST)
         .columns(DELAYED_POST.ID, DELAYED_POST.TEXT, DELAYED_POST.SUBMITTED)
-        .values(UUID.randomUUID().toString(), message.text, LocalDate.now(Clock.systemUTC()))
+        .values(UUID.randomUUID().toString(), message.text, LocalDateTime.now(Clock.systemUTC()))
         .execute()
   }
 
-
+  companion object {
+    private val log = LoggerFactory.getLogger(DelayedMessageRepository::class.java)
+  }
 }

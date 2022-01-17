@@ -120,6 +120,7 @@ jooq {
 
   configurations {
     main {
+      generateSchemaSourceOnCompilation = false
       generationTool {
         logging = org.jooq.meta.jaxb.Logging.WARN
         jdbc {

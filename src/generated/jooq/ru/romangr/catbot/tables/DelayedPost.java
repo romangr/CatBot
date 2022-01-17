@@ -4,7 +4,7 @@
 package ru.romangr.catbot.tables;
 
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.jooq.Field;
 import org.jooq.ForeignKey;
@@ -57,7 +57,7 @@ public class DelayedPost extends TableImpl<Record> {
     /**
      * The column <code>DELAYED_POST.submitted</code>.
      */
-    public final TableField<Record, LocalDate> SUBMITTED = createField(DSL.name("submitted"), SQLDataType.LOCALDATE.nullable(false), this, "");
+    public final TableField<Record, LocalDateTime> SUBMITTED = createField(DSL.name("submitted"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "");
 
     private DelayedPost(Name alias, Table<Record> aliased) {
         this(alias, aliased, null);

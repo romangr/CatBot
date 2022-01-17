@@ -3,13 +3,10 @@ package ru.romangr.catbot.delayed
 import org.assertj.core.api.Assertions.assertThat
 import org.jooq.SQLDialect
 import org.jooq.impl.DSL
-import org.jooq.impl.DSL.constraint
-import org.jooq.impl.SQLDataType
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import ru.romangr.catbot.subscription.MessageToSubscribers
-import ru.romangr.catbot.tables.DelayedPost.DELAYED_POST
 import java.nio.file.Files
 import java.nio.file.Path
 import java.sql.Connection
@@ -28,14 +25,6 @@ internal class DelayedMessageRepositoryIntegrationTest {
     this.connection = DriverManager.getConnection("jdbc:sqlite:${fileName}", "root", "password")
     val jooqContext = DSL.using(connection, SQLDialect.SQLITE)
     this.repository = DelayedMessageRepository(jooqContext)
-    jooqContext.createTable(DELAYED_POST)
-        .column(DELAYED_POST.ID, SQLDataType.VARCHAR.length(36))
-        .column(DELAYED_POST.TEXT, SQLDataType.CLOB)
-        .column(DELAYED_POST.SUBMITTED, SQLDataType.LOCALDATE)
-        .constraints(
-            constraint("PK_DELAYED_POST").primaryKey(DELAYED_POST.ID)
-        )
-        .execute()
   }
 
   @AfterEach

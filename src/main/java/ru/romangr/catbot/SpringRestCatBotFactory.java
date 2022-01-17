@@ -4,14 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 import org.springframework.web.client.RestTemplate;
 import ru.romangr.catbot.catfinder.CatFinder;
+import ru.romangr.catbot.delayed.DelayedMessageRepository;
+import ru.romangr.catbot.delayed.SqliteConnectionProvider;
 import ru.romangr.catbot.executor.RateLimiter;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.handler.AddMessageToSubscribersCommandHandler;
 import ru.romangr.catbot.handler.CatCommandHandler;
 import ru.romangr.catbot.handler.CommandHandler;
+import ru.romangr.catbot.handler.DocumentHandler;
 import ru.romangr.catbot.handler.HelpCommandHandler;
 import ru.romangr.catbot.handler.MessagePreprocessor;
 import ru.romangr.catbot.handler.SendMessageToSubscribersCommandHandler;
@@ -21,7 +26,6 @@ import ru.romangr.catbot.handler.SubscribeCommandHandler;
 import ru.romangr.catbot.handler.UnknownCommandHandler;
 import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
 import ru.romangr.catbot.handler.UpdatesHandler;
-import ru.romangr.catbot.handler.DocumentHandler;
 import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.subscription.SubscribersRepository;
 import ru.romangr.catbot.subscription.SubscribersService;
@@ -55,12 +59,17 @@ public class SpringRestCatBotFactory {
     var adminChatId = resolver.getAdminChatId().orElse(null);
     TelegramAdminNotifier adminNotifier
         = new TelegramAdminNotifier(actionFactory, actionExecutor, resolver, adminChatId);
+    SqliteConnectionProvider connectionProvider = new SqliteConnectionProvider(
+        String.format("jdbc:sqlite:%s", resolver.getDbFilePath()));
+    var jooqContext = DSL.using(connectionProvider, SQLDialect.SQLITE);
+    DelayedMessageRepository delayedMessageRepository = new DelayedMessageRepository(jooqContext);
     SubscribersService subscribersService = new SubscribersService(
         subscribersRepository,
         requestExecutor,
         catFinder,
         actionFactory,
-        adminNotifier
+        adminNotifier,
+        delayedMessageRepository
     );
     StatisticService statisticService = new StatisticService();
     List<CommandHandler> handlers = List.of(
