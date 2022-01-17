@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import ru.romangr.catbot.catfinder.Cat;
 import ru.romangr.catbot.catfinder.CatFinder;
+import ru.romangr.catbot.delayed.DelayedMessageRepository;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.executor.action.TelegramActionFactory;
 import ru.romangr.catbot.telegram.TelegramAdminNotifier;
@@ -34,8 +35,9 @@ class SubscribersServiceTest {
   private final CatFinder catFinder = mock(CatFinder.class);
   private final TelegramActionFactory actionFactory = mock(TelegramActionFactory.class);
   private final TelegramAdminNotifier notifier = mock(TelegramAdminNotifier.class);
+  private final DelayedMessageRepository delayedMessageRepository = mock(DelayedMessageRepository.class);
   private final SubscribersService service
-      = new SubscribersService(repository, requestExecutor, catFinder, actionFactory, notifier);
+      = new SubscribersService(repository, requestExecutor, catFinder, actionFactory, notifier, delayedMessageRepository);
   private final ArgumentCaptor<Function1<ExecutionResult, Unit>> errorHandlerCaptor = ArgumentCaptor.forClass(Function1.class);
 
 
@@ -61,7 +63,7 @@ class SubscribersServiceTest {
     Chat chat2 = getChat(2, "username_2");
     given(repository.getAllSubscribers()).willReturn(List.of(chat1, chat2));
     given(actionFactory.newSendMessageAction(any(), any())).willReturn(mock(TelegramAction.class));
-    service.addMessageToSubscribers(MessageToSubscribers.Factory.textMessage("Some message"));
+    given(delayedMessageRepository.nextMessage()).willReturn(MessageToSubscribers.Factory.textMessage("Some message"));
 
     Exceptional<List<TelegramAction>> result = service.sendMessageToSubscribers();
 
@@ -89,7 +91,7 @@ class SubscribersServiceTest {
     Chat chat2 = getChat(2, "username_2");
     given(repository.getAllSubscribers()).willReturn(List.of(chat1, chat2));
     given(actionFactory.newSendMessageAction(any(), any())).willReturn(mock(TelegramAction.class));
-    service.addMessageToSubscribers(MessageToSubscribers.Factory.textMessage("Some message for $idf"));
+    given(delayedMessageRepository.nextMessage()).willReturn(MessageToSubscribers.Factory.textMessage("Some message for $idf"));
 
     Exceptional<List<TelegramAction>> result = service.sendMessageToSubscribers();
 
