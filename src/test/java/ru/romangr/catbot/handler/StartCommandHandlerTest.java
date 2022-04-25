@@ -8,7 +8,6 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 import org.junit.jupiter.api.Test;
 import ru.romangr.catbot.executor.action.TelegramAction;
@@ -60,7 +59,7 @@ class StartCommandHandlerTest {
     HandlingResult handlingResult = result.getValue();
     assertThat(handlingResult.getStatus()).isEqualTo(HandlingStatus.SKIPPED);
     assertThat(handlingResult.getActions()).isEmpty();
-    verifyZeroInteractions(actionFactory);
+    verifyNoMoreInteractions(actionFactory);
   }
 
   @Test

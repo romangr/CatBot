@@ -8,7 +8,7 @@ import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -60,7 +60,7 @@ class TelegramActionExecutorTest {
 
     assertThat(counter).hasValue(25);
     verify(executorService).scheduleWithFixedDelay(any(), eq(30L), eq(2L), eq(TimeUnit.SECONDS));
-    verifyZeroInteractions(actionFactory);
+    verifyNoMoreInteractions(actionFactory);
   }
 
   @Test
@@ -95,7 +95,7 @@ class TelegramActionExecutorTest {
     runnableHolder.get().run();
 
     assertThat(counter).hasValue(55);
-    verifyZeroInteractions(actionFactory);
+    verifyNoMoreInteractions(actionFactory);
   }
 
   @Test
@@ -131,7 +131,7 @@ class TelegramActionExecutorTest {
     int actionsExecuted = actionsToExecute1.getCounter().get()
         + actionsToExecute2.getCounter().get() + actionsToExecute3.getCounter().get();
     assertThat(actionsExecuted).isEqualTo(25);
-    verifyZeroInteractions(actionFactory);
+    verifyNoMoreInteractions(actionFactory);
   }
 
   @Test
@@ -181,7 +181,7 @@ class TelegramActionExecutorTest {
     int actionsExecuted = actionsToExecute1.getCounter().get()
         + rateLimitingCounter.get() + actionsToExecute3.getCounter().get();
     assertThat(actionsExecuted).isEqualTo(26);
-    verifyZeroInteractions(actionFactory);
+    verifyNoMoreInteractions(actionFactory);
   }
 
   @Test
