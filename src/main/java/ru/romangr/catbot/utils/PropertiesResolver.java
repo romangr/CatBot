@@ -21,13 +21,15 @@ public class PropertiesResolver {
   private static final String SEND_TO_SUBSCRIBERS_TIME_PROPERTY_NAME
       = "TIME_OCLOCK_TO_SEND_MESSAGE_TO_SUBSCRIBERS";
   private static final int DEFAULT_TIME_TO_SEND_MESSAGE_TO_SUBSCRIBERS = 17;
+  private static final String DB_FILE_PATH_PROPERTY_NAME = "DB_FILE_PATH";
+  private static final String DEFAULT_DB_FILE_PATH = "data/cat_bot.sqlite";
 
   private final Map<String, String> properties;
   private final String buildInfo;
 
   public String getRequestUrl() {
     return ofNullable(properties.get(TELEGRAM_API_URL_PROPERTY_NAME)).flatMap(
-        apiUrl -> ofNullable(properties.get(BOT_TOKEN_PROPERTY_NAME)).map(token -> apiUrl + token))
+            apiUrl -> ofNullable(properties.get(BOT_TOKEN_PROPERTY_NAME)).map(token -> apiUrl + token))
         .orElseThrow(() -> new RuntimeException("Request url can't be resolved!"));
   }
 
@@ -54,6 +56,11 @@ public class PropertiesResolver {
   public String getBotName() {
     return ofNullable(properties.get(BOT_NAME_PROPERTY_NAME))
         .orElseThrow(() -> new RuntimeException("No bot name provided"));
+  }
+
+  public String getDbFilePath() {
+    return ofNullable(properties.get(DB_FILE_PATH_PROPERTY_NAME))
+        .orElse(DEFAULT_DB_FILE_PATH);
   }
 
   public Path getSubscribersFilePath() {

@@ -29,7 +29,7 @@ public class TelegramRequestExecutor {
                 GetMeResponse.class).getResult();
     }
 
-    public Exceptional<List<Update>> getUpdates(int offset) {
+    public Exceptional<List<Update>> getUpdates(long offset) {
         return Exceptional.getExceptional(() -> restTemplate.getForObject(
                 new URLBuilder()
                         .withHost(requestUrl)
