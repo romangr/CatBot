@@ -1,6 +1,7 @@
 package ru.romangr.catbot.catfinder
 
 import lombok.extern.slf4j.Slf4j
+import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,22 +22,39 @@ class CatFinder {
     private val requestEntity: RequestEntity<Void>
 
     val cat: Exceptional<Cat>
-        get() = Exceptional
-                .getExceptional<ResponseEntity<List<Cat>>> {
-                    restTemplate.exchange(requestEntity,
-                            object : ParameterizedTypeReference<List<Cat>>() {
+        get() {
+            var result: Exceptional<Cat> = Exceptional.empty()
+            for (i in 1..RETRY_NUMBER) {
+                result =
+                        Exceptional.getExceptional<ResponseEntity<List<Cat>>> {
+                            restTemplate.exchange(requestEntity, object : ParameterizedTypeReference<List<Cat>>() {
 
                             })
+                        }
+                                .safelyMap {
+                                    if (it.statusCode != HttpStatus.OK) {
+                                        val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
+                                        throw RuntimeException(message)
+                                    }
+                                    return@safelyMap it
+                                }
+                                .map { it.body }
+                                .map { list -> list?.get(0) }
+                                .safelyMap {
+                                    val headers = restTemplate.headForHeaders(it!!.url)
+                                    val contentType = headers.contentType
+                                    if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
+                                        return@safelyMap it;
+                                    }
+                                    throw RuntimeException("Unsupported content type: $contentType");
+                                }
+                result.ifException { log.warn("Exception during cat retrieval", it) }
+                if (result.isValuePresent) {
+                    return result
                 }
-                .safelyMap {
-                    if (it.statusCode != HttpStatus.OK) {
-                        val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
-                        throw RuntimeException(message)
-                    }
-                    return@safelyMap it
-                }
-                .map { it.body }
-                .map { list -> list?.get(0) }
+            }
+            return result
+        }
 
     constructor(restTemplate: RestTemplate) {
         this.restTemplate = restTemplate
@@ -46,23 +64,22 @@ class CatFinder {
 
     constructor(restTemplate: RestTemplate, apiKey: String) {
         this.restTemplate = restTemplate
-        val url = URI.create(prepareUrlWithoutApiKey()
-                .withParameter("api_key", apiKey)
-                .build())
+        val url = URI.create(prepareUrlWithoutApiKey().withParameter("api_key", apiKey).build())
         requestEntity = getRequestEntity(url)
     }
 
 
     private fun prepareUrlWithoutApiKey(): URLBuilder {
-        return URLBuilder()
-                .withHost("https://api.thecatapi.com")
-                .withPath("api/images/get")
-                .withParameter("format", "json")
+        return URLBuilder().withHost("https://api.thecatapi.com").withPath("api/images/get").withParameter("format", "json")
     }
 
     private fun getRequestEntity(url: URI): RequestEntity<Void> {
-        return RequestEntity.get(url)
-                .accept(MediaType.APPLICATION_JSON_UTF8)
-                .build()
+        return RequestEntity.get(url).accept(MediaType.APPLICATION_JSON_UTF8).build()
+    }
+
+    companion object {
+        private val log = LoggerFactory.getLogger(CatFinder::class.java)
+        private val SUPPORTED_CONTENT_TYPES: List<MediaType> = listOf(MediaType.IMAGE_GIF, MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG)
+        private const val RETRY_NUMBER = 3
     }
 }
