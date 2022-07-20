@@ -25,29 +25,7 @@ class CatFinder {
         get() {
             var result: Exceptional<Cat> = Exceptional.empty()
             for (i in 1..RETRY_NUMBER) {
-                result =
-                        Exceptional.getExceptional<ResponseEntity<List<Cat>>> {
-                            restTemplate.exchange(requestEntity, object : ParameterizedTypeReference<List<Cat>>() {
-
-                            })
-                        }
-                                .safelyMap {
-                                    if (it.statusCode != HttpStatus.OK) {
-                                        val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
-                                        throw RuntimeException(message)
-                                    }
-                                    return@safelyMap it
-                                }
-                                .map { it.body }
-                                .map { list -> list?.get(0) }
-                                .safelyMap {
-                                    val headers = restTemplate.headForHeaders(it!!.url)
-                                    val contentType = headers.contentType
-                                    if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
-                                        return@safelyMap it;
-                                    }
-                                    throw RuntimeException("Unsupported content type: $contentType");
-                                }
+                result = retrieveCat()
                 result.ifException { log.warn("Exception during cat retrieval", it) }
                 if (result.isValuePresent) {
                     return result
@@ -55,6 +33,30 @@ class CatFinder {
             }
             return result
         }
+
+    private fun retrieveCat(): Exceptional<Cat> =
+            Exceptional.getExceptional<ResponseEntity<List<Cat>>> {
+                restTemplate.exchange(requestEntity, object : ParameterizedTypeReference<List<Cat>>() {
+
+                })
+            }
+                    .safelyMap {
+                        if (it.statusCode != HttpStatus.OK) {
+                            val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
+                            throw RuntimeException(message)
+                        }
+                        return@safelyMap it
+                    }
+                    .map { it.body }
+                    .map { list -> list?.get(0) }
+                    .safelyMap {
+                        val headers = restTemplate.headForHeaders(it!!.url)
+                        val contentType = headers.contentType
+                        if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
+                            return@safelyMap it;
+                        }
+                        throw RuntimeException("Unsupported content type: $contentType");
+                    }
 
     constructor(restTemplate: RestTemplate) {
         this.restTemplate = restTemplate
