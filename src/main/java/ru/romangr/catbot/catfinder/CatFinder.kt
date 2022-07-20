@@ -3,10 +3,7 @@ package ru.romangr.catbot.catfinder
 import lombok.extern.slf4j.Slf4j
 import org.slf4j.LoggerFactory
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.http.RequestEntity
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
 import org.springframework.web.client.RestTemplate
 import ru.romangr.catbot.utils.URLBuilder
 import ru.romangr.exceptional.Exceptional
@@ -50,8 +47,15 @@ class CatFinder {
                     .map { it.body }
                     .map { list -> list?.get(0) }
                     .safelyMap {
-                        val headers = restTemplate.headForHeaders(it!!.url)
-                        val contentType = headers.contentType
+                        var response = restTemplate.exchange(it!!.url, HttpMethod.HEAD, null, String::class.java)
+                        if (response.statusCode === HttpStatus.MOVED_PERMANENTLY) {
+                            val location = response.headers.location
+                            if (location == null) {
+                                throw RuntimeException("No location along with redirect response to ${it.url}");
+                            }
+                            response = restTemplate.exchange(location, HttpMethod.HEAD, null, String::class.java)
+                        }
+                        val contentType = response.headers.contentType
                         if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
                             return@safelyMap it;
                         }
