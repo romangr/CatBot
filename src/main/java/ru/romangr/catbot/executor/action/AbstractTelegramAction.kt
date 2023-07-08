@@ -34,6 +34,18 @@ abstract class AbstractTelegramAction<R, T : TelegramActionResponse<R>>(
             if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("bot was blocked by the user")) {
               return@resumeOnException ExecutionResult.BOT_IS_BLOCKED_BY_USER
             }
+            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("user is deactivated")) {
+              return@resumeOnException ExecutionResult.USER_IS_DEACTIVATED
+            }
+            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("bot was kicked from the group chat")) {
+              return@resumeOnException ExecutionResult.BOT_KICKED_FROM_GROUP_CHAT
+            }
+            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("bot was kicked from the group chat")) {
+              return@resumeOnException ExecutionResult.BOT_KICKED_FROM_GROUP_CHAT
+            }
+            if (e.statusCode === HttpStatus.BAD_REQUEST && e.responseBodyAsString.contains("chat not found")) {
+              return@resumeOnException ExecutionResult.CHAT_NOT_FOUND
+            }
           }
           if (e is HttpStatusCodeException) {
             log.warn("Failure during action execution: {}, response body: {}",

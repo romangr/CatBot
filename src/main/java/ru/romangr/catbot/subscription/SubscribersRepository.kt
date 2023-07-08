@@ -15,7 +15,7 @@ class SubscribersRepository(subscribersFile: Path?) {
     private val subscribersFile: Path
     private val objectMapper = ObjectMapper()
     private val subscribersTypeToken = objectMapper.typeFactory
-            .constructCollectionType(Set::class.java, Chat::class.java)
+        .constructCollectionType(Set::class.java, Chat::class.java)
     private val subscribers: MutableSet<Chat> = HashSet()
 
     val allSubscribers: Collection<Chat>
@@ -42,6 +42,7 @@ class SubscribersRepository(subscribersFile: Path?) {
     }
 
     fun deleteSubscriber(subscriber: Chat): Boolean {
+        log.debug("Deleting subscriber {}", subscriber)
         val isSubscriberDeleted = subscribers.remove(subscriber)
         if (isSubscriberDeleted) {
             saveSubscribersToFile()
@@ -70,7 +71,8 @@ class SubscribersRepository(subscribersFile: Path?) {
     @Synchronized
     private fun saveSubscribersToFile() {
         try {
-            Files.newOutputStream(subscribersFile).use { outputStream -> objectMapper.writeValue(outputStream, subscribers) }
+            Files.newOutputStream(subscribersFile)
+                .use { outputStream -> objectMapper.writeValue(outputStream, subscribers) }
         } catch (e: IOException) {
             throw RuntimeException(e)
         }

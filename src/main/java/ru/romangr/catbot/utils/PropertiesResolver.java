@@ -67,7 +67,7 @@ public class PropertiesResolver {
     return ofNullable(properties.get(SUBSCRIBERS_FILE_PATH_PROPERTY_NAME))
         .or(() -> Optional.of(DEFAULT_SUBSCRIBERS_FILE_PATH))
         .map(Paths::get)
-        .get();
+        .orElseThrow();
   }
 
   public String getBuildInfo() {

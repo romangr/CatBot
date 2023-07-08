@@ -89,9 +89,13 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
     val actions = ArrayList<TelegramAction>(subscribersRepository.subscribersCount)
     for (chat in subscribersRepository.allSubscribers) {
       val action = actionFactory.newAction(chat, messagePreprocessor(chat, message)) {
-        if (it == ExecutionResult.BOT_IS_BLOCKED_BY_USER) {
-          subscribersRepository.deleteSubscriber(chat)
-        }
+          when (it) {
+              ExecutionResult.BOT_IS_BLOCKED_BY_USER -> subscribersRepository.deleteSubscriber(chat)
+              ExecutionResult.USER_IS_DEACTIVATED -> subscribersRepository.deleteSubscriber(chat)
+              ExecutionResult.BOT_KICKED_FROM_GROUP_CHAT -> subscribersRepository.deleteSubscriber(chat)
+              ExecutionResult.CHAT_NOT_FOUND -> subscribersRepository.deleteSubscriber(chat)
+              else -> {}
+          }
       }
       actions.add(action)
     }
