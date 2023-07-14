@@ -29,6 +29,8 @@ import ru.romangr.exceptional.Exceptional;
 @RequiredArgsConstructor
 public class SpringRestCatBot implements RestBot {
 
+  private static final int MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY = 3;
+
   private final AtomicBoolean wereIssuesDuringSendingToSubscribers = new AtomicBoolean(false);
   private final UpdatesHandler updatesHandler;
   private final SubscribersService subscribersService;
@@ -62,12 +64,14 @@ public class SpringRestCatBot implements RestBot {
           int consecutiveErrors = this.consecutiveErrors.incrementAndGet();
           log.warn("Error getting updates from Telegram API, this is a consecutive error #{}",
               consecutiveErrors, e);
-          if (consecutiveErrors > 3) {
+          if (consecutiveErrors > MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY) {
+            log.warn("More than {} consecutive errors, delaying the execution...", MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY);
             Duration delay = Duration.ofMinutes(2L * consecutiveErrors);
             log.warn("Delaying updates processing for {} minutes", delay.get(ChronoUnit.MINUTES));
             this.delayUpdatesRequestUntil = Instant.now().plus(delay);
           }
         })
+        .handleException(e -> log.warn("Exception while processing Telegram API error", e))
         .ifValue(this::processUpdates);
   }
 
