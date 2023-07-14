@@ -88,7 +88,7 @@ public class SpringRestCatBot implements RestBot {
   public void start() {
     log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
     adminNotifier.botStarted(subscribersService.getSubscribersCount());
-    updatesReceivingExecutorService.scheduleAtFixedRate(
+    updatesReceivingExecutorService.scheduleWithFixedDelay(
         () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
     Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(
         propertiesResolver.getTimeToSendMessageToSubscribers());
