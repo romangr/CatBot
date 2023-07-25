@@ -67,7 +67,7 @@ public class SpringRestCatBot implements RestBot {
           if (consecutiveErrors > MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY) {
             log.warn("More than {} consecutive errors, delaying the execution...", MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY);
             Duration delay = Duration.ofMinutes(2L * consecutiveErrors);
-            log.warn("Delaying updates processing for {} minutes", delay.get(ChronoUnit.MINUTES));
+            log.warn("Delaying updates processing for {}", delay.toMinutes());
             this.delayUpdatesRequestUntil = Instant.now().plus(delay);
           }
         })
