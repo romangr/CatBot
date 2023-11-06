@@ -81,7 +81,7 @@ public class SpringRestCatBotFactory {
         new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId, statisticService),
         new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId, statisticService),
         new DocumentHandler(actionFactory, subscribersService, adminChatId, statisticService),
-        new StatisticsCommandHandler(actionFactory, adminChatId, statisticService)
+        new StatisticsCommandHandler(actionFactory, adminChatId, statisticService, subscribersService)
     );
     UnknownCommandHandler unknownCommandHandler = new UnknownCommandHandler(actionFactory);
     MessagePreprocessor messagePreprocessor = new MessagePreprocessor(resolver.getBotName());

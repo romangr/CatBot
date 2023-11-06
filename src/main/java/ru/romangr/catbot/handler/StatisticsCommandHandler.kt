@@ -20,7 +20,7 @@ class StatisticsCommandHandler(private val actionFactory: TelegramActionFactory,
         val (sinceDate, stats) = statisticService.commandStatistics()
         val messageTextBuilder = StringBuilder("Action statistics since $sinceDate:")
         stats.forEach { (action, value) -> messageTextBuilder.append("\n  $action: $value") }
-        messageTextBuilder.append("\n  Subscribers: ${subscribersService.subscribersCount}")
+        messageTextBuilder.append("\n\nSubscribers: ${subscribersService.subscribersCount}")
         return listOf(actionFactory.newSendMessageAction(chat, messageTextBuilder.toString()))
     }
 }

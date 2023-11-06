@@ -7,6 +7,7 @@ import org.mockito.Mockito.*
 import ru.romangr.catbot.executor.action.TelegramActionFactory
 import ru.romangr.catbot.statistic.ActionStatistics
 import ru.romangr.catbot.statistic.StatisticService
+import ru.romangr.catbot.subscription.SubscribersService
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.Message
 import ru.romangr.catbot.telegram.model.User
@@ -16,10 +17,12 @@ internal class StatisticsCommandHandlerTest {
 
     private val actionFactory: TelegramActionFactory = mock(TelegramActionFactory::class.java)
     private val statisticService: StatisticService = mock(StatisticService::class.java)
+    private val subscribersService: SubscribersService = mock(SubscribersService::class.java)
     private val handler = StatisticsCommandHandler(
             actionFactory,
             1,
-            statisticService
+            statisticService,
+            subscribersService
     )
 
     @Test
@@ -29,6 +32,7 @@ internal class StatisticsCommandHandlerTest {
         val date = LocalDate.of(2020, 5, 4)
         val statistics = ActionStatistics(date, mapOf(Pair("action", 1)))
         given(statisticService.commandStatistics()).willReturn(statistics)
+        given(subscribersService.subscribersCount).willReturn(10)
         val message = Message(text = "/stats", chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)
@@ -36,7 +40,7 @@ internal class StatisticsCommandHandlerTest {
         assertThat(result.isValuePresent).isTrue()
         assertThat(result.value.status).isEqualTo(HandlingStatus.HANDLED)
         assertThat(result.value.actions).hasSize(1)
-        verify(actionFactory).newSendMessageAction(chat, "Action statistics since 2020-05-04:\n  action: 1")
+        verify(actionFactory).newSendMessageAction(chat, "Action statistics since 2020-05-04:\n  action: 1\n\nSubscribers: 10")
     }
 
     @Test
