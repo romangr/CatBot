@@ -11,6 +11,7 @@ import org.jooq.impl.DSL;
 import org.jooq.impl.Internal;
 
 import ru.romangr.catbot.tables.DelayedPost;
+import ru.romangr.catbot.tables.Migrations;
 
 
 /**
@@ -25,4 +26,5 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final UniqueKey<Record> DELAYED_POST__ = Internal.createUniqueKey(DelayedPost.DELAYED_POST, DSL.name(""), new TableField[] { DelayedPost.DELAYED_POST.ID }, true);
+    public static final UniqueKey<Record> MIGRATIONS__ = Internal.createUniqueKey(Migrations.MIGRATIONS, DSL.name(""), new TableField[] { Migrations.MIGRATIONS.NAME }, true);
 }

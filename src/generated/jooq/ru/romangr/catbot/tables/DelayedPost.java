@@ -52,7 +52,22 @@ public class DelayedPost extends TableImpl<Record> {
     /**
      * The column <code>DELAYED_POST.text</code>.
      */
-    public final TableField<Record, String> TEXT = createField(DSL.name("text"), SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<Record, String> TEXT = createField(DSL.name("text"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>DELAYED_POST.document_id</code>.
+     */
+    public final TableField<Record, String> DOCUMENT_ID = createField(DSL.name("document_id"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>DELAYED_POST.video_id</code>.
+     */
+    public final TableField<Record, String> VIDEO_ID = createField(DSL.name("video_id"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>DELAYED_POST.photo_id</code>.
+     */
+    public final TableField<Record, String> PHOTO_ID = createField(DSL.name("photo_id"), SQLDataType.CLOB, this, "");
 
     /**
      * The column <code>DELAYED_POST.submitted</code>.

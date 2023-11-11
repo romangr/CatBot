@@ -19,6 +19,7 @@ import ru.romangr.catbot.handler.CommandHandler;
 import ru.romangr.catbot.handler.DocumentHandler;
 import ru.romangr.catbot.handler.HelpCommandHandler;
 import ru.romangr.catbot.handler.MessagePreprocessor;
+import ru.romangr.catbot.handler.PhotoHandler;
 import ru.romangr.catbot.handler.SendMessageToSubscribersCommandHandler;
 import ru.romangr.catbot.handler.StartCommandHandler;
 import ru.romangr.catbot.handler.StatisticsCommandHandler;
@@ -26,6 +27,7 @@ import ru.romangr.catbot.handler.SubscribeCommandHandler;
 import ru.romangr.catbot.handler.UnknownCommandHandler;
 import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
 import ru.romangr.catbot.handler.UpdatesHandler;
+import ru.romangr.catbot.handler.VideoHandler;
 import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.subscription.SubscribersRepository;
 import ru.romangr.catbot.subscription.SubscribersService;
@@ -81,6 +83,8 @@ public class SpringRestCatBotFactory {
         new SendMessageToSubscribersCommandHandler(subscribersService, adminChatId, statisticService),
         new AddMessageToSubscribersCommandHandler(subscribersService, actionFactory, adminChatId, statisticService),
         new DocumentHandler(actionFactory, subscribersService, adminChatId, statisticService),
+        new VideoHandler(actionFactory, subscribersService, adminChatId, statisticService),
+        new PhotoHandler(actionFactory, subscribersService, adminChatId, statisticService),
         new StatisticsCommandHandler(actionFactory, adminChatId, statisticService, subscribersService)
     );
     UnknownCommandHandler unknownCommandHandler = new UnknownCommandHandler(actionFactory);
