@@ -27,8 +27,8 @@ class PhotoHandler(
             throw IllegalArgumentException("Photo size list is null or empty")
         }
         val photoSize = message.photo.maxBy { photoSize -> photoSize.width }!!
-        val videoMessage = MessageToSubscribers.photoMessage(photoSize.fileId)
-        subscribersService.addMessageToSubscribers(videoMessage)
+        val photoMessage = MessageToSubscribers.photoMessage(photoSize.fileId, message.caption)
+        subscribersService.addMessageToSubscribers(photoMessage)
         val text = "Photo is added to the queue, there are ${subscribersService.messageQueueLength} message(s)"
         return listOf(actionFactory.newSendMessageAction(chat, text))
     }

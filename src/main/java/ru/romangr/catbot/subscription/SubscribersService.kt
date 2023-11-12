@@ -9,7 +9,6 @@ import ru.romangr.catbot.telegram.TelegramRequestExecutor
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.ExecutionResult
 import ru.romangr.exceptional.Exceptional
-import java.util.ArrayList
 
 class SubscribersService(private val subscribersRepository: SubscribersRepository,
                          private val requestExecutor: TelegramRequestExecutor,
@@ -43,20 +42,16 @@ class SubscribersService(private val subscribersRepository: SubscribersRepositor
 
     return catFinder.cat
         .ifException { e -> log.warn("Exception getting cat", e) }
-        .map { MessageToSubscribers.textMessage(it.url) }
+        .map { MessageToSubscribers.photoMessage(it.url) }
         .flatMap {
           getActionsForAllSubscribers(it) { chat, message ->
-            if (message.type != MessageToSubscribersType.TEXT) {
-              return@getActionsForAllSubscribers message
-            }
             val messageToSubscriber = StringBuilder().append("Your daily cat")
             resolveUserIdentifier(chat)?.let { identifier ->
               messageToSubscriber.append(", ")
                   .append(identifier)
                   .append("!")
             }
-            messageToSubscriber.append("\n").append(message.text).toString()
-            MessageToSubscribers.textMessage(messageToSubscriber.toString())
+            MessageToSubscribers.photoMessage(message.photoId!!, messageToSubscriber.toString())
           }
         }
         .ifValue { log.info("Cat will be sent to {} subscribers", it.size) }

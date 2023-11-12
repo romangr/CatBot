@@ -14,7 +14,8 @@ data class Message(
         val text: String? = null,
         val video: Video? = null,
         val document: Document? = null,
-        val photo: List<PhotoSize>? = null
+        val photo: List<PhotoSize>? = null,
+        val caption: String? = null
 )
 
 data class PhotoSize(

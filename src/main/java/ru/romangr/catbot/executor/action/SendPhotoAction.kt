@@ -11,12 +11,13 @@ import ru.romangr.exceptional.Exceptional
 internal class SendPhotoAction(restTemplate: RestTemplate,
                                requestUrl: String,
                                private val fileId: String,
+                               private val caption: String?,
                                override val chat: Chat,
                                errorHandler: ((ExecutionResult) -> Unit)?)
   : AbstractTelegramAction<Message, SendVideoResponse>(restTemplate, requestUrl, errorHandler) {
 
   override fun execute(): Exceptional<ExecutionResult> {
-    return sendMessageSafely(PhotoMessageToSend(chat.id, fileId))
+    return sendMessageSafely(PhotoMessageToSend(chat.id, fileId, caption))
   }
 
   override fun methodName(): String = "sendPhoto"

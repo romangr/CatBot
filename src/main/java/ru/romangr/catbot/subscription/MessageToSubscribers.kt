@@ -21,8 +21,8 @@ data class MessageToSubscribers(
             return MessageToSubscribers(MessageToSubscribersType.VIDEO, videoId = videoId)
         }
 
-        fun photoMessage(photoId: String): MessageToSubscribers {
-            return MessageToSubscribers(MessageToSubscribersType.PHOTO, photoId = photoId)
+        fun photoMessage(photoId: String, caption: String? = null): MessageToSubscribers {
+            return MessageToSubscribers(MessageToSubscribersType.PHOTO, photoId = photoId, text = caption)
         }
     }
 

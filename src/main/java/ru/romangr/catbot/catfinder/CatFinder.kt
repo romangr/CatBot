@@ -47,19 +47,25 @@ class CatFinder {
                     .map { it.body }
                     .map { list -> list?.get(0) }
                     .safelyMap {
-                        var response = restTemplate.exchange(it!!.url, HttpMethod.HEAD, null, String::class.java)
+                        var realUrl = it!!.url
+                        var response = restTemplate.exchange(realUrl, HttpMethod.HEAD, null, String::class.java)
                         if (response.statusCode === HttpStatus.MOVED_PERMANENTLY) {
                             val location = response.headers.location
                             if (location == null) {
                                 throw RuntimeException("No location along with redirect response to ${it.url}");
                             }
                             response = restTemplate.exchange(location, HttpMethod.HEAD, null, String::class.java)
+                            realUrl = location.toString()
                         }
                         val contentType = response.headers.contentType
-                        if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
-                            return@safelyMap it;
+                        if (contentType == null || !SUPPORTED_CONTENT_TYPES.contains(contentType)) {
+                            throw RuntimeException("Unsupported content type: $contentType")
                         }
-                        throw RuntimeException("Unsupported content type: $contentType");
+                        val contentLength = response.headers.contentLength
+                        if (contentLength > MAX_PIC_SIZE_BYTES) {
+                            throw RuntimeException("Content length too large: $contentLength")
+                        }
+                        return@safelyMap Cat(realUrl)
                     }
 
     constructor(restTemplate: RestTemplate) {
@@ -87,5 +93,6 @@ class CatFinder {
         private val log = LoggerFactory.getLogger(CatFinder::class.java)
         private val SUPPORTED_CONTENT_TYPES: List<MediaType> = listOf(MediaType.IMAGE_GIF, MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG)
         private const val RETRY_NUMBER = 3
+        private const val MAX_PIC_SIZE_BYTES = 10_000_000
     }
 }

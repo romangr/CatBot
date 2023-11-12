@@ -1,5 +1,6 @@
 package ru.romangr.catbot.telegram.model
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 
 data class DocumentMessageToSend(
@@ -12,7 +13,9 @@ data class VideoMessageToSend(
     @JsonProperty("video") val videoId: String
 )
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class PhotoMessageToSend(
     @JsonProperty("chat_id") val chatId: Long,
-    @JsonProperty("photo") val photoId: String
+    @JsonProperty("photo") val photoId: String,
+    @JsonProperty("caption") val caption: String? = null
 )

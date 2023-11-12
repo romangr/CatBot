@@ -75,8 +75,8 @@ class DelayedMessageRepository(private val jooqContext: DSLContext) {
             }
             val record = it[0]
             jooqContext.delete(DELAYED_POST).where(DELAYED_POST.ID.eq(record[DELAYED_POST.ID])).execute()
-            if (record[DELAYED_POST.TEXT] != null) {
-                return@let MessageToSubscribers.textMessage(record[DELAYED_POST.TEXT])
+            if (record[DELAYED_POST.PHOTO_ID] != null) {
+                return@let MessageToSubscribers.photoMessage(record[DELAYED_POST.PHOTO_ID], record[DELAYED_POST.TEXT])
             }
             if (record[DELAYED_POST.DOCUMENT_ID] != null) {
                 return@let MessageToSubscribers.documentMessage(record[DELAYED_POST.DOCUMENT_ID])
@@ -84,8 +84,8 @@ class DelayedMessageRepository(private val jooqContext: DSLContext) {
             if (record[DELAYED_POST.VIDEO_ID] != null) {
                 return@let MessageToSubscribers.videoMessage(record[DELAYED_POST.VIDEO_ID])
             }
-            if (record[DELAYED_POST.PHOTO_ID] != null) {
-                return@let MessageToSubscribers.photoMessage(record[DELAYED_POST.PHOTO_ID])
+            if (record[DELAYED_POST.TEXT] != null) {
+                return@let MessageToSubscribers.textMessage(record[DELAYED_POST.TEXT])
             }
             throw RuntimeException("Unsupported message record $record")
         }

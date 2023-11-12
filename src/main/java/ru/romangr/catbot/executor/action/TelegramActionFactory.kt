@@ -32,9 +32,9 @@ class TelegramActionFactory(
         return SendVideoAction(restTemplate, requestUrl, documentId, chat, errorHandler)
     }
 
-    fun newSendPhotoAction(chat: Chat, documentId: String, errorHandler: ((ExecutionResult) -> Unit)?)
+    fun newSendPhotoAction(chat: Chat, documentId: String, caption: String?, errorHandler: ((ExecutionResult) -> Unit)?)
             : TelegramAction {
-        return SendPhotoAction(restTemplate, requestUrl, documentId, chat, errorHandler)
+        return SendPhotoAction(restTemplate, requestUrl, documentId, caption, chat, errorHandler)
     }
 
     fun newAction(chat: Chat, message: MessageToSubscribers): TelegramAction =
@@ -49,7 +49,7 @@ class TelegramActionFactory(
             MessageToSubscribersType.TEXT -> newSendMessageAction(chat, message.text!!, errorHandler)
             MessageToSubscribersType.DOCUMENT -> newSendDocumentAction(chat, message.documentId!!, errorHandler)
             MessageToSubscribersType.VIDEO -> newSendVideoAction(chat, message.videoId!!, errorHandler)
-            MessageToSubscribersType.PHOTO -> newSendPhotoAction(chat, message.photoId!!, errorHandler)
+            MessageToSubscribersType.PHOTO -> newSendPhotoAction(chat, message.photoId!!, message.text, errorHandler)
         }
 
 }
