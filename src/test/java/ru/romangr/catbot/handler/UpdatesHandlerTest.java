@@ -42,7 +42,7 @@ class UpdatesHandlerTest {
         .id(123123)
         .username("username")
         .build();
-    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null);
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null, null);
     given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any())).willReturn(
         Exceptional.exceptional(
@@ -58,7 +58,7 @@ class UpdatesHandlerTest {
             HandlingStatus.SKIPPED
         )));
 
-    Message message = new Message(345, user, chat, "/test", null, null);
+    Message message = new Message(345, user, chat, "/test", null, null, null);
     Update update = Update.builder()
         .id(0)
         .message(message)
@@ -85,7 +85,7 @@ class UpdatesHandlerTest {
         .id(123123)
         .username("username")
         .build();
-    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null);
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null, null);
     given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any()))
         .willReturn(Exceptional.exceptional(
@@ -97,7 +97,7 @@ class UpdatesHandlerTest {
     given(commandHandler2.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new RuntimeException()));
 
-    Message message = new Message(345, user, chat, "/test", null, null);
+    Message message = new Message(345, user, chat, "/test", null, null, null);
     Update update = Update.builder()
         .id(0)
         .message(message)
@@ -124,7 +124,7 @@ class UpdatesHandlerTest {
         .id(123123)
         .username("username")
         .build();
-    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null);
+    Message preprocessedMessage = new Message(213, user, chat, "/preprocessed", null, null, null);
     given(messagePreprocessor.process(any(Message.class))).willReturn(preprocessedMessage);
     given(commandHandler1.handle(any(), any()))
         .willReturn(Exceptional.exceptional(new HandlingResult(
@@ -145,7 +145,7 @@ class UpdatesHandlerTest {
             )
         ));
 
-    Message message = new Message(345, user, chat, "/test", null, null);
+    Message message = new Message(345, user, chat, "/test", null, null, null);
     Update update = Update.builder()
         .id(0)
         .message(message)

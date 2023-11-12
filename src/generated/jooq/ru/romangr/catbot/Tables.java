@@ -5,6 +5,7 @@ package ru.romangr.catbot;
 
 
 import ru.romangr.catbot.tables.DelayedPost;
+import ru.romangr.catbot.tables.Migrations;
 
 
 /**
@@ -17,4 +18,9 @@ public class Tables {
      * The table <code>DELAYED_POST</code>.
      */
     public static final DelayedPost DELAYED_POST = DelayedPost.DELAYED_POST;
+
+    /**
+     * The table <code>MIGRATIONS</code>.
+     */
+    public static final Migrations MIGRATIONS = Migrations.MIGRATIONS;
 }

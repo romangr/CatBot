@@ -45,7 +45,9 @@ public class Runner {
       log.error("Please provide settings file as an argument");
       return;
     }
-    bot.ifValue(RestBot::start).ifException(e -> log.error("Bot initialization error", e));
+    bot.ifValue(RestBot::start)
+        .ifException(e -> log.error("Bot initialization error", e))
+        .getOrThrow();
   }
 
   @SneakyThrows

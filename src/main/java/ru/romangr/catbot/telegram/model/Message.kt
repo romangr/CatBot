@@ -13,5 +13,11 @@ data class Message(
         val chat: Chat,
         val text: String? = null,
         val video: Video? = null,
-        val document: Document? = null
+        val document: Document? = null,
+        val photo: List<PhotoSize>? = null
+)
+
+data class PhotoSize(
+        @JsonProperty("file_id") var fileId: String,
+        var width: Long
 )

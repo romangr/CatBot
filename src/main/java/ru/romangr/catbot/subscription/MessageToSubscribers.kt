@@ -1,55 +1,36 @@
 package ru.romangr.catbot.subscription
 
-class MessageToSubscribers {
-    val text: String?
-    val documentId: String?
-    val type: MessageToSubscribersType
-
-    private constructor(text: String? = null, documentId: String? = null,
-                        type: MessageToSubscribersType) {
-        this.text = text
-        this.documentId = documentId
-        this.type = type
-    }
+data class MessageToSubscribers(
+    val type: MessageToSubscribersType,
+    val text: String? = null,
+    val documentId: String? = null,
+    val videoId: String? = null,
+    val photoId: String? = null
+) {
 
     companion object Factory {
         fun textMessage(text: String): MessageToSubscribers {
-            return MessageToSubscribers(text, null, MessageToSubscribersType.TEXT)
+            return MessageToSubscribers(MessageToSubscribersType.TEXT, text = text)
         }
 
-        fun documentMessage(videoId: String): MessageToSubscribers {
-            return MessageToSubscribers(null, videoId, MessageToSubscribersType.DOCUMENT)
+        fun documentMessage(documentId: String): MessageToSubscribers {
+            return MessageToSubscribers(MessageToSubscribersType.DOCUMENT, documentId = documentId)
+        }
+
+        fun videoMessage(videoId: String): MessageToSubscribers {
+            return MessageToSubscribers(MessageToSubscribersType.VIDEO, videoId = videoId)
+        }
+
+        fun photoMessage(photoId: String): MessageToSubscribers {
+            return MessageToSubscribers(MessageToSubscribersType.PHOTO, photoId = photoId)
         }
     }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as MessageToSubscribers
-
-        if (text != other.text) return false
-        if (documentId != other.documentId) return false
-        if (type != other.type) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = text?.hashCode() ?: 0
-        result = 31 * result + (documentId?.hashCode() ?: 0)
-        result = 31 * result + type.hashCode()
-        return result
-    }
-
-    override fun toString(): String {
-        return "MessageToSubscribers(text=$text, documentId=$documentId, type=$type)"
-    }
-
 
 }
 
 enum class MessageToSubscribersType {
     TEXT,
-    DOCUMENT
+    DOCUMENT,
+    VIDEO,
+    PHOTO
 }

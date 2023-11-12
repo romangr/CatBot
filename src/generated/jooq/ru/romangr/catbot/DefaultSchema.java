@@ -12,6 +12,7 @@ import org.jooq.Table;
 import org.jooq.impl.SchemaImpl;
 
 import ru.romangr.catbot.tables.DelayedPost;
+import ru.romangr.catbot.tables.Migrations;
 
 
 /**
@@ -33,6 +34,11 @@ public class DefaultSchema extends SchemaImpl {
     public final DelayedPost DELAYED_POST = DelayedPost.DELAYED_POST;
 
     /**
+     * The table <code>MIGRATIONS</code>.
+     */
+    public final Migrations MIGRATIONS = Migrations.MIGRATIONS;
+
+    /**
      * No further instances allowed
      */
     private DefaultSchema() {
@@ -48,7 +54,8 @@ public class DefaultSchema extends SchemaImpl {
     @Override
     public final List<Table<?>> getTables() {
         return Arrays.asList(
-            DelayedPost.DELAYED_POST
+            DelayedPost.DELAYED_POST,
+            Migrations.MIGRATIONS
         );
     }
 }

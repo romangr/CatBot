@@ -30,7 +30,7 @@ class StartCommandHandlerTest {
     User user = User.builder().id(1).build();
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
-    Message message = new Message(4234, user, chat, "/start", null, null);
+    Message message = new Message(4234, user, chat, "/start", null, null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 
@@ -51,7 +51,7 @@ class StartCommandHandlerTest {
   void skipUnknownCommand() {
     Chat chat = new Chat(1, null, null, null, null);
     User user = User.builder().id(1).build();
-    Message message = new Message(4234, user, chat, "unknown", null, null);
+    Message message = new Message(4234, user, chat, "unknown", null, null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 
@@ -68,7 +68,7 @@ class StartCommandHandlerTest {
     User user = User.builder().id(1).build();
     given(actionFactory.newSendMessageAction(any(), any()))
         .willThrow(RuntimeException.class);
-    Message message = new Message(4234, user, chat, "/start", null, null);
+    Message message = new Message(4234, user, chat, "/start", null, null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
 
