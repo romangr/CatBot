@@ -13,8 +13,8 @@ data class MessageToSubscribers(
             return MessageToSubscribers(MessageToSubscribersType.TEXT, text = text)
         }
 
-        fun documentMessage(videoId: String): MessageToSubscribers {
-            return MessageToSubscribers(MessageToSubscribersType.DOCUMENT, videoId = videoId)
+        fun documentMessage(documentId: String): MessageToSubscribers {
+            return MessageToSubscribers(MessageToSubscribersType.DOCUMENT, documentId = documentId)
         }
 
         fun videoMessage(videoId: String): MessageToSubscribers {

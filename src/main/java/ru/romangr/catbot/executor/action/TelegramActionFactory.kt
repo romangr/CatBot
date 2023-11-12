@@ -48,7 +48,7 @@ class TelegramActionFactory(
         when (message.type) {
             MessageToSubscribersType.TEXT -> newSendMessageAction(chat, message.text!!, errorHandler)
             MessageToSubscribersType.DOCUMENT -> newSendDocumentAction(chat, message.documentId!!, errorHandler)
-            MessageToSubscribersType.VIDEO -> newSendVideoAction(chat, message.documentId!!, errorHandler)
+            MessageToSubscribersType.VIDEO -> newSendVideoAction(chat, message.videoId!!, errorHandler)
             MessageToSubscribersType.PHOTO -> newSendPhotoAction(chat, message.photoId!!, errorHandler)
         }
 

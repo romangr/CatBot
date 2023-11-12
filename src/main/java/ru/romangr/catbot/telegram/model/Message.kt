@@ -18,6 +18,6 @@ data class Message(
 )
 
 data class PhotoSize(
-        var fileId: String,
+        @JsonProperty("file_id") var fileId: String,
         var width: Long
 )
