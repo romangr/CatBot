@@ -38,6 +38,10 @@ class TelegramAdminNotifier(private val actionFactory: TelegramActionFactory,
         notifyAdmin(Function { this.sendMessageAction(it, unsubscribedMessage.apply(getSubscriberUsername(subscriber))) })
     }
 
+    fun sendText(message: String) {
+        notifyAdmin(Function { this.sendMessageAction(it, message) })
+    }
+
     private fun getSubscriberUsername(subscriber: Chat) =
             Stream.of(subscriber.title, subscriber.firstName, subscriber.lastName, subscriber.username)
                     .filter { Objects.nonNull(it) }

@@ -2,13 +2,14 @@ package ru.romangr.catbot;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
@@ -51,11 +52,19 @@ public class SpringRestCatBot implements RestBot {
   private final AtomicBoolean sendingToSubscribersInProgress = new AtomicBoolean(false);
   private volatile Instant delayUpdatesRequestUntil = Instant.MIN;
   private final AtomicInteger consecutiveErrors = new AtomicInteger();
+  private final AtomicReference<ScheduledFuture<?>> updatesScheduledFuture = new AtomicReference<>();
 
   private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
     updatesCheckCounter.incrementAndGet();
     if (Instant.now().isBefore(delayUpdatesRequestUntil)) {
       log.warn("Updates check is delayed until {}, skipping processing", delayUpdatesRequestUntil.toString());
+      Duration waitingTime = Duration.between(delayUpdatesRequestUntil, Instant.now());
+      try {
+        Thread.sleep(waitingTime.toMillis() - 1_000);
+      } catch (InterruptedException e) {
+        log.warn("Interrupted while delaying updates check", e);
+        return;
+      }
       return;
     }
     updatesExceptional
@@ -88,8 +97,9 @@ public class SpringRestCatBot implements RestBot {
   public void start() {
     log.info("Bot started! Total subscribers: {}", subscribersService.getSubscribersCount());
     adminNotifier.botStarted(subscribersService.getSubscribersCount());
-    updatesReceivingExecutorService.scheduleWithFixedDelay(
+    ScheduledFuture<?> scheduledFuture = updatesReceivingExecutorService.scheduleWithFixedDelay(
         () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
+    updatesScheduledFuture.set(scheduledFuture);
     Duration delay = DelayCalculator.calculateDelayToRunAtParticularTime(
         propertiesResolver.getTimeToSendMessageToSubscribers());
     log.info("Next sending to subscribers in {} minutes", delay.getSeconds() / 60);
@@ -102,7 +112,20 @@ public class SpringRestCatBot implements RestBot {
         sendMessageToSubscribers();
       }
       if (updatesCheckCounterValue == previousUpdatesCheckCounterValue && updatesCheckCounterValue != 0) {
+        if (Instant.now().isAfter(delayUpdatesRequestUntil)) {
+          log.info("Waiting for delayed updates check! Updates check counter: {}", updatesCheckCounterValue);
+          return;
+        }
         log.warn("Updates check counter value seems to be stuck at {}!", updatesCheckCounterValue);
+        adminNotifier.sendText("Updates check counter value seems to be stuck");
+        Exceptional.attempt(() -> {
+              updatesScheduledFuture.get().cancel(true);
+              ScheduledFuture<?> newScheduledFuture = updatesReceivingExecutorService.scheduleWithFixedDelay(
+                  () -> this.processUpdates(this.getUpdates()), 0, updatesCheckPeriod, TimeUnit.SECONDS);
+              updatesScheduledFuture.set(newScheduledFuture);
+              return null;
+            })
+            .ifException(e -> log.warn("Couldn't reschedule updates handling task", e));
       } else {
         log.info("All systems are fine! Updates check counter: {}", updatesCheckCounterValue);
       }
