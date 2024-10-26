@@ -53,6 +53,7 @@ public class SpringRestCatBot implements RestBot {
   private volatile Instant delayUpdatesRequestUntil = Instant.MIN;
   private final AtomicInteger consecutiveErrors = new AtomicInteger();
   private final AtomicReference<ScheduledFuture<?>> updatesScheduledFuture = new AtomicReference<>();
+  private final AtomicBoolean isAdminNotifiedAboutStuckUpdatesHandling = new AtomicBoolean(false);
 
   private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
     updatesCheckCounter.incrementAndGet();
@@ -117,7 +118,10 @@ public class SpringRestCatBot implements RestBot {
           return;
         }
         log.warn("Updates check counter value seems to be stuck at {}!", updatesCheckCounterValue);
-        adminNotifier.sendText("Updates check counter value seems to be stuck");
+        if (!isAdminNotifiedAboutStuckUpdatesHandling.get()) {
+          adminNotifier.sendText("Updates check counter value seems to be stuck");
+          isAdminNotifiedAboutStuckUpdatesHandling.set(true);
+        }
         Exceptional.attempt(() -> {
               updatesScheduledFuture.get().cancel(true);
               ScheduledFuture<?> newScheduledFuture = updatesReceivingExecutorService.scheduleWithFixedDelay(
@@ -127,6 +131,7 @@ public class SpringRestCatBot implements RestBot {
             })
             .ifException(e -> log.warn("Couldn't reschedule updates handling task", e));
       } else {
+        isAdminNotifiedAboutStuckUpdatesHandling.set(false);
         log.info("All systems are fine! Updates check counter: {}", updatesCheckCounterValue);
       }
       previousUpdatesCheckCounterValue = updatesCheckCounterValue;
