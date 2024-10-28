@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpClientErrorException;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.handler.UpdatesHandler;
 import ru.romangr.catbot.subscription.SubscribersService;
@@ -74,8 +75,10 @@ public class SpringRestCatBot implements RestBot {
           int consecutiveErrors = this.consecutiveErrors.incrementAndGet();
           log.warn("Error getting updates from Telegram API, this is a consecutive error #{}",
               consecutiveErrors, e);
-          if (consecutiveErrors > MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY) {
-            log.warn("More than {} consecutive errors, delaying the execution...", MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY);
+          if (consecutiveErrors > MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY ||
+              e instanceof HttpClientErrorException.TooManyRequests) {
+            log.warn("More than {} consecutive errors or rate limit error, delaying the execution...",
+                MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY);
             Duration delay = Duration.ofMinutes(2L * consecutiveErrors);
             log.warn("Delaying updates processing for {} minutes", delay.toMinutes());
             this.delayUpdatesRequestUntil = Instant.now().plus(delay);
@@ -90,7 +93,12 @@ public class SpringRestCatBot implements RestBot {
       return;
     }
     for (Update update : updates) {
-      updatesHandler.handleUpdate(update);
+      Exceptional.attempt(() -> {
+            updatesHandler.handleUpdate(update);
+            return null;
+          })
+          .ifException(e -> log.warn("Exception processing update", e))
+          .getOrThrow();
     }
   }
 
@@ -113,8 +121,9 @@ public class SpringRestCatBot implements RestBot {
         sendMessageToSubscribers();
       }
       if (updatesCheckCounterValue == previousUpdatesCheckCounterValue && updatesCheckCounterValue != 0) {
-        if (Instant.now().isAfter(delayUpdatesRequestUntil)) {
-          log.info("Waiting for delayed updates check! Updates check counter: {}", updatesCheckCounterValue);
+        if (Instant.now().isBefore(delayUpdatesRequestUntil)) {
+          log.info("Waiting for delayed updates check (until {})! Updates check counter: {}", delayUpdatesRequestUntil,
+              updatesCheckCounterValue);
           return;
         }
         log.warn("Updates check counter value seems to be stuck at {}!", updatesCheckCounterValue);
