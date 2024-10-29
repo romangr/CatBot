@@ -62,7 +62,8 @@ public class SpringRestCatBot implements RestBot {
       log.warn("Updates check is delayed until {}, skipping processing", delayUpdatesRequestUntil.toString());
       Duration waitingTime = Duration.between(delayUpdatesRequestUntil, Instant.now());
       try {
-        Thread.sleep(waitingTime.toMillis() - 1_000);
+        Thread.sleep(waitingTime.toMillis() + 100);
+        log.info("Processing updates thread is awake");
       } catch (InterruptedException e) {
         log.warn("Interrupted while delaying updates check", e);
         return;
