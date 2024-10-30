@@ -58,9 +58,10 @@ public class SpringRestCatBot implements RestBot {
 
   private void processUpdates(Exceptional<List<Update>> updatesExceptional) {
     updatesCheckCounter.incrementAndGet();
-    if (Instant.now().isBefore(delayUpdatesRequestUntil)) {
+    Instant now = Instant.now();
+    if (now.isBefore(delayUpdatesRequestUntil)) {
       log.warn("Updates check is delayed until {}, skipping processing", delayUpdatesRequestUntil.toString());
-      Duration waitingTime = Duration.between(delayUpdatesRequestUntil, Instant.now());
+      Duration waitingTime = Duration.between(now, delayUpdatesRequestUntil);
       if (waitingTime.toMillis() > 1_000) {
         try {
           Thread.sleep(waitingTime.toMillis());
