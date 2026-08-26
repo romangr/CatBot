@@ -16,7 +16,7 @@ internal class CatFinderIntegrationTest {
     fun getCat() {
         val cat = catFinder.cat
 
-        assertThat(cat.isValuePresent).isTrue()
+        assertThat(cat.isValuePresent).describedAs { cat.exception.message }.isTrue()
         assertThat(cat.value.url).startsWith("http")
         println(cat.value.url)
     }

@@ -1,4 +1,4 @@
-FROM amazoncorretto:17-alpine
+FROM bellsoft/hardened-liberica-runtime-container:jre-21-glibc
 
 ADD ./build/libs/CatBot-2.0-SNAPSHOT.jar ./app.jar
 
