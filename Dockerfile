@@ -1,4 +1,4 @@
-FROM bellsoft/hardened-liberica-runtime-container:jre-21-glibc
+FROM bellsoft/hardened-liberica-runtime-container:jre-21-musl
 
 ADD ./build/libs/CatBot-2.0-SNAPSHOT.jar ./app.jar
 
