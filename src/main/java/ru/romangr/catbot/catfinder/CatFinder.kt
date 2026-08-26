@@ -32,35 +32,35 @@ class CatFinder {
         }
 
     private fun retrieveCat(): Exceptional<Cat> =
-            Exceptional.getExceptional<ResponseEntity<List<Cat>>> {
-                restTemplate.exchange(requestEntity, object : ParameterizedTypeReference<List<Cat>>() {
+        Exceptional.getExceptional<ResponseEntity<List<Cat>>> {
+            restTemplate.exchange(requestEntity, object : ParameterizedTypeReference<List<Cat>>() {
 
-                })
+            })
+        }
+            .safelyMap {
+                if (it.statusCode != HttpStatus.OK) {
+                    val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
+                    throw RuntimeException(message)
+                }
+                return@safelyMap it
             }
-                    .safelyMap {
-                        if (it.statusCode != HttpStatus.OK) {
-                            val message = "Unexpected response from Cat API: ${it.statusCode}\n${it.headers}\n${it.body}"
-                            throw RuntimeException(message)
-                        }
-                        return@safelyMap it
+            .map { it.body }
+            .map { list -> list?.get(0) }
+            .safelyMap {
+                var response = restTemplate.exchange(it!!.url, HttpMethod.HEAD, null, String::class.java)
+                if (response.statusCode === HttpStatus.MOVED_PERMANENTLY) {
+                    val location = response.headers.location
+                    if (location == null) {
+                        throw RuntimeException("No location along with redirect response to ${it.url}");
                     }
-                    .map { it.body }
-                    .map { list -> list?.get(0) }
-                    .safelyMap {
-                        var response = restTemplate.exchange(it!!.url, HttpMethod.HEAD, null, String::class.java)
-                        if (response.statusCode === HttpStatus.MOVED_PERMANENTLY) {
-                            val location = response.headers.location
-                            if (location == null) {
-                                throw RuntimeException("No location along with redirect response to ${it.url}");
-                            }
-                            response = restTemplate.exchange(location, HttpMethod.HEAD, null, String::class.java)
-                        }
-                        val contentType = response.headers.contentType
-                        if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
-                            return@safelyMap it;
-                        }
-                        throw RuntimeException("Unsupported content type: $contentType");
-                    }
+                    response = restTemplate.exchange(location, HttpMethod.HEAD, null, String::class.java)
+                }
+                val contentType = response.headers.contentType
+                if (contentType != null && SUPPORTED_CONTENT_TYPES.contains(contentType)) {
+                    return@safelyMap it;
+                }
+                throw RuntimeException("Unsupported content type: $contentType");
+            }
 
     constructor(restTemplate: RestTemplate) {
         this.restTemplate = restTemplate
@@ -76,16 +76,18 @@ class CatFinder {
 
 
     private fun prepareUrlWithoutApiKey(): URLBuilder {
-        return URLBuilder().withHost("https://api.thecatapi.com").withPath("api/images/get").withParameter("format", "json")
+        return URLBuilder().withHost("https://api.thecatapi.com").withPath("api/images/get")
+            .withParameter("format", "json")
     }
 
     private fun getRequestEntity(url: URI): RequestEntity<Void> {
-        return RequestEntity.get(url).accept(MediaType.APPLICATION_JSON_UTF8).build()
+        return RequestEntity.get(url).accept(MediaType.APPLICATION_JSON).build()
     }
 
     companion object {
         private val log = LoggerFactory.getLogger(CatFinder::class.java)
-        private val SUPPORTED_CONTENT_TYPES: List<MediaType> = listOf(MediaType.IMAGE_GIF, MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG)
+        private val SUPPORTED_CONTENT_TYPES: List<MediaType> =
+            listOf(MediaType.IMAGE_GIF, MediaType.IMAGE_JPEG, MediaType.IMAGE_PNG)
         private const val RETRY_NUMBER = 3
     }
 }
