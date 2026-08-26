@@ -65,7 +65,6 @@ dependencies {
     implementation('ch.qos.logback:logback-classic')
     implementation('com.google.guava:guava:30.0-jre')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.3.21"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.20-RC2"
     implementation 'org.jooq:jooq:3.16.2'
     implementation 'org.jooq:jooq-meta:3.16.2'
     implementation 'org.jooq:jooq-codegen:3.16.2'
