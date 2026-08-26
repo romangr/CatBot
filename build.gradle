@@ -52,12 +52,6 @@ test {
     useJUnitPlatform()
 }
 
-//tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
-//    kotlinOptions {
-//        jvmTarget = "1.8"
-//    }
-//}
-
 dependencies {
     implementation('javax.xml:jaxb-api:2.1')
     implementation('org.springframework:spring-web')
@@ -72,8 +66,6 @@ dependencies {
     implementation('com.google.guava:guava:30.0-jre')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.3.21"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.20-RC2"
-    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.4.20-RC2"
-    //implementation "org.jetbrains.kotlin:kotlin-reflect:2.4.20-RC2"
     implementation 'org.jooq:jooq:3.16.2'
     implementation 'org.jooq:jooq-meta:3.16.2'
     implementation 'org.jooq:jooq-codegen:3.16.2'
@@ -91,8 +83,6 @@ dependencies {
     testRuntimeOnly('org.junit.platform:junit-platform-launcher')
     testImplementation('org.mockito:mockito-core')
     testImplementation('org.mockito:mockito-junit-jupiter')
-    //testImplementation('net.bytebuddy:byte-buddy:1.12.9')
-    //testImplementation('net.bytebuddy:byte-buddy-agent:1.12.9')
 }
 
 jooq {
