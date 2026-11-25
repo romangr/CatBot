@@ -100,8 +100,9 @@ public class SpringRestCatBot implements RestBot {
             updatesHandler.handleUpdate(update);
             return null;
           })
-          .ifException(e -> log.warn("Exception processing update", e))
-          .getOrThrow();
+          // No getOrThrow() here: the lambda returns null, so it would throw on every
+          // successful update and silently drop the rest of the batch.
+          .ifException(e -> log.warn("Exception processing update", e));
     }
   }
 

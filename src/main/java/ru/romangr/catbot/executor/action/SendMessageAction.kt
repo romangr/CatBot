@@ -1,10 +1,8 @@
 package ru.romangr.catbot.executor.action
 
 import ru.romangr.catbot.http.JsonHttpClient
-import ru.romangr.catbot.telegram.dto.SendMessageResponse
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.ExecutionResult
-import ru.romangr.catbot.telegram.model.Message
 import ru.romangr.catbot.telegram.model.TextMessageToSend
 import ru.romangr.exceptional.Exceptional
 
@@ -13,14 +11,12 @@ internal class SendMessageAction(httpClient: JsonHttpClient,
                                  private val text: String,
                                  override val chat: Chat,
                                  errorHandler: ((ExecutionResult) -> Unit)?)
-  : AbstractTelegramAction<Message, SendMessageResponse>(httpClient, requestUrl, errorHandler) {
+  : AbstractTelegramAction(httpClient, requestUrl, errorHandler) {
 
   override fun execute(): Exceptional<ExecutionResult> {
-    return sendMessageSafely(TextMessageToSend(chat, text))
+    return sendMessageSafely(TextMessageToSend(chat, text), TextMessageToSend.serializer())
   }
 
   override fun methodName(): String = "sendMessage"
-
-  override fun responseClass(): Class<SendMessageResponse> = SendMessageResponse::class.java
 
 }

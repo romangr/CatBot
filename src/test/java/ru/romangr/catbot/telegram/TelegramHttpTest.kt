@@ -63,8 +63,20 @@ internal class TelegramHttpTest {
         assertThat(lastRequestPath).isEqualTo("/botTOKEN/getUpdates?offset=5")
         assertThat(updates.value).hasSize(1)
         assertThat(updates.value[0].id).isEqualTo(42)
-        assertThat(updates.value[0].message.chat.id).isEqualTo(100)
-        assertThat(updates.value[0].message.text).isEqualTo("/cat")
+        assertThat(updates.value[0].message!!.chat.id).isEqualTo(100)
+        assertThat(updates.value[0].message!!.text).isEqualTo("/cat")
+    }
+
+    @Test
+    fun getUpdatesParsesUpdateWithoutMessage() {
+        body = """{"ok": true, "result": [{"update_id": 43, "edited_message": {
+            "message_id": 1, "from": {"id": 1}, "chat": {"id": 100}, "text": "x"}}]}"""
+
+        val updates = TelegramRequestExecutor(JsonHttpClient(), baseUrl).getUpdates(0)
+
+        assertThat(updates.value).hasSize(1)
+        assertThat(updates.value[0].message).isNull()
+        assertThat(updates.value[0].editedMessage!!.text).isEqualTo("x")
     }
 
     @Test

@@ -27,7 +27,7 @@ class UnsubscribeCommandHandlerTest {
   @Test
   void handleCommandSuccessfullyForASubscriber() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(subscribersService.deleteSubscriber(any())).willReturn(true);
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
@@ -50,7 +50,7 @@ class UnsubscribeCommandHandlerTest {
   @Test
   void handleCommandSuccessfullyForOneWhoIsNotYetASubscriber() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(subscribersService.deleteSubscriber(any())).willReturn(false);
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
@@ -71,7 +71,7 @@ class UnsubscribeCommandHandlerTest {
   @Test
   void skipUnknownCommand() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     Message message = new Message(4234, user, chat, "unknown", null, null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
@@ -86,7 +86,7 @@ class UnsubscribeCommandHandlerTest {
   @Test
   void handleCommandWithException() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(subscribersService.deleteSubscriber(any())).willThrow(RuntimeException.class);
     Message message = new Message(4234, user, chat, "/unsubscribe", null, null, null);
 

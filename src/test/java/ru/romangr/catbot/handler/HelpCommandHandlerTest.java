@@ -27,7 +27,7 @@ class HelpCommandHandlerTest {
   @Test
   void handleCommandSuccessfully() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
     Message message = new Message(4234, user, chat, "/help", null, null, null);
@@ -47,7 +47,7 @@ class HelpCommandHandlerTest {
   @Test
   void skipUnknownCommand() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     Message message = new Message(4234, user, chat, "unknown", null, null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
@@ -62,7 +62,7 @@ class HelpCommandHandlerTest {
   @Test
   void handleCommandWithException() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(actionFactory.newSendMessageAction(any(), any()))
         .willThrow(RuntimeException.class);
     Message message = new Message(4234, user, chat, "/help", null, null, null);

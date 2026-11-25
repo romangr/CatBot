@@ -30,7 +30,7 @@ class CatFinder {
         }
 
     private fun retrieveCat(): Exceptional<Cat> =
-        Exceptional.getExceptional<Cat> { httpClient.get(url, Cat::class.java) }
+        Exceptional.getExceptional<Cat> { httpClient.get(url, Cat.serializer()) }
             .map { Cat(removeQuery(it.url)) }
 
     @JvmOverloads

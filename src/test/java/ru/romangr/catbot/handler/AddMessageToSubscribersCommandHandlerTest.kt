@@ -30,7 +30,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
     @Test
     internal fun validArgument() {
         val chat = Chat(1)
-        val user = User.builder().id(1).build()
+        val user = User(1)
         given(actionFactory.newSendMessageAction(anyChat(), anyString()))
                 .willReturn(mock(TelegramAction::class.java))
         given(subscribersService.messageQueueLength).willReturn(1)
@@ -51,7 +51,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
     @Test
     internal fun complexArgument() {
         val chat = Chat(1)
-        val user = User.builder().id(1).build()
+        val user = User(1)
         given(actionFactory.newSendMessageAction(anyChat(), anyString()))
                 .willReturn(mock(TelegramAction::class.java))
         given(subscribersService.messageQueueLength).willReturn(1)
@@ -71,7 +71,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
     @Test
     internal fun emptyArgument() {
         val chat = Chat(1)
-        val user = User.builder().id(1).build()
+        val user = User(1)
         given(actionFactory.newSendMessageAction(anyChat(), anyString()))
                 .willReturn(mock(TelegramAction::class.java))
         val message = Message(text = "/amts    ", chat = chat, from = user, id = 213)
@@ -88,7 +88,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
     @Test
     internal fun notAdmin() {
         val chat = Chat(101)
-        val user = User.builder().id(101).build()
+        val user = User(101)
         val message = Message(text = "/amts test", chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)
@@ -102,7 +102,7 @@ internal class AddMessageToSubscribersCommandHandlerTest {
     @Test
     internal fun notApplicable() {
         val chat = Chat(101)
-        val user = User.builder().id(101).build()
+        val user = User(101)
         val message = Message(text = "/some-command test", chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)

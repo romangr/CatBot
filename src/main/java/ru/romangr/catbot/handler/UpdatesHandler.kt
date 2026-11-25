@@ -1,7 +1,6 @@
 package ru.romangr.catbot.handler
 
 import ru.romangr.catbot.executor.TelegramActionExecutor
-import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.Update
 import java.util.stream.Collectors
 
@@ -11,8 +10,13 @@ class UpdatesHandler(private val messagePreprocessor: MessagePreprocessor,
                      private val actionExecutor: TelegramActionExecutor) {
 
     fun handleUpdate(update: Update) {
-        val chat = getChatFromUpdate(update)
-        val preprocessedMessage = messagePreprocessor.process(update.message)
+        val message = update.message
+        if (message == null) {
+            log.debug("Skipping update {} without a message", update.id)
+            return
+        }
+        val chat = message.chat
+        val preprocessedMessage = messagePreprocessor.process(message)
         val results = commandHandlers.stream()
                 .map { commandHandler -> commandHandler.handle(chat, preprocessedMessage) }
                 .collect(Collectors.toList())
@@ -23,7 +27,7 @@ class UpdatesHandler(private val messagePreprocessor: MessagePreprocessor,
                 .map { handlingResultExceptional -> handlingResultExceptional.map { it.status } }
                 .noneMatch { e -> e.isException || e.value == HandlingStatus.HANDLED }
         if (notHandledAtAll) {
-            log.debug("Unknown message type: {}", update.message)
+            log.debug("Unknown message type: {}", message)
             unknownCommandHandler.handle(chat)
                     .ifValue { handlingResult -> actionExecutor.execute(handlingResult.actions) }
         }
@@ -37,8 +41,5 @@ class UpdatesHandler(private val messagePreprocessor: MessagePreprocessor,
 
     companion object {
         private val log = org.slf4j.LoggerFactory.getLogger(UpdatesHandler::class.java)
-        private fun getChatFromUpdate(update: Update): Chat {
-            return update.message.chat
-        }
     }
 }

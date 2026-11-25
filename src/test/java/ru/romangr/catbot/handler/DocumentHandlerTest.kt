@@ -26,7 +26,7 @@ internal class DocumentHandlerTest {
     @Test
     internal fun validArgument() {
         val chat = Chat(1)
-        val user = User.builder().id(1).build()
+        val user = User(1)
         BDDMockito.given(actionFactory.newSendMessageAction(anyChat(), ArgumentMatchers.anyString()))
                 .willReturn(Mockito.mock(TelegramAction::class.java))
         BDDMockito.given(subscribersService.messageQueueLength).willReturn(1)
@@ -46,7 +46,7 @@ internal class DocumentHandlerTest {
     @Test
     internal fun notAdmin() {
         val chat = Chat(101)
-        val user = User.builder().id(101).build()
+        val user = User(101)
         val message = Message(document = Document("id"), chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)
@@ -60,7 +60,7 @@ internal class DocumentHandlerTest {
     @Test
     internal fun notApplicable() {
         val chat = Chat(101)
-        val user = User.builder().id(101).build()
+        val user = User(101)
         val message = Message(text = "/some-command test", chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)

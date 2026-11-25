@@ -28,7 +28,7 @@ internal class StatisticsCommandHandlerTest {
     @Test
     internal fun handleCommandSuccessfully() {
         val chat = Chat(1)
-        val user = User.builder().id(1).build()
+        val user = User(1)
         val date = LocalDate.of(2020, 5, 4)
         val statistics = ActionStatistics(date, mapOf(Pair("action", 1)))
         given(statisticService.commandStatistics()).willReturn(statistics)
@@ -46,7 +46,7 @@ internal class StatisticsCommandHandlerTest {
     @Test
     internal fun notAdmin() {
         val chat = Chat(101)
-        val user = User.builder().id(101).build()
+        val user = User(101)
         val message = Message(text = "/stats", chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)
@@ -61,7 +61,7 @@ internal class StatisticsCommandHandlerTest {
     @Test
     internal fun notApplicable() {
         val chat = Chat(101)
-        val user = User.builder().id(101).build()
+        val user = User(101)
         val message = Message(text = "/some-command test", chat = chat, from = user, id = 213)
 
         val result = handler.handle(chat, message)

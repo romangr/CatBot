@@ -29,7 +29,7 @@ class CatCommandHandlerTest {
   @Test
   void handleCommandSuccessfully() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(catFinder.getCat()).willReturn(exceptional(new Cat("url")));
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
@@ -50,7 +50,7 @@ class CatCommandHandlerTest {
   @Test
   void skipUnknownCommand() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     Message message = new Message(4234, user, chat, "unknown", null, null, null);
 
     Exceptional<HandlingResult> result = handler.handle(chat, message);
@@ -65,7 +65,7 @@ class CatCommandHandlerTest {
   @Test
   void handleCommandWithException() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(actionFactory.newSendMessageAction(any(), any())).willThrow(RuntimeException.class);
     given(catFinder.getCat()).willReturn(Exceptional.exceptional(new Cat("test")));
     Message message = new Message(4234, user, chat, "/cat", null, null, null);
@@ -82,7 +82,7 @@ class CatCommandHandlerTest {
   @Test
   void handleCommandWithGettingCatException() {
     Chat chat = new Chat(1, null, null, null, null);
-    User user = User.builder().id(1).build();
+    User user = new User(1);
     given(actionFactory.newSendMessageAction(any(), any()))
         .willReturn(mock(TelegramAction.class));
     given(catFinder.getCat()).willReturn(Exceptional.exceptional(new RuntimeException()));

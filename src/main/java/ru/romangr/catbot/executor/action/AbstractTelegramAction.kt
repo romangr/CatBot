@@ -2,27 +2,28 @@ package ru.romangr.catbot.executor.action
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import kotlinx.serialization.SerializationStrategy
 import ru.romangr.catbot.http.HttpStatusException
 import ru.romangr.catbot.http.JsonHttpClient
-import ru.romangr.catbot.telegram.dto.TelegramActionResponse
+import ru.romangr.catbot.telegram.dto.TelegramResponse
+import ru.romangr.catbot.telegram.model.Message
 import ru.romangr.catbot.telegram.model.ExecutionResult
 import ru.romangr.catbot.utils.URLBuilder
 import ru.romangr.exceptional.Exceptional
 
-abstract class AbstractTelegramAction<R, T : TelegramActionResponse<R>>(
+abstract class AbstractTelegramAction(
     private val httpClient: JsonHttpClient,
     private val requestUrl: String,
     private val errorHandler: ((ExecutionResult) -> Unit)?) : TelegramAction {
 
   abstract fun methodName(): String
-  abstract fun responseClass(): Class<T>
 
-  internal fun sendMessageSafely(dto: Any): Exceptional<ExecutionResult> {
+  internal fun <B> sendMessageSafely(dto: B, serializer: SerializationStrategy<B>): Exceptional<ExecutionResult> {
     return Exceptional.getExceptional {
       val url = URLBuilder().withHost(requestUrl).withPath(methodName()).build()
-      httpClient.post(url, dto, responseClass())
+      httpClient.post(url, dto, serializer, RESPONSE_DESERIALIZER)
     }
-        .map<R> { it?.result }
+        .map<Message> { it?.result }
         .map { ExecutionResult.SUCCESS }
         .resumeOnException { e ->
           if (e is HttpStatusException) {
@@ -52,6 +53,7 @@ abstract class AbstractTelegramAction<R, T : TelegramActionResponse<R>>(
   }
 
   companion object {
+    private val RESPONSE_DESERIALIZER = TelegramResponse.serializer(Message.serializer())
     private const val BAD_REQUEST = 400
     private const val FORBIDDEN = 403
     private const val TOO_MANY_REQUESTS = 429

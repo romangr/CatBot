@@ -9,7 +9,7 @@ import ru.romangr.catbot.telegram.model.User
 import ru.romangr.exceptional.Exceptional
 
 private val randomChat = Chat(234234)
-private val randomMessage = Message(213, User.builder().id(123).build(), Chat(123), null, null)
+private val randomMessage = Message(213, User(123), Chat(123), null, null)
 
 fun anyChat() = ArgumentMatchers.any(Chat::class.java) ?: randomChat
 fun anyTelegramAction() = ArgumentMatchers.any(TelegramAction::class.java)

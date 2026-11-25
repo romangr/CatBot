@@ -23,12 +23,7 @@ class MessagePreprocessorTest {
   @NotNull
   private static Message messageWithText(String text) {
     Chat chat = new Chat(123123, "title", "first", "last", "username");
-    User user = User.builder()
-        .firstName("first")
-        .lastName("last")
-        .id(123123)
-        .username("username")
-        .build();
+    User user = new User(123123, "first", "last", "username");
     return new Message(213, user, chat, text, null, null, null);
   }
 }

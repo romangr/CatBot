@@ -1,6 +1,9 @@
 package ru.romangr.catbot.subscription
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.serialization.builtins.SetSerializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import ru.romangr.catbot.telegram.model.Chat
 import java.io.IOException
 import java.nio.file.Files
@@ -11,11 +14,9 @@ import java.util.*
 /**
  * Roman 11.05.2017.
  */
+@OptIn(kotlinx.serialization.ExperimentalSerializationApi::class)
 class SubscribersRepository(subscribersFile: Path?) {
     private val subscribersFile: Path
-    private val objectMapper = ObjectMapper()
-    private val subscribersTypeToken = objectMapper.typeFactory
-        .constructCollectionType(Set::class.java, Chat::class.java)
     private val subscribers: MutableSet<Chat> = HashSet()
 
     val allSubscribers: Collection<Chat>
@@ -57,7 +58,7 @@ class SubscribersRepository(subscribersFile: Path?) {
         }
         try {
             Files.newInputStream(subscribersFile).use { inputStream ->
-                objectMapper.readValue<Set<Chat>>(inputStream, subscribersTypeToken)
+                json.decodeFromStream(SUBSCRIBERS_SERIALIZER, inputStream)
             }.let { subscribersFromFile ->
                 subscribers.clear()
                 subscribers.addAll(subscribersFromFile)
@@ -72,7 +73,7 @@ class SubscribersRepository(subscribersFile: Path?) {
     private fun saveSubscribersToFile() {
         try {
             Files.newOutputStream(subscribersFile)
-                .use { outputStream -> objectMapper.writeValue(outputStream, subscribers) }
+                .use { outputStream -> json.encodeToStream(SUBSCRIBERS_SERIALIZER, subscribers, outputStream) }
         } catch (e: IOException) {
             throw RuntimeException(e)
         }
@@ -80,6 +81,8 @@ class SubscribersRepository(subscribersFile: Path?) {
     }
 
     companion object {
+        private val SUBSCRIBERS_SERIALIZER = SetSerializer(Chat.serializer())
+        private val json = Json { ignoreUnknownKeys = true }
         private val DEFAULT_SUBSCRIBERS_FILE = Paths.get("subscribers.json")
         private val log = org.slf4j.LoggerFactory.getLogger(SubscribersRepository::class.java)
     }

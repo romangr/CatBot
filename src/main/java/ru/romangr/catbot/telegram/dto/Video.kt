@@ -1,11 +1,14 @@
 package ru.romangr.catbot.telegram.dto
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Video(
-        @JsonProperty("file_id") val fileId: String
+    @SerialName("file_id") val fileId: String,
 )
 
+@Serializable
 data class Document(
-        @JsonProperty("file_id") val fileId: String
+    @SerialName("file_id") val fileId: String,
 )

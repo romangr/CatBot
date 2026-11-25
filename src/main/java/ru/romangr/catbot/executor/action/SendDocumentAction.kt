@@ -1,11 +1,9 @@
 package ru.romangr.catbot.executor.action
 
 import ru.romangr.catbot.http.JsonHttpClient
-import ru.romangr.catbot.telegram.dto.SendVideoResponse
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.DocumentMessageToSend
 import ru.romangr.catbot.telegram.model.ExecutionResult
-import ru.romangr.catbot.telegram.model.Message
 import ru.romangr.exceptional.Exceptional
 
 internal class SendDocumentAction(httpClient: JsonHttpClient,
@@ -13,14 +11,12 @@ internal class SendDocumentAction(httpClient: JsonHttpClient,
                                   private val fileId: String,
                                   override val chat: Chat,
                                   errorHandler: ((ExecutionResult) -> Unit)?)
-  : AbstractTelegramAction<Message, SendVideoResponse>(httpClient, requestUrl, errorHandler) {
+  : AbstractTelegramAction(httpClient, requestUrl, errorHandler) {
 
   override fun execute(): Exceptional<ExecutionResult> {
-    return sendMessageSafely(DocumentMessageToSend(chat.id, fileId))
+    return sendMessageSafely(DocumentMessageToSend(chat.id, fileId), DocumentMessageToSend.serializer())
   }
 
   override fun methodName(): String = "sendDocument"
-
-  override fun responseClass(): Class<SendVideoResponse> = SendVideoResponse::class.java
 
 }

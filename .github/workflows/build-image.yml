@@ -18,8 +18,6 @@ jobs:
         run: chmod +x gradlew
       - name: Run tests
         run: ./gradlew test
-      - name: Build jar
-        run: ./gradlew jar
       - name: Docker Login
         if: github.ref == 'refs/heads/master'
         uses: docker/login-action@v3.3.0
@@ -32,7 +30,12 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build image
         if: github.ref == 'refs/heads/master'
-        run: docker build -t ghcr.io/romangr/catbot:latest .
+        # Compiles the native executable inside the image (GraalVM); .git is not
+        # sent to the build, so the revision is passed in.
+        run: |
+          docker build \
+            --build-arg GIT_REVISION="$(git log -1 --pretty='%h %ci %s')" \
+            -t ghcr.io/romangr/catbot:latest .
       - name: Publish the Docker image
         if: github.ref == 'refs/heads/master'
         run: docker push ghcr.io/romangr/catbot:latest

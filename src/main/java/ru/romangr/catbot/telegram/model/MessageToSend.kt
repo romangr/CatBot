@@ -1,18 +1,30 @@
 package ru.romangr.catbot.telegram.model
 
-import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
+@Serializable
+data class TextMessageToSend(
+    @SerialName("chat_id") val chatId: Long,
+    val text: String,
+) {
+    constructor(chat: Chat, text: String) : this(chat.id, text)
+}
+
+@Serializable
 data class DocumentMessageToSend(
-    @JsonProperty("chat_id") val chatId: Long,
-    @JsonProperty("document") val documentId: String
+    @SerialName("chat_id") val chatId: Long,
+    @SerialName("document") val documentId: String,
 )
 
+@Serializable
 data class VideoMessageToSend(
-    @JsonProperty("chat_id") val chatId: Long,
-    @JsonProperty("video") val videoId: String
+    @SerialName("chat_id") val chatId: Long,
+    @SerialName("video") val videoId: String,
 )
 
+@Serializable
 data class PhotoMessageToSend(
-    @JsonProperty("chat_id") val chatId: Long,
-    @JsonProperty("photo") val photoId: String
+    @SerialName("chat_id") val chatId: Long,
+    @SerialName("photo") val photoId: String,
 )
