@@ -1,7 +1,7 @@
 package ru.romangr.catbot.executor.action
 
 import lombok.RequiredArgsConstructor
-import org.springframework.web.client.RestTemplate
+import ru.romangr.catbot.http.JsonHttpClient
 import ru.romangr.catbot.subscription.MessageToSubscribers
 import ru.romangr.catbot.subscription.MessageToSubscribersType
 import ru.romangr.catbot.telegram.model.Chat
@@ -9,7 +9,7 @@ import ru.romangr.catbot.telegram.model.ExecutionResult
 
 @RequiredArgsConstructor
 class TelegramActionFactory(
-    private val restTemplate: RestTemplate,
+    private val httpClient: JsonHttpClient,
     private val requestUrl: String
 ) {
 
@@ -19,22 +19,22 @@ class TelegramActionFactory(
 
     fun newSendMessageAction(chat: Chat, text: String, errorHandler: ((ExecutionResult) -> Unit)?)
             : TelegramAction {
-        return SendMessageAction(restTemplate, requestUrl, text, chat, errorHandler)
+        return SendMessageAction(httpClient, requestUrl, text, chat, errorHandler)
     }
 
     fun newSendDocumentAction(chat: Chat, documentId: String, errorHandler: ((ExecutionResult) -> Unit)?)
             : TelegramAction {
-        return SendDocumentAction(restTemplate, requestUrl, documentId, chat, errorHandler)
+        return SendDocumentAction(httpClient, requestUrl, documentId, chat, errorHandler)
     }
 
     fun newSendVideoAction(chat: Chat, documentId: String, errorHandler: ((ExecutionResult) -> Unit)?)
             : TelegramAction {
-        return SendVideoAction(restTemplate, requestUrl, documentId, chat, errorHandler)
+        return SendVideoAction(httpClient, requestUrl, documentId, chat, errorHandler)
     }
 
     fun newSendPhotoAction(chat: Chat, documentId: String, errorHandler: ((ExecutionResult) -> Unit)?)
             : TelegramAction {
-        return SendPhotoAction(restTemplate, requestUrl, documentId, chat, errorHandler)
+        return SendPhotoAction(httpClient, requestUrl, documentId, chat, errorHandler)
     }
 
     fun newAction(chat: Chat, message: MessageToSubscribers): TelegramAction =

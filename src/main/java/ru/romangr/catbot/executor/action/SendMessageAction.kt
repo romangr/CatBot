@@ -1,6 +1,6 @@
 package ru.romangr.catbot.executor.action
 
-import org.springframework.web.client.RestTemplate
+import ru.romangr.catbot.http.JsonHttpClient
 import ru.romangr.catbot.telegram.dto.SendMessageResponse
 import ru.romangr.catbot.telegram.model.Chat
 import ru.romangr.catbot.telegram.model.ExecutionResult
@@ -8,12 +8,12 @@ import ru.romangr.catbot.telegram.model.Message
 import ru.romangr.catbot.telegram.model.TextMessageToSend
 import ru.romangr.exceptional.Exceptional
 
-internal class SendMessageAction(restTemplate: RestTemplate,
+internal class SendMessageAction(httpClient: JsonHttpClient,
                                  requestUrl: String,
                                  private val text: String,
                                  override val chat: Chat,
                                  errorHandler: ((ExecutionResult) -> Unit)?)
-  : AbstractTelegramAction<Message, SendMessageResponse>(restTemplate, requestUrl, errorHandler) {
+  : AbstractTelegramAction<Message, SendMessageResponse>(httpClient, requestUrl, errorHandler) {
 
   override fun execute(): Exceptional<ExecutionResult> {
     return sendMessageSafely(TextMessageToSend(chat, text))

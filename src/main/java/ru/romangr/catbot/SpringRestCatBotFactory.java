@@ -6,7 +6,6 @@ import java.util.concurrent.Executors;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
-import org.springframework.web.client.RestTemplate;
 import ru.romangr.catbot.catfinder.CatFinder;
 import ru.romangr.catbot.delayed.DelayedMessageRepository;
 import ru.romangr.catbot.delayed.SqliteConnectionProvider;
@@ -28,6 +27,7 @@ import ru.romangr.catbot.handler.UnknownCommandHandler;
 import ru.romangr.catbot.handler.UnsubscribeCommandHandler;
 import ru.romangr.catbot.handler.UpdatesHandler;
 import ru.romangr.catbot.handler.VideoHandler;
+import ru.romangr.catbot.http.JsonHttpClient;
 import ru.romangr.catbot.statistic.StatisticService;
 import ru.romangr.catbot.subscription.SubscribersRepository;
 import ru.romangr.catbot.subscription.SubscribersService;
@@ -48,14 +48,14 @@ public class SpringRestCatBotFactory {
   }
 
   private static RestBot initialize(PropertiesResolver resolver) {
-    RestTemplate restTemplate = new RestTemplate();
+    JsonHttpClient httpClient = new JsonHttpClient();
     String requestUrl = resolver.getRequestUrl();
-    TelegramActionFactory actionFactory = new TelegramActionFactory(restTemplate, requestUrl);
+    TelegramActionFactory actionFactory = new TelegramActionFactory(httpClient, requestUrl);
     RateLimiter rateLimiter = new RateLimiter();
     TelegramActionExecutor actionExecutor = new TelegramActionExecutor(
         Executors.newSingleThreadScheduledExecutor(), rateLimiter, actionFactory);
-    TelegramRequestExecutor requestExecutor = new TelegramRequestExecutor(restTemplate, requestUrl);
-    CatFinder catFinder = new CatFinder(restTemplate, resolver.getCatApiKey());
+    TelegramRequestExecutor requestExecutor = new TelegramRequestExecutor(httpClient, requestUrl);
+    CatFinder catFinder = new CatFinder(httpClient, resolver.getCatApiKey());
     SubscribersRepository subscribersRepository = new SubscribersRepository(
         resolver.getSubscribersFilePath());
     var adminChatId = resolver.getAdminChatId().orElse(null);

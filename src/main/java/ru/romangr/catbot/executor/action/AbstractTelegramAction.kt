@@ -2,17 +2,15 @@ package ru.romangr.catbot.executor.action
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.HttpStatusCodeException
-import org.springframework.web.client.RestTemplate
+import ru.romangr.catbot.http.HttpStatusException
+import ru.romangr.catbot.http.JsonHttpClient
 import ru.romangr.catbot.telegram.dto.TelegramActionResponse
 import ru.romangr.catbot.telegram.model.ExecutionResult
 import ru.romangr.catbot.utils.URLBuilder
 import ru.romangr.exceptional.Exceptional
 
 abstract class AbstractTelegramAction<R, T : TelegramActionResponse<R>>(
-    private val restTemplate: RestTemplate,
+    private val httpClient: JsonHttpClient,
     private val requestUrl: String,
     private val errorHandler: ((ExecutionResult) -> Unit)?) : TelegramAction {
 
@@ -22,34 +20,25 @@ abstract class AbstractTelegramAction<R, T : TelegramActionResponse<R>>(
   internal fun sendMessageSafely(dto: Any): Exceptional<ExecutionResult> {
     return Exceptional.getExceptional {
       val url = URLBuilder().withHost(requestUrl).withPath(methodName()).build()
-      restTemplate.postForObject(url, dto, responseClass())
+      httpClient.post(url, dto, responseClass())
     }
         .map<R> { it?.result }
         .map { ExecutionResult.SUCCESS }
         .resumeOnException { e ->
-          if (e is HttpClientErrorException) {
-            if (isTooManyRequestStatus(e)) {
-              return@resumeOnException ExecutionResult.RATE_LIMIT_FAILURE
+          if (e is HttpStatusException) {
+            val body = e.responseBody
+            when {
+              e.statusCode == TOO_MANY_REQUESTS -> return@resumeOnException ExecutionResult.RATE_LIMIT_FAILURE
+              e.statusCode == FORBIDDEN && body.contains("bot was blocked by the user") ->
+                return@resumeOnException ExecutionResult.BOT_IS_BLOCKED_BY_USER
+              e.statusCode == FORBIDDEN && body.contains("user is deactivated") ->
+                return@resumeOnException ExecutionResult.USER_IS_DEACTIVATED
+              e.statusCode == FORBIDDEN && body.contains("bot was kicked from the group chat") ->
+                return@resumeOnException ExecutionResult.BOT_KICKED_FROM_GROUP_CHAT
+              e.statusCode == BAD_REQUEST && body.contains("chat not found") ->
+                return@resumeOnException ExecutionResult.CHAT_NOT_FOUND
             }
-            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("bot was blocked by the user")) {
-              return@resumeOnException ExecutionResult.BOT_IS_BLOCKED_BY_USER
-            }
-            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("user is deactivated")) {
-              return@resumeOnException ExecutionResult.USER_IS_DEACTIVATED
-            }
-            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("bot was kicked from the group chat")) {
-              return@resumeOnException ExecutionResult.BOT_KICKED_FROM_GROUP_CHAT
-            }
-            if (e.statusCode === HttpStatus.FORBIDDEN && e.responseBodyAsString.contains("bot was kicked from the group chat")) {
-              return@resumeOnException ExecutionResult.BOT_KICKED_FROM_GROUP_CHAT
-            }
-            if (e.statusCode === HttpStatus.BAD_REQUEST && e.responseBodyAsString.contains("chat not found")) {
-              return@resumeOnException ExecutionResult.CHAT_NOT_FOUND
-            }
-          }
-          if (e is HttpStatusCodeException) {
-            log.warn("Failure during action execution: {}, response body: {}",
-                e.statusCode, e.responseBodyAsString)
+            log.warn("Failure during action execution: {}, response body: {}", e.statusCode, body)
             return@resumeOnException ExecutionResult.FAILURE
           }
           log.warn("Failure during action execution", e)
@@ -62,11 +51,10 @@ abstract class AbstractTelegramAction<R, T : TelegramActionResponse<R>>(
         }
   }
 
-  private fun isTooManyRequestStatus(e: Exception): Boolean {
-    return (e as HttpClientErrorException).statusCode == HttpStatus.TOO_MANY_REQUESTS
-  }
-
   companion object {
+    private const val BAD_REQUEST = 400
+    private const val FORBIDDEN = 403
+    private const val TOO_MANY_REQUESTS = 429
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
 }

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.util.CollectionUtils;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.executor.action.TelegramAction;
 import ru.romangr.catbot.telegram.model.Chat;
@@ -161,11 +160,11 @@ class UpdatesHandlerTest {
     verify(actionExecutor, times(2)).execute(actionsCaptor.capture());
     List<List<TelegramAction>> actions = actionsCaptor.getAllValues();
     long emptyActionLists = actions.stream()
-        .filter(CollectionUtils::isEmpty)
+        .filter(List::isEmpty)
         .count();
     assertThat(emptyActionLists).isEqualTo(1);
     long notEmptyActionLists = actions.stream()
-        .filter(list -> !CollectionUtils.isEmpty(list))
+        .filter(list -> !list.isEmpty())
         .filter(list -> list.contains(unknownHandlerAction))
         .count();
     assertThat(notEmptyActionLists).isEqualTo(1);

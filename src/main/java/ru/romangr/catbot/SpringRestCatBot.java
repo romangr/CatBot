@@ -12,10 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.client.HttpClientErrorException;
 import ru.romangr.catbot.executor.TelegramActionExecutor;
 import ru.romangr.catbot.handler.UpdatesHandler;
+import ru.romangr.catbot.http.HttpStatusException;
 import ru.romangr.catbot.subscription.SubscribersService;
 import ru.romangr.catbot.telegram.TelegramAdminNotifier;
 import ru.romangr.catbot.telegram.TelegramRequestExecutor;
@@ -80,7 +79,7 @@ public class SpringRestCatBot implements RestBot {
           log.warn("Error getting updates from Telegram API, this is a consecutive error #{}",
               consecutiveErrors, e);
           if (consecutiveErrors > MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY ||
-              e instanceof HttpClientErrorException.TooManyRequests) {
+              (e instanceof HttpStatusException httpError && httpError.getStatusCode() == 429)) {
             log.warn("More than {} consecutive errors or rate limit error, delaying the execution...",
                 MAX_CONSECUTIVE_ERRORS_BEFORE_DELAY);
             Duration delay = Duration.ofMinutes(2L * consecutiveErrors);
@@ -93,7 +92,7 @@ public class SpringRestCatBot implements RestBot {
   }
 
   private void processUpdates(List<Update> updates) {
-    if (CollectionUtils.isEmpty(updates)) {
+    if (updates == null || updates.isEmpty()) {
       return;
     }
     for (Update update : updates) {

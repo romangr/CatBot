@@ -2,15 +2,14 @@ package ru.romangr.catbot.catfinder
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.web.client.RestTemplate
+import ru.romangr.catbot.http.JsonHttpClient
 
 /**
  * Roman 01.04.2017.
  */
 internal class CatFinderIntegrationTest {
 
-    private val restTemplate = RestTemplate()
-    private val catFinder = CatFinder(restTemplate)
+    private val catFinder = CatFinder(JsonHttpClient())
 
     @Test
     fun getCat() {
